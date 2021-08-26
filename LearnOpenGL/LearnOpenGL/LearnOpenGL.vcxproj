@@ -150,6 +150,9 @@
   <ItemGroup>
     <ClInclude Include="src\Application.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Res\Shaders\Basic.shader" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
