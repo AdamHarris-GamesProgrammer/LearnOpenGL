@@ -51,6 +51,9 @@ void Initialize()
 	/* Make the window's context current */
 	glfwMakeContextCurrent(_pWindow);
 
+	//Synchs to monitor refresh rate
+	glfwSwapInterval(1);
+
 	GLenum err = glewInit();
 	if (err != GLEW_OK) {
 		std::cout << "[ERROR]: With setting up GLEW" << std::endl;
@@ -178,13 +181,31 @@ int main(void)
 	unsigned int shader = CreateShader(ParseShader("Res/Shaders/Basic.shader"));
 	GLCall(glUseProgram(shader));
 
+	//find the uniform and check that it is valid, before assigning a colour to it
+	GLCall(int location = glGetUniformLocation(shader, "u_Color"));
+	ASSERT(location != -1);
+	
+	float r = 0.0f;
+	float increment = 0.01f;
+
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(_pWindow))
 	{
 		/* Render here */
 		GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
-		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_INT, nullptr));
+		if (r > 1.0f) {
+			increment = -0.01f;
+		}
+		else if(r < 0.0f) {
+			increment = 0.01f;
+		}
+
+		r += increment;
+		
+
+		GLCall(glUniform4f(location, r, 0.3f, 0.8f, 1.0f));
+		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(_pWindow);
