@@ -2,35 +2,13 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "Application.h"
-#include <fstream>
-#include <string>
-#include <sstream>
+#include "ErrorHandling.h"
 
-#define ASSERT(x) if(!(x)) __debugbreak();
+#include "Shader.h"
 
-#ifdef _DEBUG
-#define GLCall(x) GLClearError(); x; ASSERT(GLLogCall(#x, __FILE__, __LINE__))
-#else
-#define GLCall(x) x
-#endif
 
 GLFWwindow* _pWindow = nullptr;
 
-static void GLClearError() {
-	//GL_NO_ERROR = 0
-	while (glGetError() != GL_NO_ERROR) {
-
-	}
-}
-
-static bool GLLogCall(const char* function, const char* file, int line) {
-	while (GLenum error = glGetError()) {
-		std::cout << "[OpenGL ERROR]: (" << error << "): " << function << " " << file << " Line: " << line << std::endl;
-		return false;
-	}
-
-	return true;
-}
 
 void Initialize()
 {
@@ -62,88 +40,6 @@ void Initialize()
 	if (err != GLEW_OK) {
 		std::cout << "[ERROR]: With setting up GLEW" << std::endl;
 	}
-}
-
-struct ShaderSource {
-	std::string vertexSource;
-	std::string fragmentSource;
-};
-
-static ShaderSource ParseShader(const std::string& filepath) {
-	std::ifstream stream(filepath);
-
-	enum class ShaderType {
-		NONE = -1, VERTEX = 0, FRAGMENT = 1
-	};
-
-	ShaderType type = ShaderType::NONE;
-
-	std::string line;
-	std::stringstream ss[2];
-
-	while (getline(stream, line)) {
-
-		if (line.find("#shader") != std::string::npos) {
-			if (line.find("vertex") != std::string::npos) {
-				type = ShaderType::VERTEX;
-			}
-			else if (line.find("fragment") != std::string::npos) {
-				type = ShaderType::FRAGMENT;
-			}
-		}
-		else {
-			ss[(int)type] << line << '\n';
-		}
-	}
-
-	return { ss[0].str(), ss[1].str() };
-}
-
-static unsigned int CompileShader(const std::string& shader, unsigned int type) {
-	unsigned int  id = glCreateShader(type);
-
-	const char* src = shader.c_str();
-
-	glShaderSource(id, 1, &src, nullptr);
-	glCompileShader(id);
-
-	int result;
-	glGetShaderiv(id, GL_COMPILE_STATUS, &result);
-	if (result == GL_FALSE) {
-		int length;
-		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
-		char* message = (char*)alloca(length * sizeof(char));
-		glGetShaderInfoLog(id, length, &length, message);
-
-		std::cout << "[ERROR]: Failed to compile a shader" << std::endl;
-		std::cout << message << std::endl;
-
-		glDeleteShader(id);
-		return 0;
-	}
-
-	return id;
-}
-
-static unsigned int CreateShader(const std::string& vertexShader, const std::string& fragmentShader) {
-	unsigned int program = glCreateProgram();
-
-	unsigned int vs = CompileShader(vertexShader, GL_VERTEX_SHADER);
-	unsigned int fs = CompileShader(fragmentShader, GL_FRAGMENT_SHADER);
-
-	glAttachShader(program, vs);
-	glAttachShader(program, fs);
-	glLinkProgram(program);
-	glValidateProgram(program);
-
-	glDeleteShader(vs);
-	glDeleteShader(fs);
-
-	return program;
-}
-
-static unsigned int CreateShader(ShaderSource source) {
-	return CreateShader(source.vertexSource, source.fragmentSource);
 }
 
 int main(void)
@@ -206,13 +102,12 @@ int main(void)
 
 
 	//Create our shader and use the program
-	unsigned int shader = CreateShader(ParseShader("Res/Shaders/Basic.shader"));
-	GLCall(glUseProgram(shader));
+	//unsigned int shader = CreateShader(ParseShader("Res/Shaders/Basic.shader"));
 
-	//find the uniform and check that it is valid, before assigning a colour to it
-	GLCall(int location = glGetUniformLocation(shader, "u_Color"));
-	ASSERT(location != -1);
-	
+	Shader* shader = new Shader("Res/Shaders/Basic.shader");
+	shader->BindShaderProgram();
+
+
 	GLCall(glUseProgram(0));
 	GLCall(glBindVertexArray(0));
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
@@ -236,15 +131,16 @@ int main(void)
 
 		r += increment;
 		
-		GLCall(glUseProgram(shader));
-		GLCall(glUniform4f(location, r, 0.3f, 0.8f, 1.0f));
+		shader->BindShaderProgram();
+		shader->SetFloat4("u_Color", r, 0.3f, 0.8f, 1.0f);
 
 
 		GLCall(glBindVertexArray(vao[0]));
 		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 		
-		GLCall(glUseProgram(shader));
-		GLCall(glUniform4f(location, 0.2f, r, 0.8f, 1.0f));
+		
+		shader->BindShaderProgram();
+		shader->SetFloat4("u_Color", 0.2f, r, 0.8f, 1.0f);
 
 		GLCall(glBindVertexArray(vao[1]));
 		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
@@ -256,10 +152,8 @@ int main(void)
 		glfwPollEvents();
 	}
 
-	GLCall(glDeleteProgram(shader));
+	shader->CleanupShader();
 
 	glfwTerminate();
 	return 0;
 }
-
-
