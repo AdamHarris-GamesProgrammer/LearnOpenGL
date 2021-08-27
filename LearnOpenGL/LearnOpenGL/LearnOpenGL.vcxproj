@@ -159,6 +159,7 @@
     <None Include="Res\Shaders\Basic.shader" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="Res\Textures\awesomeface.png" />
     <Image Include="Res\Textures\wall.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -63,10 +63,10 @@ int main(void)
 	};
 
 	float position2[] = {
-		-0.9f, -0.9f,	0.0f,	 1.0f, 0.0f, 0.0f,		1.0f, 1.0f,
-		-0.66f, -0.9f,  0.0f,	 1.0f, 0.0f, 0.0f,		1.0f, 0.0f,
-		-0.66f, -0.66f, 0.0f,	 1.0f, 0.0f, 0.0f,		0.0f, 0.0f,
-		-0.9f, -0.66f,  0.0f,	 1.0f, 0.0f, 0.0f,		0.0f, 1.0f
+		-0.66f, -0.66f, 0.0f,	 1.0f, 0.0f, 0.0f,		1.0f, 1.0f, //top right
+		-0.66f, -0.9f,  0.0f,	 1.0f, 0.0f, 0.0f,		1.0f, 0.0f, //bottom right
+		-0.9f, -0.9f,	0.0f,	 1.0f, 0.0f, 0.0f,		0.0f, 0.0f, //Bottom left
+		-0.9f, -0.66f,  0.0f,	 1.0f, 0.0f, 0.0f,		0.0f, 1.0f //top left
 	};
 
 	//Vertex Indices
@@ -140,6 +140,26 @@ int main(void)
 		std::cout << "[ERROR]: Failed to load texture at filepath: " << filename << std::endl;
 	}
 
+	stbi_set_flip_vertically_on_load(true);
+	data = stbi_load("Res/Textures/awesomeface.png", &width, &height, &nrChannels, 0);
+
+	unsigned int texture2;
+	glGenTextures(1, &texture2);
+	glBindTexture(GL_TEXTURE_2D, texture2);
+
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+
+	if (data) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else {
+		std::cout << "[ERROR]: Failed to load texture at filepath: " << "smiley face" << std::endl;
+	}
+
 	//Frees up the memory
 	stbi_image_free(data);
 
@@ -154,6 +174,9 @@ int main(void)
 
 	float r = 0.0f;
 	float increment = 0.01f;
+
+	shader->SetInt("texture1", 0);
+	shader->SetInt("texture2", 1);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(_pWindow))
@@ -173,21 +196,24 @@ int main(void)
 		
 		//shader->SetFloat4("u_Color", r, 0.3f, 0.8f, 1.0f);
 
-
+		glActiveTexture(GL_TEXTURE0);
 		GLCall(glBindTexture(GL_TEXTURE_2D, texture));
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture2);
+
 		shader->BindShaderProgram();
 		GLCall(glBindVertexArray(vao[0]));
 		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 
 
-		GLCall(glBindTexture(GL_TEXTURE_2D, 0));
-
 		//shader->SetFloat4("u_Color", 0.2f, r, 0.8f, 1.0f);
 
-		
+		glActiveTexture(GL_TEXTURE0);
+		GLCall(glBindTexture(GL_TEXTURE_2D, texture));
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, texture2);
 
 		GLCall(glBindVertexArray(vao[1]));
-		GLCall(glBindTexture(GL_TEXTURE_2D, texture));
 		shader->BindShaderProgram();
 		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 

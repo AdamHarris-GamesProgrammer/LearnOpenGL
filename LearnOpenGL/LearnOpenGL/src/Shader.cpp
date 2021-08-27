@@ -13,14 +13,17 @@ void Shader::CleanupShader() {
 }
 
 void Shader::SetFloat(const char* propName, float value) {
+	BindShaderProgram();
 	GLCall(glUniform1f(GetLocation(propName), value));
 }
 
 void Shader::SetInt(const char* propName, int value) {
+	BindShaderProgram();
 	GLCall(glUniform1i(GetLocation(propName), value));
 }
 
 void Shader::SetFloat4(const char* propName, float r, float g, float b, float a) {
+	BindShaderProgram();
 	GLCall(glUniform4f(GetLocation(propName), r, g, b, a));
 }
 
