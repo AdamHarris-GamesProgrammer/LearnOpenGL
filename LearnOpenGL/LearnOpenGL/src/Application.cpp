@@ -5,7 +5,7 @@
 #include "ErrorHandling.h"
 
 #include "Shader.h"
-
+#include "Texture.h"
 
 #include "stb_image.h"
 
@@ -13,6 +13,7 @@
 
 GLFWwindow* _pWindow = nullptr;
 
+void GenerateVertexIndexBuffers(unsigned int& vao, unsigned int& vbo, float* vertices, unsigned int& ibo, unsigned int* indices);
 
 void Initialize()
 {
@@ -49,8 +50,6 @@ void Initialize()
 int main(void)
 {
 	Initialize();
-
-
 
 	//Vertex Positions
 	//Position, Color, UV Coordinate
@@ -116,52 +115,8 @@ int main(void)
 	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo[1]));
 	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW));
 
-
-	int width, height, nrChannels;
-	const char* filename = "Res/Textures/wall.jpg";
-
-	unsigned char* data = stbi_load(filename, &width, &height, &nrChannels, 0);
-
-	unsigned int texture;
-	GLCall(glGenTextures(1, &texture));
-	GLCall(glBindTexture(GL_TEXTURE_2D, texture));
-
-	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
-	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
-	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-
-	if (data) {
-		//Type of texture, mipmap level, format, with, height, always 0 (legacy stuff), format and datatype of the source image, actual image data
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else {
-		std::cout << "[ERROR]: Failed to load texture at filepath: " << filename << std::endl;
-	}
-
-	stbi_set_flip_vertically_on_load(true);
-	data = stbi_load("Res/Textures/awesomeface.png", &width, &height, &nrChannels, 0);
-
-	unsigned int texture2;
-	glGenTextures(1, &texture2);
-	glBindTexture(GL_TEXTURE_2D, texture2);
-
-	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
-	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
-	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-
-	if (data) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else {
-		std::cout << "[ERROR]: Failed to load texture at filepath: " << "smiley face" << std::endl;
-	}
-
-	//Frees up the memory
-	stbi_image_free(data);
+	Texture* texture1 = new Texture("Res/Textures/wall.jpg");
+	Texture* texture2 = new Texture("Res/Textures/awesomeface.png", true);
 
 	Shader* shader = new Shader("Res/Shaders/Basic.shader");
 	shader->BindShaderProgram();
@@ -197,9 +152,9 @@ int main(void)
 		//shader->SetFloat4("u_Color", r, 0.3f, 0.8f, 1.0f);
 
 		glActiveTexture(GL_TEXTURE0);
-		GLCall(glBindTexture(GL_TEXTURE_2D, texture));
+		texture1->BindTexture();
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, texture2);
+		texture2->BindTexture();
 
 		shader->BindShaderProgram();
 		GLCall(glBindVertexArray(vao[0]));
@@ -209,9 +164,9 @@ int main(void)
 		//shader->SetFloat4("u_Color", 0.2f, r, 0.8f, 1.0f);
 
 		glActiveTexture(GL_TEXTURE0);
-		GLCall(glBindTexture(GL_TEXTURE_2D, texture));
+		texture1->BindTexture();
 		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D, texture2);
+		texture2->BindTexture();
 
 		GLCall(glBindVertexArray(vao[1]));
 		shader->BindShaderProgram();
@@ -225,6 +180,14 @@ int main(void)
 	}
 
 	shader->CleanupShader();
+
+	delete shader;
+	delete texture1;
+	delete texture2;
+
+	shader = nullptr;
+	texture1 = nullptr;
+	texture2 = nullptr;
 
 	glfwTerminate();
 	return 0;
