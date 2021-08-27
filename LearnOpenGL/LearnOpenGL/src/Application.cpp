@@ -159,10 +159,10 @@ int main(void)
 	};
 
 	float position2[] = {
-		-1.0f, -1.0f,
-		-0.66f, -1.0f,
+		-0.9f, -0.9f,
+		-0.66f, -0.9f,
 		-0.66f, -0.66f,
-		-1.0f, -0.66f
+		-0.9f, -0.66f
 	};
 
 	//Vertex Indices
@@ -171,45 +171,39 @@ int main(void)
 		2, 3, 0
 	};
 
-	unsigned int vao;
-	GLCall(glGenVertexArrays(1, &vao));
-	GLCall(glBindVertexArray(vao));
+	unsigned int vao[2];
+	unsigned int vbo[2];
+	unsigned int ibo[2];
 
-	//Create Vertex Buffer
-	unsigned int vertexBuffer;
-	GLCall(glGenBuffers(1, &vertexBuffer));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer));
+	GLCall(glGenVertexArrays(1, vao));
+	GLCall(glBindVertexArray(vao[0]));
+
+	GLCall(glGenBuffers(1, &vbo[0]));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo[0]));
 	GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(position), position, GL_STATIC_DRAW));
 
-	//Create Index Buffer
-	unsigned int indexBuffer;
-	GLCall(glGenBuffers(1, &indexBuffer));
-	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer));
+	GLCall(glGenBuffers(1, &ibo[0]));
+	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo[0]));
 	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW));
 	
 	GLCall(glEnableVertexAttribArray(0));
 	GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0));
 
-	unsigned int vao2;
-	GLCall(glGenVertexArrays(2, &vao2));
-	glBindVertexArray(vao2);
+	GLCall(glGenVertexArrays(2, &vao[1]));
+	glBindVertexArray(vao[1]);
 	
-	//Create Vertex Buffer 2
-	unsigned int vertexBuffer2;
-	GLCall(glGenBuffers(1, &vertexBuffer2));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer2));
+	GLCall(glGenBuffers(1, &vbo[1]));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo[1]));
 	GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(position2), position2, GL_STATIC_DRAW));
 
 
 	GLCall(glEnableVertexAttribArray(0));
 	GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0));
 
-	unsigned int indexBuffer2;
-	GLCall(glGenBuffers(1, &indexBuffer2));
-	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer2));
+	GLCall(glGenBuffers(1, &ibo[1]));
+	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo[1]));
 	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW));
 
-	
 
 	//Create our shader and use the program
 	unsigned int shader = CreateShader(ParseShader("Res/Shaders/Basic.shader"));
@@ -246,13 +240,13 @@ int main(void)
 		GLCall(glUniform4f(location, r, 0.3f, 0.8f, 1.0f));
 
 
-		GLCall(glBindVertexArray(vao2));
-		//GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer));
+		GLCall(glBindVertexArray(vao[0]));
 		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 		
+		GLCall(glUseProgram(shader));
+		GLCall(glUniform4f(location, 0.2f, r, 0.8f, 1.0f));
 
-		GLCall(glBindVertexArray(vao));
-		//GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer));
+		GLCall(glBindVertexArray(vao[1]));
 		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 
 		/* Swap front and back buffers */
