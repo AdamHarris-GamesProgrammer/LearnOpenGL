@@ -147,14 +147,19 @@
   <ItemGroup>
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\Application.cpp" />
+    <ClCompile Include="src\stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\ErrorHandling.h" />
+    <ClInclude Include="src\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Res\Shaders\Basic.shader" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Res\Textures\wall.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

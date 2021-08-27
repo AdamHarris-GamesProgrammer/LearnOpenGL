@@ -7,6 +7,10 @@
 #include "Shader.h"
 
 
+#include "stb_image.h"
+
+
+
 GLFWwindow* _pWindow = nullptr;
 
 
@@ -46,25 +50,29 @@ int main(void)
 {
 	Initialize();
 
+
+
 	//Vertex Positions
+	//Position, Color, UV Coordinate
 	float position[] = {
-		-0.5f, -0.5f,
-		0.5f, -0.5f,
-		0.5f, 0.5f,
-		-0.5f, 0.5f,
+		// positions          // colors           // texture coords
+	 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
+	 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+	-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
+	-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
 	};
 
 	float position2[] = {
-		-0.9f, -0.9f,
-		-0.66f, -0.9f,
-		-0.66f, -0.66f,
-		-0.9f, -0.66f
+		-0.9f, -0.9f,	0.0f,	 1.0f, 0.0f, 0.0f,		1.0f, 1.0f,
+		-0.66f, -0.9f,  0.0f,	 1.0f, 0.0f, 0.0f,		1.0f, 0.0f,
+		-0.66f, -0.66f, 0.0f,	 1.0f, 0.0f, 0.0f,		0.0f, 0.0f,
+		-0.9f, -0.66f,  0.0f,	 1.0f, 0.0f, 0.0f,		0.0f, 1.0f
 	};
 
 	//Vertex Indices
 	unsigned int indices[] = {
-		0, 1, 2,
-		2, 3, 0
+		0,1,3,
+		1,2,3
 	};
 
 	unsigned int vao[2];
@@ -81,28 +89,59 @@ int main(void)
 	GLCall(glGenBuffers(1, &ibo[0]));
 	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo[0]));
 	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW));
-	
-	GLCall(glEnableVertexAttribArray(0));
-	GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0));
 
-	GLCall(glGenVertexArrays(2, &vao[1]));
-	glBindVertexArray(vao[1]);
-	
+	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)0));
+	GLCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(3 * sizeof(float))));
+	GLCall(glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(6 * sizeof(float))));
+	GLCall(glEnableVertexAttribArray(0));
+	GLCall(glEnableVertexAttribArray(1));
+	GLCall(glEnableVertexAttribArray(2));
+
+	GLCall(glGenVertexArrays(1, &vao[1]));
+	GLCall(glBindVertexArray(vao[1]));
+
 	GLCall(glGenBuffers(1, &vbo[1]));
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo[1]));
 	GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(position2), position2, GL_STATIC_DRAW));
 
 
+	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)0));
+	GLCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(3 * sizeof(float))));
+	GLCall(glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(6 * sizeof(float))));
 	GLCall(glEnableVertexAttribArray(0));
-	GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 2, 0));
+	GLCall(glEnableVertexAttribArray(1));
+	GLCall(glEnableVertexAttribArray(2));
 
 	GLCall(glGenBuffers(1, &ibo[1]));
 	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo[1]));
 	GLCall(glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW));
 
 
-	//Create our shader and use the program
-	//unsigned int shader = CreateShader(ParseShader("Res/Shaders/Basic.shader"));
+	int width, height, nrChannels;
+	const char* filename = "Res/Textures/wall.jpg";
+
+	unsigned char* data = stbi_load(filename, &width, &height, &nrChannels, 0);
+
+	unsigned int texture;
+	GLCall(glGenTextures(1, &texture));
+	GLCall(glBindTexture(GL_TEXTURE_2D, texture));
+
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+
+	if (data) {
+		//Type of texture, mipmap level, format, with, height, always 0 (legacy stuff), format and datatype of the source image, actual image data
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else {
+		std::cout << "[ERROR]: Failed to load texture at filepath: " << filename << std::endl;
+	}
+
+	//Frees up the memory
+	stbi_image_free(data);
 
 	Shader* shader = new Shader("Res/Shaders/Basic.shader");
 	shader->BindShaderProgram();
@@ -125,24 +164,31 @@ int main(void)
 		if (r > 1.0f) {
 			increment = -0.01f;
 		}
-		else if(r < 0.0f) {
+		else if (r < 0.0f) {
 			increment = 0.01f;
 		}
 
 		r += increment;
+
 		
+		//shader->SetFloat4("u_Color", r, 0.3f, 0.8f, 1.0f);
+
+
+		GLCall(glBindTexture(GL_TEXTURE_2D, texture));
 		shader->BindShaderProgram();
-		shader->SetFloat4("u_Color", r, 0.3f, 0.8f, 1.0f);
-
-
 		GLCall(glBindVertexArray(vao[0]));
 		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
+
+
+		GLCall(glBindTexture(GL_TEXTURE_2D, 0));
+
+		//shader->SetFloat4("u_Color", 0.2f, r, 0.8f, 1.0f);
+
 		
-		
-		shader->BindShaderProgram();
-		shader->SetFloat4("u_Color", 0.2f, r, 0.8f, 1.0f);
 
 		GLCall(glBindVertexArray(vao[1]));
+		GLCall(glBindTexture(GL_TEXTURE_2D, texture));
+		shader->BindShaderProgram();
 		GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 
 		/* Swap front and back buffers */
