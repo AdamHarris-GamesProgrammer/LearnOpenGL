@@ -30,6 +30,10 @@ public:
 
 	void SetFloat4(const char* propName, float r, float g, float b, float a);
 
+	void SetMatrix4(const char* propName, float* value);
+
+	unsigned int GetID() { return _shaderProgram; }
+
 private:
 	int GetLocation(const char* propName);
 
