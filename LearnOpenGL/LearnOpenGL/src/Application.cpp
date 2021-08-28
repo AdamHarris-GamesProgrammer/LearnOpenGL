@@ -19,6 +19,13 @@ GLFWwindow* _pWindow = nullptr;
 unsigned int width = 1280;
 unsigned int height = 720;
 
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
+
 void Initialize()
 {
 	glewInit();
@@ -50,6 +57,8 @@ void Initialize()
 		std::cout << "[ERROR]: With setting up GLEW" << std::endl;
 	}
 }
+
+void ProcessInput();
 
 int main(void)
 {
@@ -165,8 +174,6 @@ int main(void)
 	glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
 
 
-	glm::mat4 view = glm::mat4(1.0f);
-	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
 
 
 	glm::vec3 cubePositions[] = {
@@ -182,12 +189,32 @@ int main(void)
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
 
+
+
+
+	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
+
+
+	glm::vec3 cameraRight = glm::normalize(glm::cross(cameraUp, cameraDirection));
+
+	glm::mat4 view;
+	view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),
+		glm::vec3(0.0f, 0.0f, 0.0f),
+		glm::vec3(0.0f, 1.0f, 0.0f));
+
+	const float radius = 10.0f;
+
 	glEnable(GL_DEPTH_TEST);
 
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(_pWindow))
 	{
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
+
 		/* Render here */
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
@@ -212,6 +239,7 @@ int main(void)
 		//trans = glm::translate(trans, glm::vec3(0.5f, 0.2f, 0.0f));
 		//trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
 
+		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
 
 		shader->BindShaderProgram();
@@ -259,6 +287,8 @@ int main(void)
 
 		/* Poll for and process events */
 		glfwPollEvents();
+
+		ProcessInput();
 	}
 
 	shader->CleanupShader();
@@ -273,4 +303,16 @@ int main(void)
 
 	glfwTerminate();
 	return 0;
+}
+
+void ProcessInput() {
+	float cameraSpeed = 2.5f * deltaTime;
+	if (glfwGetKey(_pWindow, GLFW_KEY_W) == GLFW_PRESS)
+		cameraPos += cameraSpeed * cameraFront;
+	if (glfwGetKey(_pWindow, GLFW_KEY_S) == GLFW_PRESS)
+		cameraPos -= cameraSpeed * cameraFront;
+	if (glfwGetKey(_pWindow, GLFW_KEY_A) == GLFW_PRESS)
+		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+	if (glfwGetKey(_pWindow, GLFW_KEY_D) == GLFW_PRESS)
+		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 }
