@@ -9,6 +9,8 @@
 
 #include "stb_image.h"
 
+#include "Camera.h"
+
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
@@ -19,28 +21,17 @@ GLFWwindow* _pWindow = nullptr;
 unsigned int width = 1280;
 unsigned int height = 720;
 
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+bool firstMouse = true;
 float lastX = 640;
 float lastY = 360;
 
-float pitch = 0.0f;
-float yaw = -90.0f;
-
-glm::mat4 proj;
-
-float fov = 45.0f;
-
-bool firstMouse = true;
+Camera* camera;
 
 void MouseCallback(GLFWwindow* window, double xpos, double ypos);
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
-
 
 void Initialize()
 {
@@ -65,7 +56,7 @@ void Initialize()
 	/* Make the window's context current */
 	glfwMakeContextCurrent(_pWindow);
 
-	//Synchs to monitor refresh rate
+	//Syncs to monitor refresh rate
 	glfwSwapInterval(1);
 
 	glfwSetInputMode(_pWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -79,6 +70,8 @@ void Initialize()
 }
 
 void ProcessInput();
+
+
 
 
 
@@ -193,11 +186,6 @@ int main(void)
 	shader->SetInt("texture1", 0);
 	shader->SetInt("texture2", 1);
 
-	proj = glm::perspective(glm::radians(fov), (float)width / (float)height, 0.1f, 100.0f);
-
-
-
-
 	glm::vec3 cubePositions[] = {
 		glm::vec3(0.0f,  0.0f,  0.0f),
 		glm::vec3(2.0f,  5.0f, -15.0f),
@@ -211,24 +199,7 @@ int main(void)
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
 
-
-
-
-	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
-
-
-	glm::vec3 cameraRight = glm::normalize(glm::cross(cameraUp, cameraDirection));
-
-	glm::mat4 view;
-	view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),
-		glm::vec3(0.0f, 0.0f, 0.0f),
-		glm::vec3(0.0f, 1.0f, 0.0f));
-
-
-	
-
-	const float radius = 10.0f;
+	camera = new Camera(_pWindow, width, height, 45.0f);
 
 	glEnable(GL_DEPTH_TEST);
 
@@ -239,6 +210,8 @@ int main(void)
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
+
+		camera->Update(deltaTime);
 
 		/* Render here */
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
@@ -264,13 +237,11 @@ int main(void)
 		//trans = glm::translate(trans, glm::vec3(0.5f, 0.2f, 0.0f));
 		//trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
 
-		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-
 
 		shader->BindShaderProgram();
 
-		shader->SetMatrix4("view", glm::value_ptr(view));
-		shader->SetMatrix4("projection", glm::value_ptr(proj));
+		shader->SetMatrix4("view", camera->GetView());
+		shader->SetMatrix4("projection", camera->GetProj());
 
 		GLCall(glBindVertexArray(vao[0]));
 
@@ -330,16 +301,9 @@ int main(void)
 	return 0;
 }
 
-void ProcessInput() {
-	float cameraSpeed = 2.5f * deltaTime;
-	if (glfwGetKey(_pWindow, GLFW_KEY_W) == GLFW_PRESS)
-		cameraPos += cameraSpeed * cameraFront;
-	if (glfwGetKey(_pWindow, GLFW_KEY_S) == GLFW_PRESS)
-		cameraPos -= cameraSpeed * cameraFront;
-	if (glfwGetKey(_pWindow, GLFW_KEY_A) == GLFW_PRESS)
-		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-	if (glfwGetKey(_pWindow, GLFW_KEY_D) == GLFW_PRESS)
-		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+void ProcessInput()
+{
+
 }
 
 void MouseCallback(GLFWwindow* window, double xpos, double ypos)
@@ -359,31 +323,10 @@ void MouseCallback(GLFWwindow* window, double xpos, double ypos)
 	xOffset *= sensitivity;
 	yOffset *= sensitivity;
 
-	yaw += xOffset;
-	pitch += yOffset;
-
-	if (pitch > 89.0f) {
-		pitch = 89.0f;
-	}
-	if (pitch < -89.0f) {
-		pitch = -89.0f;
-	}
-
-
-	glm::vec3 direction;
-	direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-	direction.y = sin(glm::radians(pitch));
-	direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-	cameraFront = glm::normalize(direction);
+	camera->ProcessMouseMovement(xOffset, yOffset);
 }
 
-void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
-	fov -= (float)yoffset;
-	if (fov < 1.0f) {
-		fov = 1.0f;
-	}
-	if (fov > 45.0f) {
-		fov = 45.0f;
-	}
-	proj = glm::perspective(glm::radians(fov), (float)width / (float)height, 0.1f, 100.0f);
+void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	camera->ProcessScrollMovement(yoffset);
 }
