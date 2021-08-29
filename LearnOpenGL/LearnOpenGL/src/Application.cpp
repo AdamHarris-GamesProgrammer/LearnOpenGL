@@ -26,6 +26,22 @@ glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+float lastX = 640;
+float lastY = 360;
+
+float pitch = 0.0f;
+float yaw = -90.0f;
+
+glm::mat4 proj;
+
+float fov = 45.0f;
+
+bool firstMouse = true;
+
+void MouseCallback(GLFWwindow* window, double xpos, double ypos);
+void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+
+
 void Initialize()
 {
 	glewInit();
@@ -52,6 +68,10 @@ void Initialize()
 	//Synchs to monitor refresh rate
 	glfwSwapInterval(1);
 
+	glfwSetInputMode(_pWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	glfwSetCursorPosCallback(_pWindow, MouseCallback);
+	glfwSetScrollCallback(_pWindow, ScrollCallback);
+
 	GLenum err = glewInit();
 	if (err != GLEW_OK) {
 		std::cout << "[ERROR]: With setting up GLEW" << std::endl;
@@ -59,6 +79,8 @@ void Initialize()
 }
 
 void ProcessInput();
+
+
 
 int main(void)
 {
@@ -171,7 +193,7 @@ int main(void)
 	shader->SetInt("texture1", 0);
 	shader->SetInt("texture2", 1);
 
-	glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
+	proj = glm::perspective(glm::radians(fov), (float)width / (float)height, 0.1f, 100.0f);
 
 
 
@@ -202,6 +224,9 @@ int main(void)
 	view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 1.0f, 0.0f));
+
+
+	
 
 	const float radius = 10.0f;
 
@@ -315,4 +340,50 @@ void ProcessInput() {
 		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 	if (glfwGetKey(_pWindow, GLFW_KEY_D) == GLFW_PRESS)
 		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+}
+
+void MouseCallback(GLFWwindow* window, double xpos, double ypos)
+{
+	if (firstMouse) {
+		lastX = xpos;
+		lastY = ypos;
+		firstMouse = false;
+	}
+
+	float xOffset = xpos - lastX;
+	float yOffset = lastY - ypos;
+	lastX = xpos;
+	lastY = ypos;
+
+	const float sensitivity = 0.1f;
+	xOffset *= sensitivity;
+	yOffset *= sensitivity;
+
+	yaw += xOffset;
+	pitch += yOffset;
+
+	if (pitch > 89.0f) {
+		pitch = 89.0f;
+	}
+	if (pitch < -89.0f) {
+		pitch = -89.0f;
+	}
+
+
+	glm::vec3 direction;
+	direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+	direction.y = sin(glm::radians(pitch));
+	direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+	cameraFront = glm::normalize(direction);
+}
+
+void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+	fov -= (float)yoffset;
+	if (fov < 1.0f) {
+		fov = 1.0f;
+	}
+	if (fov > 45.0f) {
+		fov = 45.0f;
+	}
+	proj = glm::perspective(glm::radians(fov), (float)width / (float)height, 0.1f, 100.0f);
 }
