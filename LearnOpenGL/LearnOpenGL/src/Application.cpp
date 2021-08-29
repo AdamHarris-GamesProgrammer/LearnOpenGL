@@ -71,10 +71,6 @@ void Initialize()
 
 void ProcessInput();
 
-
-
-
-
 int main(void)
 {
 	Initialize();
@@ -131,15 +127,15 @@ int main(void)
 		1,2,3
 	};
 
-	unsigned int vao[2];
-	unsigned int vbo[2];
-	unsigned int ibo[2];
+	unsigned int vao;
+	unsigned int vbo;
+	unsigned int ibo;
 
-	GLCall(glGenVertexArrays(1, vao));
-	GLCall(glBindVertexArray(vao[0]));
+	GLCall(glGenVertexArrays(1, &vao));
+	GLCall(glBindVertexArray(vao));
 
-	GLCall(glGenBuffers(1, &vbo[0]));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo[0]));
+	GLCall(glGenBuffers(1, &vbo));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
 	GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(position), position, GL_STATIC_DRAW));
 
 	//GLCall(glGenBuffers(1, &ibo[0]));
@@ -151,18 +147,6 @@ int main(void)
 	GLCall(glEnableVertexAttribArray(0));
 	GLCall(glEnableVertexAttribArray(1));
 
-	GLCall(glGenVertexArrays(1, &vao[1]));
-	GLCall(glBindVertexArray(vao[1]));
-
-	GLCall(glGenBuffers(1, &vbo[1]));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo[1]));
-	GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(position), position, GL_STATIC_DRAW));
-
-
-	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)0));
-	GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(3 * sizeof(float))));
-	GLCall(glEnableVertexAttribArray(0));
-	GLCall(glEnableVertexAttribArray(1));
 
 	//GLCall(glGenBuffers(1, &ibo[1]));
 	//GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo[1]));
@@ -179,9 +163,6 @@ int main(void)
 	GLCall(glBindVertexArray(0));
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
-
-	float r = 0.0f;
-	float increment = 0.01f;
 
 	shader->SetInt("texture1", 0);
 	shader->SetInt("texture2", 1);
@@ -216,34 +197,18 @@ int main(void)
 		/* Render here */
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-		if (r > 1.0f) {
-			increment = -0.01f;
-		}
-		else if (r < 0.0f) {
-			increment = 0.01f;
-		}
-
-		r += increment;
-
-
-		//shader->SetFloat4("u_Color", r, 0.3f, 0.8f, 1.0f);
 
 		glActiveTexture(GL_TEXTURE0);
 		texture1->BindTexture();
 		glActiveTexture(GL_TEXTURE1);
 		texture2->BindTexture();
 
-		glm::mat4 trans = glm::mat4(1.0f);
-		//trans = glm::translate(trans, glm::vec3(0.5f, 0.2f, 0.0f));
-		//trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-
-
 		shader->BindShaderProgram();
 
 		shader->SetMatrix4("view", camera->GetView());
 		shader->SetMatrix4("projection", camera->GetProj());
 
-		GLCall(glBindVertexArray(vao[0]));
+		GLCall(glBindVertexArray(vao));
 
 
 		for (unsigned int i = 0; i < 10; i++) {
@@ -254,29 +219,6 @@ int main(void)
 			shader->SetMatrix4("model", glm::value_ptr(model));
 			GLCall(glDrawArrays(GL_TRIANGLES, 0,36));
 		}
-
-		////shader->SetFloat4("u_Color", 0.2f, r, 0.8f, 1.0f);
-
-		//glActiveTexture(GL_TEXTURE0);
-		//texture1->BindTexture();
-		//glActiveTexture(GL_TEXTURE1);
-		//texture2->BindTexture();
-
-		//trans = glm::mat4(1.0f);
-		//trans = glm::translate(trans, glm::vec3(-0.5f, -0.2f, 0.0f));
-		//trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, -1.0f));
-		//trans = glm::scale(trans, glm::vec3(0.3f, 0.3f, 0.3f));
-
-
-		//shader->BindShaderProgram();
-		//shader->SetMatrix4("model", glm::value_ptr(trans));
-		//shader->SetMatrix4("view", glm::value_ptr(view));
-		//shader->SetMatrix4("projection", glm::value_ptr(proj));
-
-
-		//GLCall(glBindVertexArray(vao[1]));
-		//shader->BindShaderProgram();
-		//GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(_pWindow);
