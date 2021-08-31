@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Res\Shaders\Basic.shader" />
+    <None Include="Res\Shaders\LightShader.shader" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Res\Textures\wall.jpg">

@@ -32,6 +32,8 @@ public:
 
 	void SetMatrix4(const char* propName, float* value);
 
+	void SetFloat3(const char* propName, float r, float g, float b);
+
 	unsigned int GetID() { return _shaderProgram; }
 
 private:

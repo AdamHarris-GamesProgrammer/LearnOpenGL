@@ -22,6 +22,10 @@ public:
 		return glm::value_ptr(view);
 	}
 
+	float* GetPosition() {
+		return glm::value_ptr(cameraPos);
+	}
+
 	void ProcessMouseMovement(float xOffset, float yOffset);
 	void ProcessScrollMovement(float yOffset);
 	
