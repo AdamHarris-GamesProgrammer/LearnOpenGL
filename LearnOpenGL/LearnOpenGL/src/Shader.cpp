@@ -87,25 +87,25 @@ ShaderSource Shader::ParseShader(const std::string& filepath) {
 }
 
 unsigned int Shader::CompileShader(const std::string& shader, unsigned int type) {
-	unsigned int  id = glCreateShader(type);
+	GLCall(unsigned int  id = glCreateShader(type));
 
 	const char* src = shader.c_str();
 
-	glShaderSource(id, 1, &src, nullptr);
-	glCompileShader(id);
+	GLCall(glShaderSource(id, 1, &src, nullptr));
+	GLCall(glCompileShader(id));
 
 	int result;
-	glGetShaderiv(id, GL_COMPILE_STATUS, &result);
+	GLCall(glGetShaderiv(id, GL_COMPILE_STATUS, &result));
 	if (result == GL_FALSE) {
 		int length;
-		glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
+		GLCall(glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length));
 		char* message = (char*)alloca(length * sizeof(char));
-		glGetShaderInfoLog(id, length, &length, message);
+		GLCall(glGetShaderInfoLog(id, length, &length, message));
 
 		std::cout << "[ERROR]: Failed to compile a shader" << std::endl;
 		std::cout << message << std::endl;
 
-		glDeleteShader(id);
+		GLCall(glDeleteShader(id));
 		return 0;
 	}
 
@@ -113,16 +113,16 @@ unsigned int Shader::CompileShader(const std::string& shader, unsigned int type)
 }
 
 void Shader::CreateShader(ShaderSource source) {
-	_shaderProgram = glCreateProgram();
+	GLCall(_shaderProgram = glCreateProgram());
 
 	unsigned int vs = CompileShader(source.vertexSource, GL_VERTEX_SHADER);
 	unsigned int fs = CompileShader(source.fragmentSource, GL_FRAGMENT_SHADER);
 
-	glAttachShader(_shaderProgram, vs);
-	glAttachShader(_shaderProgram, fs);
-	glLinkProgram(_shaderProgram);
-	glValidateProgram(_shaderProgram);
+	GLCall(glAttachShader(_shaderProgram, vs));
+	GLCall(glAttachShader(_shaderProgram, fs));
+	GLCall(glLinkProgram(_shaderProgram));
+	GLCall(glValidateProgram(_shaderProgram));
 
-	glDeleteShader(vs);
-	glDeleteShader(fs);
+	GLCall(glDeleteShader(vs));
+	GLCall(glDeleteShader(fs));
 }
