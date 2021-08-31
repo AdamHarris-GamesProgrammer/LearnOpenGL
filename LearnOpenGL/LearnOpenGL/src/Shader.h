@@ -10,6 +10,9 @@
 #include <fstream>
 
 #include "ErrorHandling.h"
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <gtc/type_ptr.hpp>
 
 struct ShaderSource {
 	std::string vertexSource;
@@ -33,6 +36,8 @@ public:
 	void SetMatrix4(const char* propName, float* value);
 
 	void SetFloat3(const char* propName, float r, float g, float b);
+	void SetFloat3(const char* propName, float* values);
+	void SetFloat3(const char* propName, glm::vec3 values);
 
 	unsigned int GetID() { return _shaderProgram; }
 

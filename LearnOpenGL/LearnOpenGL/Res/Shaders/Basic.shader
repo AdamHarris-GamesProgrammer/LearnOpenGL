@@ -52,14 +52,11 @@ in vec3 fragPos;
 in vec3 normal;
 in vec3 lightPos;
 
-uniform vec3 u_objectColor;
-uniform vec3 u_lightColor;
 uniform vec3 u_viewPos;
 uniform Material u_material;
 uniform Light u_light;
 
 out vec4 FragColor;
-//uniform vec4 u_Color;
 
 //uniform sampler2D texture1;
 //uniform sampler2D texture2;
@@ -76,7 +73,7 @@ void main() {
 	vec3 ambient = u_light.ambient * u_material.ambient;
 
 	vec3 norm = normalize(normal);
-	vec3 lightDir = normalize(lightPos - fragPos);
+	vec3 lightDir = normalize(u_light.position - fragPos);
 
 	float diff = max(dot(norm, lightDir), 0.0);
 	vec3 diffuse = u_light.diffuse * (diff * u_material.diffuse);

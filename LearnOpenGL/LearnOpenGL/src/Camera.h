@@ -14,15 +14,15 @@ public:
 
 	void Update(float dt);
 
-	float* GetProj() {
+	float* Proj() {
 		return glm::value_ptr(proj);
 	}
 
-	float* GetView() {
+	float* View() {
 		return glm::value_ptr(view);
 	}
 
-	float* GetPosition() {
+	float* Position() {
 		return glm::value_ptr(cameraPos);
 	}
 
