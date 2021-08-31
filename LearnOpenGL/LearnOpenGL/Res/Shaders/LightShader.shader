@@ -17,12 +17,11 @@ void main() {
 
 #version 330 core
 
-uniform vec3 u_objectColor;
 uniform vec3 u_lightColor;
 
 out vec4 FragColor;
 
 void main() {
 	//FragColor = mix(texture(texture1, texCoord), texture(texture2, texCoord), 0.2);
-	FragColor = vec4(1.0);
+	FragColor = vec4(u_lightColor, 1.0);
 }

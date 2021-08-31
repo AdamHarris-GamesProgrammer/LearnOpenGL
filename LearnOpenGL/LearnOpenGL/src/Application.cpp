@@ -194,6 +194,8 @@ int main(void)
 	glEnable(GL_DEPTH_TEST);
 
 
+
+
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(_pWindow))
 	{
@@ -212,12 +214,29 @@ int main(void)
 		//glActiveTexture(GL_TEXTURE1);
 		//texture2->BindTexture();
 
+		glm::vec3 lightColor;
+		lightColor.x = sin(glfwGetTime() * 2.0f);
+		lightColor.y = sin(glfwGetTime() * 0.7f);
+		lightColor.z = sin(glfwGetTime() * 1.3f);
+
 		objectShader->BindShaderProgram();
 		objectShader->SetMatrix4("u_view", camera->GetView());
 		objectShader->SetMatrix4("u_projection", camera->GetProj());
-		objectShader->SetFloat3("u_objectColor", 1.0f, 0.5f, 0.31f);
-		objectShader->SetFloat3("u_lightColor", 1.0f, 1.0f, 1.0f);
+		//objectShader->SetFloat3("u_lightColor", 1.0f, 1.0f, 1.0f);
 		objectShader->SetFloat3("u_lightPos", lightPos.r, lightPos.g, lightPos.b);
+		objectShader->SetFloat3("u_material.ambient", 1.0f, 0.5f, 0.31f);
+		objectShader->SetFloat3("u_material.diffuse", 1.0f, 0.5f, 0.31f);
+		objectShader->SetFloat3("u_material.specular", 0.5f, 0.5f, 0.5f);
+		objectShader->SetFloat("u_material.shininess", 32.0f);
+
+		glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
+		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
+
+		objectShader->SetFloat3("u_light.ambient", ambientColor.r, ambientColor.g, ambientColor.b);
+		objectShader->SetFloat3("u_light.diffuse", diffuseColor.r, diffuseColor.g, diffuseColor.b);
+		objectShader->SetFloat3("u_light.specular", 1.0f, 1.0f, 1.0f);
+
+		lightShader->SetFloat3("u_lightColor", diffuseColor.r, diffuseColor.g, diffuseColor.b);
 
 		float* cameraPos = camera->GetPosition();
 
