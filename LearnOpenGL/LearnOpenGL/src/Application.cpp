@@ -213,15 +213,15 @@ int main(void)
 		//texture2->BindTexture();
 
 		objectShader->BindShaderProgram();
-		objectShader->SetMatrix4("view", camera->GetView());
-		objectShader->SetMatrix4("projection", camera->GetProj());
-		objectShader->SetFloat3("objectColor", 1.0f, 0.5f, 0.31f);
-		objectShader->SetFloat3("lightColor", 1.0f, 1.0f, 1.0f);
-		objectShader->SetFloat3("lightPos", lightPos.r, lightPos.g, lightPos.b);
+		objectShader->SetMatrix4("u_view", camera->GetView());
+		objectShader->SetMatrix4("u_projection", camera->GetProj());
+		objectShader->SetFloat3("u_objectColor", 1.0f, 0.5f, 0.31f);
+		objectShader->SetFloat3("u_lightColor", 1.0f, 1.0f, 1.0f);
+		objectShader->SetFloat3("u_lightPos", lightPos.r, lightPos.g, lightPos.b);
 
 		float* cameraPos = camera->GetPosition();
 
-		objectShader->SetFloat3("viewPos", cameraPos[0], cameraPos[1], cameraPos[2]);
+		objectShader->SetFloat3("u_viewPos", cameraPos[0], cameraPos[1], cameraPos[2]);
 
 		GLCall(glBindVertexArray(vao));
 
@@ -231,7 +231,7 @@ int main(void)
 			model = glm::translate(model, cubePositions[i]);
 			float angle = 20.0f * i;
 			model = glm::rotate(model, (float)glfwGetTime() * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
-			objectShader->SetMatrix4("model", glm::value_ptr(model));
+			objectShader->SetMatrix4("u_model", glm::value_ptr(model));
 			GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
 		}
 
@@ -240,9 +240,9 @@ int main(void)
 		model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
 
 		lightShader->BindShaderProgram();
-		lightShader->SetMatrix4("model", glm::value_ptr(model));
-		lightShader->SetMatrix4("view", camera->GetView());
-		lightShader->SetMatrix4("projection", camera->GetProj());
+		lightShader->SetMatrix4("u_model", glm::value_ptr(model));
+		lightShader->SetMatrix4("u_view", camera->GetView());
+		lightShader->SetMatrix4("u_projection", camera->GetProj());
 		GLCall(glBindVertexArray(lightVao));
 		GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
 
