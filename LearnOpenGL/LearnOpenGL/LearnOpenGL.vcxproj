@@ -152,6 +152,7 @@
     <ClCompile Include="src\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\GraphicsStructs.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Application.h" />
@@ -165,6 +166,8 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="Res\Textures\awesomeface.png" />
+    <Image Include="Res\Textures\container2.png" />
+    <Image Include="Res\Textures\container2_specular.png" />
     <Image Include="Res\Textures\wall.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

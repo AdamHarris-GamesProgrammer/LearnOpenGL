@@ -32,9 +32,8 @@ void main(){
 #version 330 core
 
 struct Material {
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
+	sampler2D diffuse;
+	sampler2D specular;
 	float shininess;
 };
 
@@ -70,13 +69,13 @@ void main() {
 	float specularStrength = 0.5;
 
 
-	vec3 ambient = u_light.ambient * u_material.ambient;
+	vec3 ambient = u_light.ambient * vec3(texture(u_material.diffuse, texCoord));
 
 	vec3 norm = normalize(normal);
 	vec3 lightDir = normalize(u_light.position - fragPos);
 
 	float diff = max(dot(norm, lightDir), 0.0);
-	vec3 diffuse = u_light.diffuse * (diff * u_material.diffuse);
+	vec3 diffuse = u_light.diffuse * diff * vec3(texture(u_material.diffuse, texCoord));
 
 
 
@@ -84,7 +83,7 @@ void main() {
 	vec3 reflectDir = reflect(-lightDir, norm);
 
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_material.shininess);
-	vec3 specular = u_light.specular * (spec * u_material.specular);
+	vec3 specular = u_light.specular * spec * vec3(texture(u_material.specular, texCoord));
 
 	vec3 result = (ambient + diffuse + specular);
 

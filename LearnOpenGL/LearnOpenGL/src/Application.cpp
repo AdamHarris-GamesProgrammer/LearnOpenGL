@@ -166,8 +166,8 @@ int main(void)
 	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)0));
 	GLCall(glEnableVertexAttribArray(0));
 
-	Texture* texture1 = new Texture("Res/Textures/wall.jpg");
-	Texture* texture2 = new Texture("Res/Textures/awesomeface.png", true);
+	Texture* texture1 = new Texture("Res/Textures/container2.png");
+	Texture* texture2 = new Texture("Res/Textures/container2_specular.png", true);
 
 	Shader* objectShader = new Shader("Res/Shaders/Basic.shader");
 	objectShader->BindShaderProgram();
@@ -205,10 +205,10 @@ int main(void)
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 
-		//glActiveTexture(GL_TEXTURE0);
-		//texture1->BindTexture();
-		//glActiveTexture(GL_TEXTURE1);
-		//texture2->BindTexture();
+		glActiveTexture(GL_TEXTURE0);
+		texture1->BindTexture();
+		glActiveTexture(GL_TEXTURE1);
+		texture2->BindTexture();
 
 		glm::vec3 lightColor;
 		lightColor.x = sin(glfwGetTime() * 2.0f);
@@ -218,9 +218,11 @@ int main(void)
 		objectShader->BindShaderProgram();
 		objectShader->SetMatrix4("u_view", camera->View());
 		objectShader->SetMatrix4("u_projection", camera->Proj());
-		objectShader->SetFloat3("u_material.ambient", 1.0f, 0.5f, 0.31f);
-		objectShader->SetFloat3("u_material.diffuse", 1.0f, 0.5f, 0.31f);
-		objectShader->SetFloat3("u_material.specular", glm::vec3(0.5f));
+		//objectShader->SetFloat3("u_material.ambient", 1.0f, 0.5f, 0.31f);
+		objectShader->SetInt("u_material.diffuse", 0);
+		objectShader->SetInt("u_material.specular", 1);
+		//objectShader->SetFloat3("u_material.diffuse", 1.0f, 0.5f, 0.31f);
+		//objectShader->SetFloat3("u_material.specular", glm::vec3(0.5f));
 		objectShader->SetFloat("u_material.shininess", 32.0f);
 
 		glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
