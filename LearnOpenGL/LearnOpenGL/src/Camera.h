@@ -26,6 +26,10 @@ public:
 		return glm::value_ptr(cameraPos);
 	}
 
+	float* Front() {
+		return glm::value_ptr(cameraFront);
+	}
+
 	void ProcessMouseMovement(float xOffset, float yOffset);
 	void ProcessScrollMovement(float yOffset);
 	

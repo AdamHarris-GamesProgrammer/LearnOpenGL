@@ -205,6 +205,7 @@ int main(void)
 		camera->Update(deltaTime);
 
 		/* Render here */
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 
@@ -228,7 +229,12 @@ int main(void)
 		//objectShader->SetInt("u_material.emission", 2);
 		objectShader->SetFloat("u_material.shininess", 32.0f);
 
-		objectShader->SetFloat3("u_light.position", lightPos);
+		objectShader->SetFloat3("u_light.position", camera->Position());
+		objectShader->SetFloat3("u_light.direction", camera->Front());
+		objectShader->SetFloat("u_light.cutoff", glm::cos(glm::radians(12.5f)));
+		objectShader->SetFloat("u_light.outerCutoff", glm::cos(glm::radians(25.0f)));
+
+
 		//objectShader->SetFloat3("u_light.direction", -0.2f, -1.0f, -0.3f);
 		objectShader->SetFloat3("u_light.ambient", lightAmbient);
 		objectShader->SetFloat3("u_light.diffuse", lightDiffuse);
