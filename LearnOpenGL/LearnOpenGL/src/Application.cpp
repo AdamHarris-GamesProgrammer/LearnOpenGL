@@ -103,7 +103,7 @@ void Initialize()
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	/* Create a windowed mode window and its OpenGL context */
 	_pWindow = glfwCreateWindow(width, height, "Hello World", NULL, NULL);
@@ -215,42 +215,60 @@ int main(void)
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-
-
-
-		objectShader->BindShaderProgram();
 		objectShader->SetMatrix4("u_view", camera->View());
 		objectShader->SetMatrix4("u_projection", camera->Proj());
-
 
 		for (GLuint i = 0; i < 4; i++) {
 			std::string number = std::to_string(i);
 
-			objectShader->SetFloat(("u_pointLight[" + number + "].constant").c_str(), 1.0f);
-			objectShader->SetFloat(("u_pointLight[" + number + "].linear").c_str(), 0.09f);
-			objectShader->SetFloat(("u_pointLight[" + number + "].quadratic").c_str(), 0.032f);
-			objectShader->SetFloat3(("u_pointLight[" + number + "].diffuse").c_str(), lightDiffuse.r, lightDiffuse.g, lightDiffuse.b);
-			objectShader->SetFloat3(("u_pointLight[" + number + "].ambient").c_str(), lightAmbient.r, lightAmbient.g, lightAmbient.b);
-			objectShader->SetFloat3(("u_pointLight[" + number + "].specular").c_str(), lightSpecular.r, lightSpecular.g, lightSpecular.b);
-			objectShader->SetFloat3(("u_pointLight[" + number + "].position").c_str(), pointLightPos[i]);
+			objectShader->SetFloat3(("u_pointLight[" + number + "].position").data(), pointLightPos[i]);
+			objectShader->SetFloat3(("u_pointLight[" + number + "].ambient").data(), lightAmbient);
+			objectShader->SetFloat3(("u_pointLight[" + number + "].diffuse").data(), lightDiffuse);
+			objectShader->SetFloat3(("u_pointLight[" + number + "].specular").data(), lightSpecular);
+
+			objectShader->SetFloat(("u_pointLight[" + number + "].constant").data(), 1.0f);
+			objectShader->SetFloat(("u_pointLight[" + number + "].linear").data(), 0.09f);
+			objectShader->SetFloat(("u_pointLight[" + number + "].quadratic").data(), 0.032f);
 		}
 
-		//objectShader->SetFloat(("u_pointLight.constant"), 1.0f);
-		//objectShader->SetFloat(("u_pointLight.linear"), 0.09f);
-		//objectShader->SetFloat(("u_pointLight.quadratic"), 0.032f);
-		//objectShader->SetFloat3(("u_pointLight.diffuse"), lightDiffuse.r, lightDiffuse.g, lightDiffuse.b);
-		//objectShader->SetFloat3(("u_pointLight.ambient"), lightAmbient.r, lightAmbient.g, lightAmbient.b);
-		//objectShader->SetFloat3(("u_pointLight.specular"), lightSpecular.r, lightSpecular.g, lightSpecular.b);
-		//objectShader->SetFloat3(("u_pointLight.position"), pointLightPos[0]);
+		// Point light 1				
+		objectShader->SetFloat3("u_pointLight[0].position", pointLightPos[0]);
+		objectShader->SetFloat3("u_pointLight[0].ambient", lightAmbient);
+		objectShader->SetFloat3("u_pointLight[0].diffuse", lightDiffuse);
+		objectShader->SetFloat3("u_pointLight[0].specular", lightSpecular);
+		objectShader->SetFloat("u_pointLight[0].constant", 1.0f);
+		objectShader->SetFloat("u_pointLight[0].linear", 0.09f);
+		objectShader->SetFloat("u_pointLight[0].quadratic", 0.032f);
 
-		//objectShader->SetFloat3("u_dirLight.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
-		////objectShader->SetFloat3("u_dirLight.ambient", glm::value_ptr(lightAmbient));
-		////objectShader->SetFloat3("u_dirLight.diffuse", glm::value_ptr(lightDiffuse));
-		////objectShader->SetFloat3("u_dirLight.specular", glm::value_ptr(lightSpecular));
-		//objectShader->SetFloat3("u_dirLight.ambient", lightAmbient.r, lightAmbient.g, lightAmbient.b);
-		//objectShader->SetFloat3("u_dirLight.diffuse", lightDiffuse.r, lightDiffuse.g, lightDiffuse.b);
-		//objectShader->SetFloat3("u_dirLight.specular", lightSpecular.r, lightSpecular.g, lightSpecular.b);
+		objectShader->SetFloat3("u_pointLight[1].position", pointLightPos[1]);
+		objectShader->SetFloat3("u_pointLight[1].ambient", lightAmbient);
+		objectShader->SetFloat3("u_pointLight[1].diffuse", lightDiffuse);
+		objectShader->SetFloat3("u_pointLight[1].specular", lightSpecular);
+		objectShader->SetFloat("u_pointLight[1].constant", 1.0f);
+		objectShader->SetFloat("u_pointLight[1].linear", 0.09f);
+		objectShader->SetFloat("u_pointLight[1].quadratic", 0.032f);
 
+		objectShader->SetFloat3("u_pointLight[2].position", pointLightPos[2]);
+		objectShader->SetFloat3("u_pointLight[2].ambient", lightAmbient);
+		objectShader->SetFloat3("u_pointLight[2].diffuse", lightDiffuse);
+		objectShader->SetFloat3("u_pointLight[2].specular", lightSpecular);
+		objectShader->SetFloat("u_pointLight[2].constant", 1.0f);
+		objectShader->SetFloat("u_pointLight[2].linear", 0.09f);
+		objectShader->SetFloat("u_pointLight[2].quadratic", 0.032f);
+
+		objectShader->SetFloat3("u_pointLight[3].position", pointLightPos[3]);
+		objectShader->SetFloat3("u_pointLight[3].ambient", lightAmbient);
+		objectShader->SetFloat3("u_pointLight[3].diffuse", lightDiffuse);
+		objectShader->SetFloat3("u_pointLight[3].specular", lightSpecular);
+		objectShader->SetFloat("u_pointLight[3].constant", 1.0f);
+		objectShader->SetFloat("u_pointLight[3].linear", 0.09f);
+		objectShader->SetFloat("u_pointLight[3].quadratic", 0.032f);
+
+		// Directional light
+		objectShader->SetFloat3("u_dirLight.direction", -0.2f, -1.0f, -0.3f);
+		objectShader->SetFloat3("u_dirLight.ambient", 0.05f, 0.05f, 0.1f);
+		objectShader->SetFloat3("u_dirLight.diffuse", 0.2f, 0.2f, 0.2f);
+		objectShader->SetFloat3("u_dirLight.specular", 0.7f, 0.7f, 0.7f);
 
 		glActiveTexture(GL_TEXTURE0);
 		diffuse->BindTexture();
@@ -274,7 +292,7 @@ int main(void)
 		}
 
 
-		lightShader->SetFloat3("u_lightColor", glm::value_ptr(lightAmbient));
+		lightShader->SetFloat3("u_lightColor", glm::value_ptr(lightDiffuse));
 		GLCall(glBindVertexArray(lightVao));
 		for (int i = 0; i < 4; i++) {
 			glm::mat4 model = glm::mat4(1.0f);

@@ -49,6 +49,7 @@ void Shader::SetFloat3(const char* propName, glm::vec3 values)
 {
 	BindShaderProgram();
 	GLCall(glUniform3f(GetLocation(propName), values.r, values.g, values.b));
+	
 }
 
 int Shader::GetLocation(const char* propName) {
