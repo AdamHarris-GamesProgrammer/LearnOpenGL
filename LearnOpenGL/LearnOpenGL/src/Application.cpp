@@ -135,11 +135,11 @@ int main(void)
 {
 	Initialize();
 
-	unsigned int vao;
+	unsigned int cubeVao;
 	unsigned int vbo;
 
-	GLCall(glGenVertexArrays(1, &vao));
-	GLCall(glBindVertexArray(vao));
+	GLCall(glGenVertexArrays(1, &cubeVao));
+	GLCall(glBindVertexArray(cubeVao));
 
 	GLCall(glGenBuffers(1, &vbo));
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
@@ -166,9 +166,9 @@ int main(void)
 	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)0));
 	GLCall(glEnableVertexAttribArray(0));
 
-	Texture* texture1 = new Texture("Res/Textures/container2.png");
-	Texture* texture2 = new Texture("Res/Textures/container2_specular.png", true);
-	Texture* texture3 = new Texture("Res/Textures/container2_emission.jpg");
+	Texture* diffuse = new Texture("Res/Textures/container2.png");
+	Texture* specular = new Texture("Res/Textures/container2_specular.png", true);
+	Texture* emission = new Texture("Res/Textures/container2_emission.jpg");
 
 	Shader* objectShader = new Shader("Res/Shaders/Basic.shader");
 	objectShader->BindShaderProgram();
@@ -195,6 +195,13 @@ int main(void)
 	glm::vec3 lightAmbient = glm::vec3(0.2f);
 	glm::vec3 lightSpecular = glm::vec3(1.0f);
 
+	glm::vec3 pointLightPos[4] = {
+		glm::vec3(0.7f,  0.2f,  2.0f),
+		glm::vec3(2.3f, -3.3f, -4.0f),
+		glm::vec3(-4.0f,  2.0f, -12.0f),
+		glm::vec3(0.0f,  0.0f, -3.0f)
+	};
+
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(_pWindow))
 	{
@@ -209,48 +216,54 @@ int main(void)
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 
-		glActiveTexture(GL_TEXTURE0);
-		texture1->BindTexture();
-		glActiveTexture(GL_TEXTURE1);
-		texture2->BindTexture();
-		glActiveTexture(GL_TEXTURE2);
-		texture3->BindTexture();
 
-		glm::vec3 lightColor;
-		lightColor.x = sin(glfwGetTime() * 2.0f);
-		lightColor.y = sin(glfwGetTime() * 0.7f);
-		lightColor.z = sin(glfwGetTime() * 1.3f);
 
 		objectShader->BindShaderProgram();
 		objectShader->SetMatrix4("u_view", camera->View());
 		objectShader->SetMatrix4("u_projection", camera->Proj());
+
+
+		for (GLuint i = 0; i < 4; i++) {
+			std::string number = std::to_string(i);
+
+			objectShader->SetFloat(("u_pointLight[" + number + "].constant").c_str(), 1.0f);
+			objectShader->SetFloat(("u_pointLight[" + number + "].linear").c_str(), 0.09f);
+			objectShader->SetFloat(("u_pointLight[" + number + "].quadratic").c_str(), 0.032f);
+			objectShader->SetFloat3(("u_pointLight[" + number + "].diffuse").c_str(), lightDiffuse.r, lightDiffuse.g, lightDiffuse.b);
+			objectShader->SetFloat3(("u_pointLight[" + number + "].ambient").c_str(), lightAmbient.r, lightAmbient.g, lightAmbient.b);
+			objectShader->SetFloat3(("u_pointLight[" + number + "].specular").c_str(), lightSpecular.r, lightSpecular.g, lightSpecular.b);
+			objectShader->SetFloat3(("u_pointLight[" + number + "].position").c_str(), pointLightPos[i]);
+		}
+
+		//objectShader->SetFloat(("u_pointLight.constant"), 1.0f);
+		//objectShader->SetFloat(("u_pointLight.linear"), 0.09f);
+		//objectShader->SetFloat(("u_pointLight.quadratic"), 0.032f);
+		//objectShader->SetFloat3(("u_pointLight.diffuse"), lightDiffuse.r, lightDiffuse.g, lightDiffuse.b);
+		//objectShader->SetFloat3(("u_pointLight.ambient"), lightAmbient.r, lightAmbient.g, lightAmbient.b);
+		//objectShader->SetFloat3(("u_pointLight.specular"), lightSpecular.r, lightSpecular.g, lightSpecular.b);
+		//objectShader->SetFloat3(("u_pointLight.position"), pointLightPos[0]);
+
+		//objectShader->SetFloat3("u_dirLight.direction", glm::vec3(-0.2f, -1.0f, -0.3f));
+		////objectShader->SetFloat3("u_dirLight.ambient", glm::value_ptr(lightAmbient));
+		////objectShader->SetFloat3("u_dirLight.diffuse", glm::value_ptr(lightDiffuse));
+		////objectShader->SetFloat3("u_dirLight.specular", glm::value_ptr(lightSpecular));
+		//objectShader->SetFloat3("u_dirLight.ambient", lightAmbient.r, lightAmbient.g, lightAmbient.b);
+		//objectShader->SetFloat3("u_dirLight.diffuse", lightDiffuse.r, lightDiffuse.g, lightDiffuse.b);
+		//objectShader->SetFloat3("u_dirLight.specular", lightSpecular.r, lightSpecular.g, lightSpecular.b);
+
+
+		glActiveTexture(GL_TEXTURE0);
+		diffuse->BindTexture();
+		glActiveTexture(GL_TEXTURE1);
+		specular->BindTexture();
+
 		objectShader->SetInt("u_material.diffuse", 0);
 		objectShader->SetInt("u_material.specular", 1);
-		//objectShader->SetInt("u_material.emission", 2);
 		objectShader->SetFloat("u_material.shininess", 32.0f);
 
-		objectShader->SetFloat3("u_light.position", camera->Position());
-		objectShader->SetFloat3("u_light.direction", camera->Front());
-		objectShader->SetFloat("u_light.cutoff", glm::cos(glm::radians(12.5f)));
-		objectShader->SetFloat("u_light.outerCutoff", glm::cos(glm::radians(25.0f)));
-
-
-		//objectShader->SetFloat3("u_light.direction", -0.2f, -1.0f, -0.3f);
-		objectShader->SetFloat3("u_light.ambient", lightAmbient);
-		objectShader->SetFloat3("u_light.diffuse", lightDiffuse);
-		objectShader->SetFloat3("u_light.specular", lightSpecular);
 		objectShader->SetFloat3("u_viewPos", camera->Position());
 
-		lightShader->SetFloat3("u_lightColor", lightDiffuse);
-
-		objectShader->SetFloat("u_light.constant", 1.0f);
-		objectShader->SetFloat("u_light.linear", 0.09f);
-		objectShader->SetFloat("u_light.quadratic", 0.032f);
-
-
-		GLCall(glBindVertexArray(vao));
-
-
+		GLCall(glBindVertexArray(cubeVao));
 		for (unsigned int i = 0; i < 10; i++) {
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, cubePositions[i]);
@@ -260,17 +273,19 @@ int main(void)
 			GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
 		}
 
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, lightPos);
-		model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
 
-		lightShader->BindShaderProgram();
-		lightShader->SetMatrix4("u_model", glm::value_ptr(model));
-		lightShader->SetMatrix4("u_view", camera->View());
-		lightShader->SetMatrix4("u_projection", camera->Proj());
+		lightShader->SetFloat3("u_lightColor", glm::value_ptr(lightAmbient));
 		GLCall(glBindVertexArray(lightVao));
-		GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
+		for (int i = 0; i < 4; i++) {
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, pointLightPos[i]);
+			model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
 
+			lightShader->SetMatrix4("u_model", glm::value_ptr(model));
+			lightShader->SetMatrix4("u_view", camera->View());
+			lightShader->SetMatrix4("u_projection", camera->Proj());
+			GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
+		}
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(_pWindow);
@@ -286,15 +301,15 @@ int main(void)
 
 	delete lightShader;
 	delete objectShader;
-	delete texture1;
-	delete texture2;
-	delete texture3;
+	delete diffuse;
+	delete specular;
+	delete emission;
 
 	lightShader = nullptr;
 	objectShader = nullptr;
-	texture1 = nullptr;
-	texture2 = nullptr;
-	texture3 = nullptr;
+	diffuse = nullptr;
+	specular = nullptr;
+	emission = nullptr;
 
 	glfwTerminate();
 	return 0;
