@@ -225,13 +225,13 @@ int main(void)
 		objectShader->SetMatrix4("u_projection", camera->Proj());
 		objectShader->SetInt("u_material.diffuse", 0);
 		objectShader->SetInt("u_material.specular", 1);
-		objectShader->SetInt("u_material.emission", 2);
+		//objectShader->SetInt("u_material.emission", 2);
 		objectShader->SetFloat("u_material.shininess", 32.0f);
 
+		objectShader->SetFloat3("u_light.direction", -0.2f, -1.0f, -0.3f);
 		objectShader->SetFloat3("u_light.ambient", lightAmbient);
 		objectShader->SetFloat3("u_light.diffuse", lightDiffuse);
 		objectShader->SetFloat3("u_light.specular", lightSpecular);
-		objectShader->SetFloat3("u_light.position", lightPos);
 		objectShader->SetFloat3("u_viewPos", camera->Position());
 
 		lightShader->SetFloat3("u_lightColor", lightDiffuse);

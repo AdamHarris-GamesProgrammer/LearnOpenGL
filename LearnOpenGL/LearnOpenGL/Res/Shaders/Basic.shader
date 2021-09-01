@@ -39,7 +39,7 @@ struct Material {
 };
 
 struct Light {
-	vec3 position;
+	vec3 direction;
 	vec3 ambient;
 	vec3 diffuse;
 	vec3 specular;
@@ -73,7 +73,7 @@ void main() {
 	vec3 ambient = u_light.ambient * vec3(texture(u_material.diffuse, texCoord));
 
 	vec3 norm = normalize(normal);
-	vec3 lightDir = normalize(u_light.position - fragPos);
+	vec3 lightDir = normalize(-u_light.direction);
 
 	float diff = max(dot(norm, lightDir), 0.0);
 	vec3 diffuse = u_light.diffuse * diff * vec3(texture(u_material.diffuse, texCoord));
@@ -87,17 +87,16 @@ void main() {
 	vec3 specularMap = vec3(texture(u_material.specular, texCoord));
 	vec3 specular = u_light.specular * spec * specularMap;
 
-	vec2 moddedTexCoords = texCoord;
-	moddedTexCoords.x = moddedTexCoords.x + 0.045f;
-	vec3 emissionMap = vec3(texture(u_material.emission, moddedTexCoords));
-	vec3 emission = emissionMap;
+	//EMISSION MAP
+	//vec2 moddedTexCoords = texCoord;
+	//moddedTexCoords.x = moddedTexCoords.x + 0.045f;
+	//vec3 emissionMap = vec3(texture(u_material.emission, moddedTexCoords));
+	//vec3 emission = emissionMap;
+	//vec3 emissionMask = step(vec3(1.0f), vec3(1.0f) - specularMap);
+	//emission = emission * emissionMask;
+	//vec3 result = ambient + diffuse + specular + emission;
 
-	vec3 emissionMask = step(vec3(1.0f), vec3(1.0f) - specularMap);
-	emission = emission * emissionMask;
-	
-
-
-	vec3 result = ambient + diffuse + specular + emission;
+	vec3 result = ambient + diffuse + specular;
 
 	FragColor = vec4(result, 1.0);
 }
