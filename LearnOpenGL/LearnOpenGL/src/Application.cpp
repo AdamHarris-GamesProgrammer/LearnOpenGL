@@ -228,7 +228,8 @@ int main(void)
 		//objectShader->SetInt("u_material.emission", 2);
 		objectShader->SetFloat("u_material.shininess", 32.0f);
 
-		objectShader->SetFloat3("u_light.direction", -0.2f, -1.0f, -0.3f);
+		objectShader->SetFloat3("u_light.position", lightPos);
+		//objectShader->SetFloat3("u_light.direction", -0.2f, -1.0f, -0.3f);
 		objectShader->SetFloat3("u_light.ambient", lightAmbient);
 		objectShader->SetFloat3("u_light.diffuse", lightDiffuse);
 		objectShader->SetFloat3("u_light.specular", lightSpecular);
@@ -236,6 +237,9 @@ int main(void)
 
 		lightShader->SetFloat3("u_lightColor", lightDiffuse);
 
+		objectShader->SetFloat("u_light.constant", 1.0f);
+		objectShader->SetFloat("u_light.linear", 0.09f);
+		objectShader->SetFloat("u_light.quadratic", 0.032f);
 
 
 		GLCall(glBindVertexArray(vao));
