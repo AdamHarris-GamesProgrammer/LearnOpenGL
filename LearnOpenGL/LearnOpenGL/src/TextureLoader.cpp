@@ -14,6 +14,7 @@ unsigned int TextureLoader::LoadTexture(const std::string& filename, bool should
 
 	stbi_set_flip_vertically_on_load(shouldFlip);
 
+	int _width, _height, _nrChannels;
 	stbi_uc* data = stbi_load(filename.c_str(), &_width, &_height, &_nrChannels, 0);
 
 	if (!data) {
