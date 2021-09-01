@@ -6,19 +6,15 @@
 #include<string>
 
 
-class Texture
+class TextureLoader
 {
 public:
-	Texture(const std::string& filename, bool shouldFlip = false);
-
-	void BindTexture();
+	unsigned int LoadTexture(const std::string& filename, bool shouldFlip = false);
 
 private:
-	stbi_uc* LoadTexture(const char* filename);
 
 
 private:
-	unsigned int _textureID;
 	int _width;
 	int _height; 
 	int _nrChannels;

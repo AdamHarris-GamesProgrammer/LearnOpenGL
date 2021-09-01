@@ -5,7 +5,7 @@
 #include "ErrorHandling.h"
 
 #include "Shader.h"
-#include "Texture.h"
+#include "TextureLoader.h"
 
 #include "stb_image.h"
 
@@ -139,9 +139,6 @@ int main(void)
 {
 	Initialize();
 
-	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(("Res/Models/Suzanne.obj"), aiProcess_Triangulate | aiProcess_FlipUVs);
-
 	unsigned int cubeVao;
 	unsigned int vbo;
 
@@ -173,9 +170,11 @@ int main(void)
 	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)0));
 	GLCall(glEnableVertexAttribArray(0));
 
-	Texture* diffuse = new Texture("Res/Textures/container2.png");
-	Texture* specular = new Texture("Res/Textures/container2_specular.png", true);
-	Texture* emission = new Texture("Res/Textures/container2_emission.jpg");
+	TextureLoader textureLoader;
+	unsigned int diffuseTexture = textureLoader.LoadTexture("Res/Textures/container2.png");
+	unsigned int specularTexture = textureLoader.LoadTexture("Res/Textures/container2_specular.png");
+	unsigned int emissionTexture = textureLoader.LoadTexture("Res/Textures/container2_emission.jpg");
+
 
 	Shader* objectShader = new Shader("Res/Shaders/Basic.shader");
 	objectShader->BindShaderProgram();
@@ -225,18 +224,6 @@ int main(void)
 		objectShader->SetMatrix4("u_view", camera->View());
 		objectShader->SetMatrix4("u_projection", camera->Proj());
 
-		for (GLuint i = 0; i < 4; i++) {
-			std::string number = std::to_string(i);
-
-			objectShader->SetFloat3(("u_pointLight[" + number + "].position").data(), pointLightPos[i]);
-			objectShader->SetFloat3(("u_pointLight[" + number + "].ambient").data(), lightAmbient);
-			objectShader->SetFloat3(("u_pointLight[" + number + "].diffuse").data(), lightDiffuse);
-			objectShader->SetFloat3(("u_pointLight[" + number + "].specular").data(), lightSpecular);
-
-			objectShader->SetFloat(("u_pointLight[" + number + "].constant").data(), 1.0f);
-			objectShader->SetFloat(("u_pointLight[" + number + "].linear").data(), 0.09f);
-			objectShader->SetFloat(("u_pointLight[" + number + "].quadratic").data(), 0.032f);
-		}
 
 		// Point light 1				
 		objectShader->SetFloat3("u_pointLight[0].position", pointLightPos[0]);
@@ -278,9 +265,9 @@ int main(void)
 		objectShader->SetFloat3("u_dirLight.specular", 0.7f, 0.7f, 0.7f);
 
 		glActiveTexture(GL_TEXTURE0);
-		diffuse->BindTexture();
+		GLCall(glBindTexture(GL_TEXTURE_2D, diffuseTexture));
 		glActiveTexture(GL_TEXTURE1);
-		specular->BindTexture();
+		GLCall(glBindTexture(GL_TEXTURE_2D, specularTexture));
 
 		objectShader->SetInt("u_material.diffuse", 0);
 		objectShader->SetInt("u_material.specular", 1);
@@ -326,15 +313,9 @@ int main(void)
 
 	delete lightShader;
 	delete objectShader;
-	delete diffuse;
-	delete specular;
-	delete emission;
 
 	lightShader = nullptr;
 	objectShader = nullptr;
-	diffuse = nullptr;
-	specular = nullptr;
-	emission = nullptr;
 
 	glfwTerminate();
 	return 0;
