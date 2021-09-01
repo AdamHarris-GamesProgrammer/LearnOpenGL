@@ -167,6 +167,7 @@
   <ItemGroup>
     <Image Include="Res\Textures\awesomeface.png" />
     <Image Include="Res\Textures\container2.png" />
+    <Image Include="Res\Textures\container2_emission.jpg" />
     <Image Include="Res\Textures\container2_specular.png" />
     <Image Include="Res\Textures\wall.jpg" />
   </ItemGroup>

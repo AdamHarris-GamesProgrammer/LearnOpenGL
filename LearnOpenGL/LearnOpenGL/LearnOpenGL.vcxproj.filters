@@ -71,5 +71,8 @@
     <Image Include="Res\Textures\container2_specular.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="Res\Textures\container2_emission.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

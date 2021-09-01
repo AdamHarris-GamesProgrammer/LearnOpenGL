@@ -168,6 +168,7 @@ int main(void)
 
 	Texture* texture1 = new Texture("Res/Textures/container2.png");
 	Texture* texture2 = new Texture("Res/Textures/container2_specular.png", true);
+	Texture* texture3 = new Texture("Res/Textures/container2_emission.jpg");
 
 	Shader* objectShader = new Shader("Res/Shaders/Basic.shader");
 	objectShader->BindShaderProgram();
@@ -190,7 +191,9 @@ int main(void)
 	glEnable(GL_DEPTH_TEST);
 
 
-
+	glm::vec3 lightDiffuse = glm::vec3(1.0f);
+	glm::vec3 lightAmbient = glm::vec3(0.2f);
+	glm::vec3 lightSpecular = glm::vec3(1.0f);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(_pWindow))
@@ -209,6 +212,8 @@ int main(void)
 		texture1->BindTexture();
 		glActiveTexture(GL_TEXTURE1);
 		texture2->BindTexture();
+		glActiveTexture(GL_TEXTURE2);
+		texture3->BindTexture();
 
 		glm::vec3 lightColor;
 		lightColor.x = sin(glfwGetTime() * 2.0f);
@@ -218,24 +223,20 @@ int main(void)
 		objectShader->BindShaderProgram();
 		objectShader->SetMatrix4("u_view", camera->View());
 		objectShader->SetMatrix4("u_projection", camera->Proj());
-		//objectShader->SetFloat3("u_material.ambient", 1.0f, 0.5f, 0.31f);
 		objectShader->SetInt("u_material.diffuse", 0);
 		objectShader->SetInt("u_material.specular", 1);
-		//objectShader->SetFloat3("u_material.diffuse", 1.0f, 0.5f, 0.31f);
-		//objectShader->SetFloat3("u_material.specular", glm::vec3(0.5f));
+		objectShader->SetInt("u_material.emission", 2);
 		objectShader->SetFloat("u_material.shininess", 32.0f);
 
-		glm::vec3 diffuseColor = lightColor * glm::vec3(0.5f);
-		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
-
-		objectShader->SetFloat3("u_light.ambient", ambientColor);
-		objectShader->SetFloat3("u_light.diffuse", diffuseColor);
-		objectShader->SetFloat3("u_light.specular", glm::vec3(1.0f));
+		objectShader->SetFloat3("u_light.ambient", lightAmbient);
+		objectShader->SetFloat3("u_light.diffuse", lightDiffuse);
+		objectShader->SetFloat3("u_light.specular", lightSpecular);
 		objectShader->SetFloat3("u_light.position", lightPos);
-
-		lightShader->SetFloat3("u_lightColor", diffuseColor);
-
 		objectShader->SetFloat3("u_viewPos", camera->Position());
+
+		lightShader->SetFloat3("u_lightColor", lightDiffuse);
+
+
 
 		GLCall(glBindVertexArray(vao));
 
@@ -277,11 +278,13 @@ int main(void)
 	delete objectShader;
 	delete texture1;
 	delete texture2;
+	delete texture3;
 
 	lightShader = nullptr;
 	objectShader = nullptr;
 	texture1 = nullptr;
 	texture2 = nullptr;
+	texture3 = nullptr;
 
 	glfwTerminate();
 	return 0;

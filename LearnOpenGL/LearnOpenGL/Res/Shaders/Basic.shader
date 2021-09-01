@@ -34,6 +34,7 @@ void main(){
 struct Material {
 	sampler2D diffuse;
 	sampler2D specular;
+	sampler2D emission;
 	float shininess;
 };
 
@@ -83,9 +84,20 @@ void main() {
 	vec3 reflectDir = reflect(-lightDir, norm);
 
 	float spec = pow(max(dot(viewDir, reflectDir), 0.0), u_material.shininess);
-	vec3 specular = u_light.specular * spec * vec3(texture(u_material.specular, texCoord));
+	vec3 specularMap = vec3(texture(u_material.specular, texCoord));
+	vec3 specular = u_light.specular * spec * specularMap;
 
-	vec3 result = (ambient + diffuse + specular);
+	vec2 moddedTexCoords = texCoord;
+	moddedTexCoords.x = moddedTexCoords.x + 0.045f;
+	vec3 emissionMap = vec3(texture(u_material.emission, moddedTexCoords));
+	vec3 emission = emissionMap;
+
+	vec3 emissionMask = step(vec3(1.0f), vec3(1.0f) - specularMap);
+	emission = emission * emissionMask;
+	
+
+
+	vec3 result = ambient + diffuse + specular + emission;
 
 	FragColor = vec4(result, 1.0);
 }
