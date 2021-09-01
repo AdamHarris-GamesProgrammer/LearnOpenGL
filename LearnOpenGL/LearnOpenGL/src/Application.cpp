@@ -15,6 +15,10 @@
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 
 GLFWwindow* _pWindow = nullptr;
 
@@ -134,6 +138,9 @@ void ProcessInput();
 int main(void)
 {
 	Initialize();
+
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile(("Res/Models/Suzanne.obj"), aiProcess_Triangulate | aiProcess_FlipUVs);
 
 	unsigned int cubeVao;
 	unsigned int vbo;
