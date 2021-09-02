@@ -172,12 +172,12 @@ int main(void)
 
 	Model backpack("Res/Models/backpack/backpack.obj");
 
-	Shader* modelShader = new Shader("Res/Shaders/ModelShader.vs", "Res/Shaders/ModelShader.fs");
+	Shader* modelShader = new Shader("Res/Shaders/ModelShader.vert", "Res/Shaders/ModelShader.frag");
 
-	Shader* objectShader = new Shader("Res/Shaders/BasicShader.vs", "Res/Shaders/BasicShader.fs");
+	Shader* objectShader = new Shader("Res/Shaders/BasicShader.vert", "Res/Shaders/BasicShader.frag");
 	objectShader->BindShaderProgram();
 
-	Shader* lightShader = new Shader("Res/Shaders/LightShader.vs", "Res/Shaders/LightShader.fs");
+	Shader* lightShader = new Shader("Res/Shaders/LightShader.vert", "Res/Shaders/LightShader.frag");
 
 	glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
 
