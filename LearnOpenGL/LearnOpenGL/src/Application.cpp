@@ -152,18 +152,47 @@ int main(void)
 	GLCall(glEnableVertexAttribArray(2));
 
 
-	unsigned int lightVao;
-	unsigned int lightVbo;
+	float quadVerts[] = {
+		-0.5f, -0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,	 0.0f, 0.0f,
+		 0.5f, -0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,	 1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,	 1.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,	 1.0f, 1.0f,
+		-0.5f,  0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,	 0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,	 0.0f, 0.0f,
+	};
 
-	GLCall(glGenVertexArrays(1, &lightVao));
-	GLCall(glBindVertexArray(lightVao));
+	glm::vec3 vegetationPositions[] = {
+		glm::vec3(1.5f, 0.0f, -1.0f),
+		glm::vec3(-3.8f, 0.0f, -2.5f),
+		glm::vec3(2.5, 0.0f, 2.3f),
+		glm::vec3(-1.2f, 0.0f, 1.5f)
+	};
 
-	GLCall(glGenBuffers(1, &lightVbo));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, lightVbo));
-	GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW));
+	glm::vec3 windowPositions[] = {
+		glm::vec3(-1.5f,  0.0f, -0.48f),
+		glm::vec3(1.5f,  0.0f,  0.51f),
+		glm::vec3(0.0f,  0.0f,  0.7f),
+		glm::vec3(-0.3f,  0.0f, -2.3f),
+		glm::vec3(0.5f,  0.0f, -0.6f)
+	};
+
+	unsigned int grassVao;
+	unsigned int grassVbo;
+
+	GLCall(glGenVertexArrays(1, &grassVao));
+	GLCall(glBindVertexArray(grassVao));
+
+	GLCall(glGenBuffers(1, &grassVbo));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, grassVbo));
+	GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(quadVerts), quadVerts, GL_STATIC_DRAW));
 
 	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)0));
+	GLCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(3 * sizeof(float))));
+	GLCall(glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(6 * sizeof(float))));
 	GLCall(glEnableVertexAttribArray(0));
+	GLCall(glEnableVertexAttribArray(1));
+	GLCall(glEnableVertexAttribArray(2));
+
 
 	TextureLoader textureLoader;
 	unsigned int diffuseTexture = textureLoader.LoadTexture("Res/Textures/container2.png");
@@ -172,12 +201,16 @@ int main(void)
 
 	Shader* modelShader = new Shader("Res/Shaders/ModelShader.vert", "Res/Shaders/ModelShader.frag");
 
-	Model backpack("Res/Models/backpack/backpack.obj");
+	//Model backpack("Res/Models/backpack/backpack.obj");
 
 	Shader* objectShader = new Shader("Res/Shaders/BasicShader.vert", "Res/Shaders/BasicShader.frag");
 	objectShader->BindShaderProgram();
 
 	Shader* lightShader = new Shader("Res/Shaders/LightShader.vert", "Res/Shaders/LightShader.frag");
+
+
+	unsigned int grassTexture = textureLoader.LoadTexture("Res/Textures/window.png", true);
+	Shader* vegetationShader = new Shader("Res/Shaders/ModelShader.vert", "Res/Shaders/GrassShader.frag");
 
 	glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
 
@@ -186,13 +219,11 @@ int main(void)
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
-	//objectShader->SetInt("texture1", 0);
-	//objectShader->SetInt("texture2", 1);
-
-
 	camera = new Camera(_pWindow, width, height, 45.0f);
 
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 
 	glm::vec3 lightDiffuse = glm::vec3(1.0f);
@@ -204,6 +235,20 @@ int main(void)
 		glm::vec3(2.3f, -3.3f, -4.0f),
 		glm::vec3(-4.0f,  2.0f, -12.0f),
 		glm::vec3(0.0f,  0.0f, -3.0f)
+	};
+
+	DirectionalLight sun = {
+		glm::vec3(-0.2f, -1.0f, -0.3f),
+		glm::vec3(0.2f),
+		glm::vec3(1.0f),
+		glm::vec3(1.0f)
+	};
+
+	PointLight pointLights[] = {
+		PointLight(glm::vec3(0.7f,  0.2f,  2.0f), lightAmbient, lightDiffuse, lightSpecular, 1.0f, 0.09f, 0.032f),
+		PointLight(glm::vec3(2.3f, -3.3f, -4.0f), lightAmbient, lightDiffuse, lightSpecular, 1.0f, 0.09f, 0.032f),
+		PointLight(glm::vec3(-4.0f,  2.0f, -12.0f), lightAmbient, lightDiffuse, lightSpecular, 1.0f, 0.09f, 0.032f),
+		PointLight(glm::vec3(0.0f,  0.0f, -3.0f), lightAmbient, lightDiffuse, lightSpecular, 1.0f, 0.09f, 0.032f),
 	};
 
 	/* Loop until the user closes the window */
@@ -219,23 +264,13 @@ int main(void)
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
+		objectShader->SetDirectionalLight("u_dirLight", sun);
 		for (GLuint i = 0; i < 4; i++) {
 			std::string number = std::to_string(i);
-
-			objectShader->SetFloat3(("u_pointLight[" + number + "].position").c_str(), pointLightPos[i].x, pointLightPos[i].y, pointLightPos[i].z);
-			objectShader->SetFloat3(("u_pointLight[" + number + "].ambient").c_str(), lightAmbient.r * 0.1f, lightAmbient.g * 0.1f, lightAmbient.b * 0.1f);
-			objectShader->SetFloat3(("u_pointLight[" + number + "].diffuse").c_str(), lightDiffuse.r, lightDiffuse.g, lightDiffuse.b);
-			objectShader->SetFloat3(("u_pointLight[" + number + "].specular").c_str(), 1.0f, 1.0f, 1.0f);
-			objectShader->SetFloat(("u_pointLight[" + number + "].constant").c_str(), 1.0f);
-			objectShader->SetFloat(("u_pointLight[" + number + "].linear").c_str(), 0.09f);
-			objectShader->SetFloat(("u_pointLight[" + number + "].quadratic").c_str(), 0.032f);
+			std::string base = "u_pointLight[" + number + "]";
+			objectShader->SetPointLight(base, pointLights[i]);
 		}
 
-		// Directional light
-		objectShader->SetFloat3("u_dirLight.direction", -0.2f, -1.0f, -0.3f);
-		objectShader->SetFloat3("u_dirLight.ambient", 0.05f, 0.05f, 0.1f);
-		objectShader->SetFloat3("u_dirLight.diffuse", 0.2f, 0.2f, 0.2f);
-		objectShader->SetFloat3("u_dirLight.specular", 0.7f, 0.7f, 0.7f);
 
 		glActiveTexture(GL_TEXTURE0);
 		GLCall(glBindTexture(GL_TEXTURE_2D, diffuseTexture));
@@ -257,7 +292,7 @@ int main(void)
 			GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
 		}
 		lightShader->SetFloat3("u_lightColor", glm::value_ptr(lightDiffuse));
-		GLCall(glBindVertexArray(lightVao));
+		
 		for (int i = 0; i < 4; i++) {
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, pointLightPos[i]);
@@ -269,10 +304,7 @@ int main(void)
 		}
 
 
-		modelShader->SetFloat3("u_dirLight.direction", -0.2f, -1.0f, -0.3f);
-		modelShader->SetFloat3("u_dirLight.ambient", 0.05f, 0.05f, 0.1f);
-		modelShader->SetFloat3("u_dirLight.diffuse", 0.2f, 0.2f, 0.2f);
-		modelShader->SetFloat3("u_dirLight.specular", 0.7f, 0.7f, 0.7f);
+		modelShader->SetDirectionalLight("u_dirLight", sun);
 		modelShader->SetFloat3("u_viewPos", camera->View());
 		modelShader->SetFloat("u_material.shininess", 32.0f);
 
@@ -281,7 +313,22 @@ int main(void)
 		modelShader->SetMatrix4("view", camera->View());
 		modelShader->SetMatrix4("projection", camera->Proj());
 		modelShader->SetMatrix4("model", glm::value_ptr(model));
-		backpack.Draw(modelShader);
+		//backpack.Draw(modelShader);
+
+		glBindVertexArray(grassVao);
+
+		glActiveTexture(GL_TEXTURE0);
+		GLCall(glBindTexture(GL_TEXTURE_2D, grassTexture));
+
+		vegetationShader->SetInt("texture1", 0);
+		vegetationShader->SetMatrix4("view", camera->View());
+		vegetationShader->SetMatrix4("projection", camera->Proj());
+		for (unsigned int i = 0; i < 4; i++) {
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, vegetationPositions[i]);
+			vegetationShader->SetMatrix4("model", glm::value_ptr(model));
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+		}
 
 
 		/* Swap front and back buffers */

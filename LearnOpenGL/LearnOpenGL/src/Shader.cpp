@@ -66,6 +66,29 @@ void Shader::SetFloat3(const char* propName, glm::vec3 values)
 	
 }
 
+void Shader::SetDirectionalLight(std::string& propName, DirectionalLight light)
+{
+	BindShaderProgram();
+
+	SetFloat3((propName + ".ambient").c_str(), light.ambient);
+	SetFloat3((propName + ".diffuse").c_str(), light.diffuse);
+	SetFloat3((propName + ".specular").c_str(), light.ambient);
+	SetFloat3((propName + ".direction").c_str(), light.direction);
+}
+
+void Shader::SetPointLight(std::string& propName, PointLight light)
+{
+	BindShaderProgram();
+
+	SetFloat3((propName + ".position").c_str(), light.position);
+	SetFloat3((propName + ".ambient").c_str(), light.ambient);
+	SetFloat3((propName + ".diffuse").c_str(), light.diffuse);
+	SetFloat3((propName + ".specular").c_str(), light.ambient);
+	SetFloat((propName + ".constant").c_str(), light.constant);
+	SetFloat((propName + ".linear").c_str(), light.linear);
+	SetFloat((propName + ".quadratic").c_str(), light.quadratic);
+}
+
 int Shader::GetLocation(const char* propName) {
 	int location = -1;
 	

@@ -14,6 +14,8 @@
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
 
+#include "GraphicsStructs.h"
+
 class Shader {
 public:
 	Shader(const std::string& vsPath, const std::string& fsPath);
@@ -33,6 +35,9 @@ public:
 	void SetFloat3(const char* propName, float r, float g, float b);
 	void SetFloat3(const char* propName, float* values);
 	void SetFloat3(const char* propName, glm::vec3 values);
+
+	void SetDirectionalLight(std::string& propName, DirectionalLight light);
+	void SetPointLight(std::string& propName, PointLight light);
 
 	unsigned int GetID() { return _shaderProgram; }
 

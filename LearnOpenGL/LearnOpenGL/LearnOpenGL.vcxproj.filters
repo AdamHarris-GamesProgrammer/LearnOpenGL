@@ -65,6 +65,9 @@
     <ClInclude Include="src\Model.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\GraphicsStructs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Res\Shaders\ModelShader.vert" />
@@ -74,6 +77,7 @@
     <None Include="Res\Shaders\LightShader.vert" />
     <None Include="Res\Shaders\LightShader.frag" />
     <None Include="Res\Shaders\LightUtilities.glsl" />
+    <None Include="Res\Shaders\GrassShader.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Res\Textures\wall.jpg">
@@ -89,6 +93,9 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="Res\Textures\container2_emission.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Res\Textures\grass.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
