@@ -36,8 +36,8 @@ public:
 	void SetFloat3(const char* propName, float* values);
 	void SetFloat3(const char* propName, glm::vec3 values);
 
-	void SetDirectionalLight(std::string& propName, DirectionalLight light);
-	void SetPointLight(std::string& propName, PointLight light);
+	void SetDirectionalLight(std::string propName, DirectionalLight light);
+	void SetPointLight(std::string propName, PointLight light);
 
 	unsigned int GetID() { return _shaderProgram; }
 

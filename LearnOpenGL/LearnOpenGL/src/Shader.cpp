@@ -66,7 +66,7 @@ void Shader::SetFloat3(const char* propName, glm::vec3 values)
 	
 }
 
-void Shader::SetDirectionalLight(std::string& propName, DirectionalLight light)
+void Shader::SetDirectionalLight(std::string propName, DirectionalLight light)
 {
 	BindShaderProgram();
 
@@ -76,7 +76,7 @@ void Shader::SetDirectionalLight(std::string& propName, DirectionalLight light)
 	SetFloat3((propName + ".direction").c_str(), light.direction);
 }
 
-void Shader::SetPointLight(std::string& propName, PointLight light)
+void Shader::SetPointLight(std::string propName, PointLight light)
 {
 	BindShaderProgram();
 
