@@ -12,7 +12,7 @@ public:
 	Model(const char* path) {
 		LoadModel(path);
 	}
-	void Draw(Shader& shader);
+	void Draw(Shader* shader);
 
 private:
 	std::vector<Mesh> meshes;

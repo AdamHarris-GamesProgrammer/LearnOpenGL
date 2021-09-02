@@ -166,9 +166,9 @@ int main(void)
 	GLCall(glEnableVertexAttribArray(0));
 
 	TextureLoader textureLoader;
-	unsigned int diffuseTexture = textureLoader.LoadTexture("Res/Textures/container2.png");
+	unsigned int diffuseTexture = textureLoader.LoadTexture("Res/Models/backpack/diffuse.jpg");
 	unsigned int specularTexture = textureLoader.LoadTexture("Res/Textures/container2_specular.png");
-	unsigned int emissionTexture = textureLoader.LoadTexture("Res/Textures/container2_emission.jpg");
+	//unsigned int emissionTexture = textureLoader.LoadTexture("Res/Textures/container2_emission.jpg");
 
 	Model backpack("Res/Models/backpack/backpack.obj");
 
@@ -219,8 +219,7 @@ int main(void)
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-		modelShader->SetMatrix4("u_view", camera->View());
-		modelShader->SetMatrix4("u_projection", camera->Proj());
+
 
 
 		//// Point light 1				
@@ -265,12 +264,8 @@ int main(void)
 		//objectShader->SetInt("u_material.specular", 1);
 		//objectShader->SetFloat("u_material.shininess", 32.0f);
 		//objectShader->SetFloat3("u_viewPos", camera->Position());
-
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f));
-		modelShader->SetMatrix4("u_model", glm::value_ptr(model));
-		backpack.Draw(*modelShader);
-
+		//objectShader->SetMatrix4("u_view", camera->View());
+		//objectShader->SetMatrix4("u_projection", camera->Proj());
 		//GLCall(glBindVertexArray(cubeVao));
 		//for (unsigned int i = 0; i < 10; i++) {
 		//	glm::mat4 model = glm::mat4(1.0f);
@@ -291,6 +286,15 @@ int main(void)
 		//	lightShader->SetMatrix4("u_projection", camera->Proj());
 		//	GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
 		//}
+
+
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(0.0f));
+		modelShader->SetMatrix4("view", camera->View());
+		modelShader->SetMatrix4("projection", camera->Proj());
+		modelShader->SetMatrix4("model", glm::value_ptr(model));
+		backpack.Draw(modelShader);
+
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(_pWindow);
