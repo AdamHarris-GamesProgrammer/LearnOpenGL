@@ -166,18 +166,18 @@ int main(void)
 	GLCall(glEnableVertexAttribArray(0));
 
 	TextureLoader textureLoader;
-	unsigned int diffuseTexture = textureLoader.LoadTexture("Res/Models/backpack/diffuse.jpg");
+	unsigned int diffuseTexture = textureLoader.LoadTexture("Res/Textures/container2.png");
 	unsigned int specularTexture = textureLoader.LoadTexture("Res/Textures/container2_specular.png");
 	//unsigned int emissionTexture = textureLoader.LoadTexture("Res/Textures/container2_emission.jpg");
 
 	Model backpack("Res/Models/backpack/backpack.obj");
 
-	Shader* modelShader = new Shader("Res/Shaders/ModelShader.shader");
+	Shader* modelShader = new Shader("Res/Shaders/ModelShader.vs", "Res/Shaders/ModelShader.fs");
 
-	Shader* objectShader = new Shader("Res/Shaders/Basic.shader");
+	Shader* objectShader = new Shader("Res/Shaders/BasicShader.vs", "Res/Shaders/BasicShader.fs");
 	objectShader->BindShaderProgram();
 
-	Shader* lightShader = new Shader("Res/Shaders/LightShader.shader");
+	Shader* lightShader = new Shader("Res/Shaders/LightShader.vs", "Res/Shaders/LightShader.fs");
 
 	glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
 
@@ -222,70 +222,70 @@ int main(void)
 
 
 
-		//// Point light 1				
-		//objectShader->SetFloat3("u_pointLight[0].position", pointLightPos[0]);
-		//objectShader->SetFloat3("u_pointLight[0].ambient", lightAmbient);
-		//objectShader->SetFloat3("u_pointLight[0].diffuse", lightDiffuse);
-		//objectShader->SetFloat3("u_pointLight[0].specular", lightSpecular);
-		//objectShader->SetFloat("u_pointLight[0].constant", 1.0f);
-		//objectShader->SetFloat("u_pointLight[0].linear", 0.09f);
-		//objectShader->SetFloat("u_pointLight[0].quadratic", 0.032f);
-		//objectShader->SetFloat3("u_pointLight[1].position", pointLightPos[1]);
-		//objectShader->SetFloat3("u_pointLight[1].ambient", lightAmbient);
-		//objectShader->SetFloat3("u_pointLight[1].diffuse", lightDiffuse);
-		//objectShader->SetFloat3("u_pointLight[1].specular", lightSpecular);
-		//objectShader->SetFloat("u_pointLight[1].constant", 1.0f);
-		//objectShader->SetFloat("u_pointLight[1].linear", 0.09f);
-		//objectShader->SetFloat("u_pointLight[1].quadratic", 0.032f);
-		//objectShader->SetFloat3("u_pointLight[2].position", pointLightPos[2]);
-		//objectShader->SetFloat3("u_pointLight[2].ambient", lightAmbient);
-		//objectShader->SetFloat3("u_pointLight[2].diffuse", lightDiffuse);
-		//objectShader->SetFloat3("u_pointLight[2].specular", lightSpecular);
-		//objectShader->SetFloat("u_pointLight[2].constant", 1.0f);
-		//objectShader->SetFloat("u_pointLight[2].linear", 0.09f);
-		//objectShader->SetFloat("u_pointLight[2].quadratic", 0.032f);
-		//objectShader->SetFloat3("u_pointLight[3].position", pointLightPos[3]);
-		//objectShader->SetFloat3("u_pointLight[3].ambient", lightAmbient);
-		//objectShader->SetFloat3("u_pointLight[3].diffuse", lightDiffuse);
-		//objectShader->SetFloat3("u_pointLight[3].specular", lightSpecular);
-		//objectShader->SetFloat("u_pointLight[3].constant", 1.0f);
-		//objectShader->SetFloat("u_pointLight[3].linear", 0.09f);
-		//objectShader->SetFloat("u_pointLight[3].quadratic", 0.032f);
-		//// Directional light
-		//objectShader->SetFloat3("u_dirLight.direction", -0.2f, -1.0f, -0.3f);
-		//objectShader->SetFloat3("u_dirLight.ambient", 0.05f, 0.05f, 0.1f);
-		//objectShader->SetFloat3("u_dirLight.diffuse", 0.2f, 0.2f, 0.2f);
-		//objectShader->SetFloat3("u_dirLight.specular", 0.7f, 0.7f, 0.7f);
-		//glActiveTexture(GL_TEXTURE0);
-		//GLCall(glBindTexture(GL_TEXTURE_2D, diffuseTexture));
-		//glActiveTexture(GL_TEXTURE1);
-		//GLCall(glBindTexture(GL_TEXTURE_2D, specularTexture));
-		//objectShader->SetInt("u_material.diffuse", 0);
-		//objectShader->SetInt("u_material.specular", 1);
-		//objectShader->SetFloat("u_material.shininess", 32.0f);
-		//objectShader->SetFloat3("u_viewPos", camera->Position());
-		//objectShader->SetMatrix4("u_view", camera->View());
-		//objectShader->SetMatrix4("u_projection", camera->Proj());
-		//GLCall(glBindVertexArray(cubeVao));
-		//for (unsigned int i = 0; i < 10; i++) {
-		//	glm::mat4 model = glm::mat4(1.0f);
-		//	model = glm::translate(model, cubePositions[i]);
-		//	float angle = 20.0f * i;
-		//	model = glm::rotate(model, (float)glfwGetTime() * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
-		//	objectShader->SetMatrix4("u_model", glm::value_ptr(model));
-		//	GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
-		//}
-		//lightShader->SetFloat3("u_lightColor", glm::value_ptr(lightDiffuse));
-		//GLCall(glBindVertexArray(lightVao));
-		//for (int i = 0; i < 4; i++) {
-		//	glm::mat4 model = glm::mat4(1.0f);
-		//	model = glm::translate(model, pointLightPos[i]);
-		//	model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-		//	lightShader->SetMatrix4("u_model", glm::value_ptr(model));
-		//	lightShader->SetMatrix4("u_view", camera->View());
-		//	lightShader->SetMatrix4("u_projection", camera->Proj());
-		//	GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
-		//}
+		// Point light 1				
+		objectShader->SetFloat3("u_pointLight[0].position", pointLightPos[0]);
+		objectShader->SetFloat3("u_pointLight[0].ambient", lightAmbient);
+		objectShader->SetFloat3("u_pointLight[0].diffuse", lightDiffuse);
+		objectShader->SetFloat3("u_pointLight[0].specular", lightSpecular);
+		objectShader->SetFloat("u_pointLight[0].constant", 1.0f);
+		objectShader->SetFloat("u_pointLight[0].linear", 0.09f);
+		objectShader->SetFloat("u_pointLight[0].quadratic", 0.032f);
+		objectShader->SetFloat3("u_pointLight[1].position", pointLightPos[1]);
+		objectShader->SetFloat3("u_pointLight[1].ambient", lightAmbient);
+		objectShader->SetFloat3("u_pointLight[1].diffuse", lightDiffuse);
+		objectShader->SetFloat3("u_pointLight[1].specular", lightSpecular);
+		objectShader->SetFloat("u_pointLight[1].constant", 1.0f);
+		objectShader->SetFloat("u_pointLight[1].linear", 0.09f);
+		objectShader->SetFloat("u_pointLight[1].quadratic", 0.032f);
+		objectShader->SetFloat3("u_pointLight[2].position", pointLightPos[2]);
+		objectShader->SetFloat3("u_pointLight[2].ambient", lightAmbient);
+		objectShader->SetFloat3("u_pointLight[2].diffuse", lightDiffuse);
+		objectShader->SetFloat3("u_pointLight[2].specular", lightSpecular);
+		objectShader->SetFloat("u_pointLight[2].constant", 1.0f);
+		objectShader->SetFloat("u_pointLight[2].linear", 0.09f);
+		objectShader->SetFloat("u_pointLight[2].quadratic", 0.032f);
+		objectShader->SetFloat3("u_pointLight[3].position", pointLightPos[3]);
+		objectShader->SetFloat3("u_pointLight[3].ambient", lightAmbient);
+		objectShader->SetFloat3("u_pointLight[3].diffuse", lightDiffuse);
+		objectShader->SetFloat3("u_pointLight[3].specular", lightSpecular);
+		objectShader->SetFloat("u_pointLight[3].constant", 1.0f);
+		objectShader->SetFloat("u_pointLight[3].linear", 0.09f);
+		objectShader->SetFloat("u_pointLight[3].quadratic", 0.032f);
+		// Directional light
+		objectShader->SetFloat3("u_dirLight.direction", -0.2f, -1.0f, -0.3f);
+		objectShader->SetFloat3("u_dirLight.ambient", 0.05f, 0.05f, 0.1f);
+		objectShader->SetFloat3("u_dirLight.diffuse", 0.2f, 0.2f, 0.2f);
+		objectShader->SetFloat3("u_dirLight.specular", 0.7f, 0.7f, 0.7f);
+		glActiveTexture(GL_TEXTURE0);
+		GLCall(glBindTexture(GL_TEXTURE_2D, diffuseTexture));
+		glActiveTexture(GL_TEXTURE1);
+		GLCall(glBindTexture(GL_TEXTURE_2D, specularTexture));
+		objectShader->SetInt("u_material.diffuse", 0);
+		objectShader->SetInt("u_material.specular", 1);
+		objectShader->SetFloat("u_material.shininess", 32.0f);
+		objectShader->SetFloat3("u_viewPos", camera->Position());
+		objectShader->SetMatrix4("u_view", camera->View());
+		objectShader->SetMatrix4("u_projection", camera->Proj());
+		GLCall(glBindVertexArray(cubeVao));
+		for (unsigned int i = 0; i < 10; i++) {
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, cubePositions[i]);
+			float angle = 20.0f * i;
+			model = glm::rotate(model, (float)glfwGetTime() * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
+			objectShader->SetMatrix4("u_model", glm::value_ptr(model));
+			GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
+		}
+		lightShader->SetFloat3("u_lightColor", glm::value_ptr(lightDiffuse));
+		GLCall(glBindVertexArray(lightVao));
+		for (int i = 0; i < 4; i++) {
+			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::translate(model, pointLightPos[i]);
+			model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+			lightShader->SetMatrix4("u_model", glm::value_ptr(model));
+			lightShader->SetMatrix4("u_view", camera->View());
+			lightShader->SetMatrix4("u_projection", camera->Proj());
+			GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
+		}
 
 
 		glm::mat4 model = glm::mat4(1.0f);

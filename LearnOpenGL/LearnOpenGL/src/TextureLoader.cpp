@@ -22,12 +22,12 @@ unsigned int TextureLoader::LoadTexture(const std::string& filename, bool should
 	}
 	ASSERT(data);
 
-	if (filename.find(".jpg") != std::string::npos) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _width, _height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-	}
-	else if (filename.find(".png") != std::string::npos) {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _width, _height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-	}
+	GLenum format;
+	if (_nrChannels == 1) format = GL_RED;
+	else if (_nrChannels == 3) format = GL_RGB;
+	else if (_nrChannels == 4) format = GL_RGBA;
+
+	glTexImage2D(GL_TEXTURE_2D, 0, format, _width, _height, 0, format, GL_UNSIGNED_BYTE, data);
 
 	glGenerateMipmap(GL_TEXTURE_2D);
 

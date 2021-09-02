@@ -14,14 +14,10 @@
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
 
-struct ShaderSource {
-	std::string vertexSource;
-	std::string fragmentSource;
-};
-
 class Shader {
 public:
 	Shader(const std::string& filepath);
+	Shader(const std::string& vsPath, const std::string& fsPath);
 
 	void BindShaderProgram();
 
@@ -44,11 +40,9 @@ public:
 private:
 	int GetLocation(const char* propName);
 
-	ShaderSource ParseShader(const std::string& filepath);
-
 	unsigned int CompileShader(const std::string& shader, unsigned int type);
 
-	void CreateShader(ShaderSource source);
+	void CreateShader(unsigned int vs, unsigned int fs);
 
 private:
 	unsigned int _shaderProgram;

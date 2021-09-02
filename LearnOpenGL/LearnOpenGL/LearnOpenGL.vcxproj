@@ -166,9 +166,12 @@
     <ClInclude Include="src\TextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Res\Shaders\Basic.shader" />
-    <None Include="Res\Shaders\LightShader.shader" />
-    <None Include="Res\Shaders\ModelShader.shader" />
+    <None Include="Res\Shaders\BasicShader.fs" />
+    <None Include="Res\Shaders\BasicShader.vs" />
+    <None Include="Res\Shaders\LightShader.fs" />
+    <None Include="Res\Shaders\LightShader.vs" />
+    <None Include="Res\Shaders\ModelShader.fs" />
+    <None Include="Res\Shaders\ModelShader.vs" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Res\Textures\awesomeface.png" />

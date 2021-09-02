@@ -1,7 +1,30 @@
 #include "Shader.h"
 
-Shader::Shader(const std::string& filepath) {
-	CreateShader(ParseShader(filepath));
+Shader::Shader(const std::string& vsPath, const std::string& fsPath)
+{
+	std::ifstream stream(vsPath);
+
+	std::string line;
+	std::stringstream vs;
+
+	while (getline(stream, line)) {
+		vs << line << '\n';
+	}
+
+	unsigned int v =CompileShader(vs.str(), GL_VERTEX_SHADER);
+
+	std::ifstream fsStream(fsPath);
+
+	std::stringstream fs;
+
+	while (getline(fsStream, line))
+	{
+		fs << line << '\n';
+	}
+
+	unsigned int f = CompileShader(fs.str(), GL_FRAGMENT_SHADER);
+
+	CreateShader(v, f);
 }
 
 void Shader::BindShaderProgram() {
@@ -69,35 +92,6 @@ int Shader::GetLocation(const char* propName) {
 	return location;
 }
 
-ShaderSource Shader::ParseShader(const std::string& filepath) {
-	std::ifstream stream(filepath);
-
-	enum class ShaderType {
-		NONE = -1, VERTEX = 0, FRAGMENT = 1
-	};
-
-	ShaderType type = ShaderType::NONE;
-
-	std::string line;
-	std::stringstream ss[2];
-
-	while (getline(stream, line)) {
-
-		if (line.find("#shader") != std::string::npos) {
-			if (line.find("vertex") != std::string::npos) {
-				type = ShaderType::VERTEX;
-			}
-			else if (line.find("fragment") != std::string::npos) {
-				type = ShaderType::FRAGMENT;
-			}
-		}
-		else {
-			ss[(int)type] << line << '\n';
-		}
-	}
-
-	return { ss[0].str(), ss[1].str() };
-}
 
 unsigned int Shader::CompileShader(const std::string& shader, unsigned int type) {
 	GLCall(unsigned int  id = glCreateShader(type));
@@ -106,7 +100,7 @@ unsigned int Shader::CompileShader(const std::string& shader, unsigned int type)
 
 	GLCall(glShaderSource(id, 1, &src, nullptr));
 	GLCall(glCompileShader(id));
-
+	 
 	int result;
 	GLCall(glGetShaderiv(id, GL_COMPILE_STATUS, &result));
 	if (result == GL_FALSE) {
@@ -125,12 +119,9 @@ unsigned int Shader::CompileShader(const std::string& shader, unsigned int type)
 	return id;
 }
 
-void Shader::CreateShader(ShaderSource source) {
+void Shader::CreateShader(unsigned int vs, unsigned int fs)
+{
 	GLCall(_shaderProgram = glCreateProgram());
-
-	unsigned int vs = CompileShader(source.vertexSource, GL_VERTEX_SHADER);
-	unsigned int fs = CompileShader(source.fragmentSource, GL_FRAGMENT_SHADER);
-
 	GLCall(glAttachShader(_shaderProgram, vs));
 	GLCall(glAttachShader(_shaderProgram, fs));
 	GLCall(glLinkProgram(_shaderProgram));
@@ -139,3 +130,4 @@ void Shader::CreateShader(ShaderSource source) {
 	GLCall(glDeleteShader(vs));
 	GLCall(glDeleteShader(fs));
 }
+
