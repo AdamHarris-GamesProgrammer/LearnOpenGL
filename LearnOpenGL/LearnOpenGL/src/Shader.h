@@ -16,7 +16,6 @@
 
 class Shader {
 public:
-	Shader(const std::string& filepath);
 	Shader(const std::string& vsPath, const std::string& fsPath);
 
 	void BindShaderProgram();
@@ -46,6 +45,4 @@ private:
 
 private:
 	unsigned int _shaderProgram;
-
-	std::unordered_map<const char*, unsigned int>* _propertyMap = new std::unordered_map<const char*, unsigned int>();
 };

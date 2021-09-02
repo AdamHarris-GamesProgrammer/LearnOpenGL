@@ -37,6 +37,7 @@ void Shader::CleanupShader() {
 
 void Shader::SetFloat(const char* propName, float value) {
 	BindShaderProgram();
+	//std::cout << propName << std::endl;
 	GLCall(glUniform1f(GetLocation(propName), value));
 }
 
@@ -59,35 +60,30 @@ void Shader::SetMatrix4(const char* propName, float* value)
 void Shader::SetFloat3(const char* propName, float r, float g, float b)
 {
 	BindShaderProgram();
+	//std::cout << propName << std::endl;
 	GLCall(glUniform3f(GetLocation(propName), r,g,b));
 }
 
 void Shader::SetFloat3(const char* propName, float* values)
 {
 	BindShaderProgram();
+	//std::cout << propName << std::endl;
 	GLCall(glUniform3f(GetLocation(propName), values[0], values[1], values[2]));
 }
 
 void Shader::SetFloat3(const char* propName, glm::vec3 values)
 {
 	BindShaderProgram();
+	//std::cout << propName << std::endl;
 	GLCall(glUniform3f(GetLocation(propName), values.r, values.g, values.b));
 	
 }
 
 int Shader::GetLocation(const char* propName) {
 	int location = -1;
-
-	std::unordered_map<const char*, unsigned int>::const_iterator it = _propertyMap->find(propName);
-
-	if (it != _propertyMap->end()) {
-		location = it->second;
-	}
-	else {
-		GLCall(location = glGetUniformLocation(_shaderProgram, propName));
-		ASSERT(location != -1);
-		_propertyMap->emplace(propName, location);
-	}
+	
+	GLCall(location = glGetUniformLocation(_shaderProgram, propName));
+	ASSERT(location != -1);
 
 	return location;
 }
