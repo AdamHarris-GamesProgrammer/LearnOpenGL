@@ -1,4 +1,6 @@
 #version 330 core
+#include "LightUtilities.glsl" //! #include "LightUtilities.glsl"
+
 out vec4 FragColor;
 
 in vec2 TexCoords;
@@ -15,16 +17,11 @@ struct Material {
     float shininess;
 };
 
-struct DirLight {
-	vec3 direction;
 
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
-};
 
 uniform Material u_material;
 uniform DirLight u_dirLight;
+//uniform PointLight u_pointLight;
 uniform vec3 u_viewPos;
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);

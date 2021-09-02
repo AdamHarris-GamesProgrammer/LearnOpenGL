@@ -2,26 +2,13 @@
 
 Shader::Shader(const std::string& vsPath, const std::string& fsPath)
 {
-	std::ifstream stream(vsPath);
-
-	std::string line;
 	std::stringstream vs;
-
-	while (getline(stream, line)) {
-		vs << line << '\n';
-	}
-
-	unsigned int v =CompileShader(vs.str(), GL_VERTEX_SHADER);
-
-	std::ifstream fsStream(fsPath);
-
 	std::stringstream fs;
 
-	while (getline(fsStream, line))
-	{
-		fs << line << '\n';
-	}
+	vs = ParseShader(vsPath);
+	fs = ParseShader(fsPath);
 
+	unsigned int v = CompileShader(vs.str(), GL_VERTEX_SHADER);
 	unsigned int f = CompileShader(fs.str(), GL_FRAGMENT_SHADER);
 
 	CreateShader(v, f);
@@ -125,5 +112,43 @@ void Shader::CreateShader(unsigned int vs, unsigned int fs)
 
 	GLCall(glDeleteShader(vs));
 	GLCall(glDeleteShader(fs));
+}
+
+std::stringstream Shader::ParseShader(const std::string& path)
+{
+	std::ifstream stream(path);
+
+	std::string line;
+	std::stringstream ss;
+
+	while (getline(stream, line)) {
+		if (line.find("#include ") != std::string::npos) {
+			std::string directory = path.substr(0, path.find_last_of('/'));
+
+			size_t lastMark = line.find_last_of("\"");
+			size_t firstMark = line.find_first_of("\"");
+
+			size_t count = (lastMark - firstMark) - 1;
+
+			std::string includeFile = line.substr(firstMark + 1, count);
+
+			size_t comment = line.find("//!");
+
+			count = (comment - firstMark) - 2;
+
+			std::string newPath = directory + "/" + line.substr(firstMark + 1, count - 1);
+
+			ss << ParseShader(newPath).str();
+		}
+		else
+		{
+			ss << line << '\n';
+		}
+
+		line = "";
+	}
+
+
+	return ss;
 }
 

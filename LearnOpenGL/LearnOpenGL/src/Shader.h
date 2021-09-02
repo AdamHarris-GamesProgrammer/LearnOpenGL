@@ -43,6 +43,8 @@ private:
 
 	void CreateShader(unsigned int vs, unsigned int fs);
 
+	std::stringstream ParseShader(const std::string& path);
+
 private:
 	unsigned int _shaderProgram;
 };

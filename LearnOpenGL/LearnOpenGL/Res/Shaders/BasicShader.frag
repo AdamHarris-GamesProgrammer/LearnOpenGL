@@ -1,4 +1,5 @@
 #version 330 core
+#include "LightUtilities.glsl" //! #include "LightUtilities.glsl"
 
 #define NR_POINT_LIGHTS 4
 
@@ -6,25 +7,6 @@ struct Material {
 	sampler2D diffuse;
 	sampler2D specular;
 	float shininess;
-};
-
-struct DirLight {
-	vec3 direction;
-
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
-};
-
-struct PointLight {
-	vec3 position;
-	vec3 ambient;
-	vec3 diffuse;
-	vec3 specular;
-
-	float constant;
-	float linear;
-	float quadratic;
 };
 
 in vec2 texCoord;
@@ -56,15 +38,9 @@ void main() {
 
 	vec3 result = CalcDirLight(u_dirLight, norm, viewDir);
 
-	//for (int i = 0; i < NR_POINT_LIGHTS; i++) {
-		//result += CalcPointLight(u_pointLight[i], norm, fragPos, viewDir);
-	//}
-
-	result += CalcPointLight(u_pointLight[0], norm, fragPos, viewDir);
-	result += CalcPointLight(u_pointLight[1], norm, fragPos, viewDir);
-	result += CalcPointLight(u_pointLight[2], norm, fragPos, viewDir);
-	result += CalcPointLight(u_pointLight[3], norm, fragPos, viewDir);
-
+	for (int i = 0; i < NR_POINT_LIGHTS; i++) {
+		result += CalcPointLight(u_pointLight[i], norm, fragPos, viewDir);
+	}
 
 	FragColor = vec4(result, 1.0);
 }

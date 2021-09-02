@@ -170,9 +170,9 @@ int main(void)
 	unsigned int specularTexture = textureLoader.LoadTexture("Res/Textures/container2_specular.png");
 	//unsigned int emissionTexture = textureLoader.LoadTexture("Res/Textures/container2_emission.jpg");
 
-	Model backpack("Res/Models/backpack/backpack.obj");
-
 	Shader* modelShader = new Shader("Res/Shaders/ModelShader.vert", "Res/Shaders/ModelShader.frag");
+
+	Model backpack("Res/Models/backpack/backpack.obj");
 
 	Shader* objectShader = new Shader("Res/Shaders/BasicShader.vert", "Res/Shaders/BasicShader.frag");
 	objectShader->BindShaderProgram();

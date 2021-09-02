@@ -73,6 +73,7 @@
     <None Include="Res\Shaders\BasicShader.frag" />
     <None Include="Res\Shaders\LightShader.vert" />
     <None Include="Res\Shaders\LightShader.frag" />
+    <None Include="Res\Shaders\LightUtilities.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Res\Textures\wall.jpg">
