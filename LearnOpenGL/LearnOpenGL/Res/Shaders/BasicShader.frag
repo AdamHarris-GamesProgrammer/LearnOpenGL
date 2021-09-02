@@ -19,12 +19,8 @@ uniform Material u_material;
 
 uniform DirLight u_dirLight;
 uniform PointLight u_pointLight[NR_POINT_LIGHTS];
-//uniform PointLight u_pointLight;
 
 out vec4 FragColor;
-
-vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
-vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir);
 
 void main() {
 	u_material;

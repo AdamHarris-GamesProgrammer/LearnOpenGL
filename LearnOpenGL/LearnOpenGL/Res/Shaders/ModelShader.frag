@@ -18,13 +18,9 @@ struct Material {
 };
 
 
-
 uniform Material u_material;
 uniform DirLight u_dirLight;
-//uniform PointLight u_pointLight;
 uniform vec3 u_viewPos;
-
-vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir);
 
 void main()
 {
