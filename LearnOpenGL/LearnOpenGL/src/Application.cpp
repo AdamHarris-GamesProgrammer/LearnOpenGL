@@ -13,6 +13,7 @@
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
+#include <map>
 
 
 GLFWwindow* _pWindow = nullptr;
@@ -97,20 +98,7 @@ float quadVerts[] = {
 	-0.5f, -0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,	 0.0f, 0.0f,
 };
 
-glm::vec3 vegetationPositions[] = {
-	glm::vec3(1.5f, 0.0f, -1.0f),
-	glm::vec3(-3.8f, 0.0f, -2.5f),
-	glm::vec3(2.5, 0.0f, 2.3f),
-	glm::vec3(-1.2f, 0.0f, 1.5f)
-};
 
-glm::vec3 windowPositions[] = {
-	glm::vec3(-1.5f,  0.0f, -0.48f),
-	glm::vec3(1.5f,  0.0f,  0.51f),
-	glm::vec3(0.0f,  0.0f,  0.7f),
-	glm::vec3(-0.3f,  0.0f, -2.3f),
-	glm::vec3(0.5f,  0.0f, -0.6f)
-};
 
 void MouseCallback(GLFWwindow* window, double xpos, double ypos);
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
@@ -174,14 +162,14 @@ int main(void)
 	GLCall(glEnableVertexAttribArray(1));
 	GLCall(glEnableVertexAttribArray(2));
 
-	unsigned int grassVao;
-	unsigned int grassVbo;
+	unsigned int quadVao;
+	unsigned int quadVbo;
 
-	GLCall(glGenVertexArrays(1, &grassVao));
-	GLCall(glBindVertexArray(grassVao));
+	GLCall(glGenVertexArrays(1, &quadVao));
+	GLCall(glBindVertexArray(quadVao));
 
-	GLCall(glGenBuffers(1, &grassVbo));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, grassVbo));
+	GLCall(glGenBuffers(1, &quadVbo));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, quadVbo));
 	GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(quadVerts), quadVerts, GL_STATIC_DRAW));
 
 	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)0));
@@ -195,7 +183,8 @@ int main(void)
 	TextureLoader textureLoader;
 	unsigned int diffuseTexture = textureLoader.LoadTexture("Res/Textures/container2.png");
 	unsigned int specularTexture = textureLoader.LoadTexture("Res/Textures/container2_specular.png");
-	unsigned int grassTexture = textureLoader.LoadTexture("Res/Textures/window.png", true);
+	unsigned int grassTexture = textureLoader.LoadTexture("Res/Textures/grass.png", true);
+	unsigned int windowTexture = textureLoader.LoadTexture("Res/Textures/window.png", true);
 
 	Shader* objectShader = new Shader("Res/Shaders/BasicShader.vert", "Res/Shaders/BasicShader.frag");
 	Shader* lightShader = new Shader("Res/Shaders/LightShader.vert", "Res/Shaders/LightShader.frag");
@@ -222,14 +211,26 @@ int main(void)
 	glm::vec3 lightAmbient = glm::vec3(0.2f);
 	glm::vec3 lightSpecular = glm::vec3(1.0f);
 
-	DirectionalLight sun( glm::vec3(-0.2f, -1.0f, -0.3f), lightAmbient, lightDiffuse, lightSpecular);
+	DirectionalLight sun(glm::vec3(-0.2f, -1.0f, -0.3f), lightAmbient, lightDiffuse, lightSpecular);
 
-	PointLight pointLights[] = {
-		PointLight(glm::vec3(0.7f,  0.2f,  2.0f), lightAmbient, lightDiffuse, lightSpecular, 1.0f, 0.09f, 0.032f),
-		PointLight(glm::vec3(2.3f, -3.3f, -4.0f), lightAmbient, lightDiffuse, lightSpecular, 1.0f, 0.09f, 0.032f),
-		PointLight(glm::vec3(-4.0f,  2.0f, -12.0f), lightAmbient, lightDiffuse, lightSpecular, 1.0f, 0.09f, 0.032f),
-		PointLight(glm::vec3(0.0f,  0.0f, -3.0f), lightAmbient, lightDiffuse, lightSpecular, 1.0f, 0.09f, 0.032f),
-	};
+	std::vector<PointLight> pointLights;
+	pointLights.push_back(PointLight(glm::vec3(0.7f, 0.2f, 2.0f), lightAmbient, lightDiffuse, lightSpecular, 1.0f, 0.09f, 0.032f));
+	pointLights.push_back(PointLight(glm::vec3(2.3f, -3.3f, -4.0f), lightAmbient, lightDiffuse, lightSpecular, 1.0f, 0.09f, 0.032f));
+	pointLights.push_back(PointLight(glm::vec3(-4.0f, 2.0f, -12.0f), lightAmbient, lightDiffuse, lightSpecular, 1.0f, 0.09f, 0.032f));
+	pointLights.push_back(PointLight(glm::vec3(0.0f, 0.0f, -3.0f), lightAmbient, lightDiffuse, lightSpecular, 1.0f, 0.09f, 0.032f));
+
+	std::vector<glm::vec3> vegetationPositions;
+	vegetationPositions.push_back(glm::vec3(1.5f, 0.0f, -1.0f));
+	vegetationPositions.push_back(glm::vec3(-3.8f, 0.0f, -2.5f));
+	vegetationPositions.push_back(glm::vec3(2.5, 0.0f, 2.3f));
+	vegetationPositions.push_back(glm::vec3(-1.2f, 0.0f, 1.5f));
+
+	std::vector<glm::vec3> windowPositions;
+	windowPositions.push_back(glm::vec3(-1.5f, 0.0f, -0.48f));
+	windowPositions.push_back(glm::vec3(1.5f, 0.0f, 0.51f));
+	windowPositions.push_back(glm::vec3(0.0f, 0.0f, 0.7f));
+	windowPositions.push_back(glm::vec3(-0.3f, 0.0f, -2.3f));
+	windowPositions.push_back(glm::vec3(0.5f, 0.0f, -0.6f));
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(_pWindow))
@@ -298,21 +299,37 @@ int main(void)
 		modelShader->SetMatrix4("model", glm::value_ptr(model));
 		//backpack.Draw(modelShader);
 
-		glBindVertexArray(grassVao);
+		std::map<float, glm::vec3> sorted;
+		for (unsigned int i = 0; i < windowPositions.size(); i++) {
+			float distance = glm::length(camera->GPosition() - windowPositions[i]);
+			sorted[distance] = windowPositions[i];
+		}
+
+		glBindVertexArray(quadVao);
 
 		glActiveTexture(GL_TEXTURE0);
-		GLCall(glBindTexture(GL_TEXTURE_2D, grassTexture));
+		GLCall(glBindTexture(GL_TEXTURE_2D, windowTexture));
 
 		vegetationShader->SetInt("texture1", 0);
 		vegetationShader->SetMatrix4("view", camera->View());
 		vegetationShader->SetMatrix4("projection", camera->Proj());
+
+		for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
+		{
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, it->second);
+			vegetationShader->SetMatrix4("model", glm::value_ptr(model));
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+		}
+
+		glActiveTexture(GL_TEXTURE0);
+		GLCall(glBindTexture(GL_TEXTURE_2D, grassTexture));
 		for (unsigned int i = 0; i < 4; i++) {
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, vegetationPositions[i]);
 			vegetationShader->SetMatrix4("model", glm::value_ptr(model));
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
-
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(_pWindow);

@@ -26,6 +26,10 @@ public:
 		return glm::value_ptr(cameraPos);
 	}
 
+	glm::vec3 GPosition() {
+		return cameraPos;
+	}
+
 	float* Front() {
 		return glm::value_ptr(cameraFront);
 	}
