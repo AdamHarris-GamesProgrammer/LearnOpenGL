@@ -108,12 +108,12 @@ float quadVerts[] = {
 };
 
 float screenQuad[] = {
-	-1.0f, -1.0f,	0.0f, 0.0f, //Bottom left
-	1.0f, -1.0f,	1.0f, 0.0f, //Bottom Right
+	0.7f, 0.7f,	0.0f, 0.0f, //Bottom left
+	1.0f, 0.7f,	1.0f, 0.0f, //Bottom Right
 	1.0f, 1.0f,		1.0f, 1.0f, //Top Right
 	1.0f, 1.0f,		1.0f, 1.0f, //Top Right
-	-1.0f, 1.0f,	0.0f, 1.0f, //Top Left
-	-1.0f, -1.0f,	0.0f, 0.0f //Bottom Left
+	0.7f, 1.0f,	0.0f, 1.0f, //Top Left
+	0.7f, 0.7f,	0.0f, 0.0f //Bottom Left
 };
 
 void MouseCallback(GLFWwindow* window, double xpos, double ypos);
@@ -187,6 +187,32 @@ int main(void)
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
 		std::cout << "[OPENGL ERROR]: Framebuffer is not complete" << std::endl;
 	}
+
+
+	unsigned int rearViewFB;
+	glGenFramebuffers(1, &rearViewFB);
+	glBindFramebuffer(GL_FRAMEBUFFER, rearViewFB);
+
+	unsigned int rearViewTex;
+	glGenTextures(1, &rearViewTex);
+	glBindTexture(GL_TEXTURE_2D, rearViewTex);
+	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+	GLCall(glBindTexture(GL_TEXTURE_2D, 0));
+
+	GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, rearViewTex, 0));
+
+	unsigned int rearRbo;
+	glGenRenderbuffers(1, &rearRbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, rearRbo);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rearRbo);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		std::cout << "[OPENGL ERROR]: Framebuffer is not complete" << std::endl;
+	}
+
 
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
@@ -304,6 +330,25 @@ int main(void)
 
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
+	objectShader->SetDirectionalLight("u_dirLight", sun);
+	objectShader->SetInt("u_material.diffuse", 0);
+	objectShader->SetInt("u_material.specular", 1);
+	objectShader->SetFloat("u_material.shininess", 32.0f);
+
+	lightShader->SetFloat3("u_lightColor", glm::value_ptr(lightDiffuse));
+
+	modelShader->SetDirectionalLight("u_dirLight", sun);
+	modelShader->SetFloat("u_material.shininess", 32.0f);
+	vegetationShader->SetInt("texture1", 0);
+
+	for (GLuint i = 0; i < 4; i++) {
+		std::string number = std::to_string(i);
+		std::string base = "u_pointLight[" + number + "]";
+		objectShader->SetPointLight(base, pointLights[i]);
+	}
+
+
+
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(_pWindow))
 	{
@@ -311,22 +356,26 @@ int main(void)
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		camera->Update(deltaTime);
-
-
-		GLCall(glBindFramebuffer(GL_FRAMEBUFFER, framebuffer));
+		//First Draw Pass: Mirror Rendering
+		GLCall(glBindFramebuffer(GL_FRAMEBUFFER, rearViewFB));
 		GLCall(glClearColor(0.1f, 0.1f, 0.1f, 1.0f));
-		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 		GLCall(glEnable(GL_DEPTH_TEST));
+		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
+		camera->yaw += 180.0f;
+		camera->ProcessMouseMovement(0.0, 0.0f, false);
+		camera->Update(deltaTime);
+		glm::mat4 view = camera->ViewMat();
+
+		camera->yaw -= 180.0f;
+		camera->ProcessMouseMovement(0.0f, 0.0f);
+
+		glm::mat4 projection = glm::perspective(glm::radians(camera->fov), (float)width / (float)height, 0.1f, 100.0f);
+
+		glm::mat4 model = glm::mat4(1.0);
 
 
-
-		objectShader->SetDirectionalLight("u_dirLight", sun);
-		for (GLuint i = 0; i < 4; i++) {
-			std::string number = std::to_string(i);
-			std::string base = "u_pointLight[" + number + "]";
-			objectShader->SetPointLight(base, pointLights[i]);
-		}
+		camera->Update(deltaTime);
 
 
 		GLCall(glActiveTexture(GL_TEXTURE0));
@@ -334,17 +383,12 @@ int main(void)
 		GLCall(glActiveTexture(GL_TEXTURE1));
 		GLCall(glBindTexture(GL_TEXTURE_2D, specularTexture));
 
-
-		objectShader->SetInt("u_material.diffuse", 0);
-		objectShader->SetInt("u_material.specular", 1);
-		objectShader->SetFloat("u_material.shininess", 32.0f);
 		objectShader->SetFloat3("u_viewPos", camera->Position());
-		objectShader->SetMatrix4("u_view", camera->View());
-		objectShader->SetMatrix4("u_projection", camera->Proj());
-
+		objectShader->SetMatrix4("u_view", view);
+		objectShader->SetMatrix4("u_projection", projection);
 		GLCall(glBindVertexArray(cubeVao));
 		for (unsigned int i = 0; i < 10; i++) {
-			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::mat4(1.0f);
 			model = glm::translate(model, cubePositions[i]);
 			float angle = 20.0f * i;
 			model = glm::rotate(model, (float)glfwGetTime() * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
@@ -352,11 +396,11 @@ int main(void)
 			GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
 		}
 
-		lightShader->SetFloat3("u_lightColor", glm::value_ptr(lightDiffuse));
-		lightShader->SetMatrix4("u_view", camera->View());
-		lightShader->SetMatrix4("u_projection", camera->Proj());
+
+		lightShader->SetMatrix4("u_view", view);
+		lightShader->SetMatrix4("u_projection", projection);
 		for (int i = 0; i < 4; i++) {
-			glm::mat4 model = glm::mat4(1.0f);
+			model = glm::mat4(1.0f);
 			model = glm::translate(model, pointLights[i].position);
 			model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
 			lightShader->SetMatrix4("u_model", glm::value_ptr(model));
@@ -364,14 +408,13 @@ int main(void)
 		}
 
 
-		modelShader->SetDirectionalLight("u_dirLight", sun);
+	
 		modelShader->SetFloat3("u_viewPos", camera->View());
-		modelShader->SetFloat("u_material.shininess", 32.0f);
 
-		glm::mat4 model = glm::mat4(1.0f);
+
 		model = glm::translate(model, glm::vec3(0.0f));
-		modelShader->SetMatrix4("view", camera->View());
-		modelShader->SetMatrix4("projection", camera->Proj());
+		modelShader->SetMatrix4("view", view);
+		modelShader->SetMatrix4("projection", projection);
 		modelShader->SetMatrix4("model", glm::value_ptr(model));
 		//backpack.Draw(modelShader);
 
@@ -386,9 +429,9 @@ int main(void)
 		GLCall(glActiveTexture(GL_TEXTURE0));
 		GLCall(glBindTexture(GL_TEXTURE_2D, windowTexture));
 
-		vegetationShader->SetInt("texture1", 0);
-		vegetationShader->SetMatrix4("view", camera->View());
-		vegetationShader->SetMatrix4("projection", camera->Proj());
+
+		vegetationShader->SetMatrix4("view", view);
+		vegetationShader->SetMatrix4("projection", projection);
 
 		for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
 		{
@@ -407,16 +450,98 @@ int main(void)
 			GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
 		}
 
-		GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-		GLCall(glDisable(GL_DEPTH_TEST));
-		GLCall(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
-		GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
+		camera->Update(deltaTime);
+
+		//Second Pass: Draw the scene normally
+		GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+		GLCall(glClearColor(0.3f, 0.3f, 0.3f, 1.0f));
+		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+
+
+		GLCall(glActiveTexture(GL_TEXTURE0));
+		GLCall(glBindTexture(GL_TEXTURE_2D, diffuseTexture));
+		GLCall(glActiveTexture(GL_TEXTURE1));
+		GLCall(glBindTexture(GL_TEXTURE_2D, specularTexture));
+
+		view = camera->ViewMat();
+
+		objectShader->SetFloat3("u_viewPos", camera->Position());
+		objectShader->SetMatrix4("u_view", view);
+		objectShader->SetMatrix4("u_projection", camera->Proj());
+
+		//Draw Cubes
+		GLCall(glBindVertexArray(cubeVao));
+		for (unsigned int i = 0; i < 10; i++) {
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, cubePositions[i]);
+			float angle = 20.0f * i;
+			model = glm::rotate(model, (float)glfwGetTime() * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
+			objectShader->SetMatrix4("u_model", glm::value_ptr(model));
+			GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
+		}
+
+		//Draw Lights
+		lightShader->SetMatrix4("u_view", view);
+		lightShader->SetMatrix4("u_projection", camera->Proj());
+		for (int i = 0; i < 4; i++) {
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, pointLights[i].position);
+			model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+			lightShader->SetMatrix4("u_model", glm::value_ptr(model));
+			GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
+		}
+
+
+		modelShader->SetFloat3("u_viewPos", camera->View());
+
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(0.0f));
+		modelShader->SetMatrix4("view", view);
+		modelShader->SetMatrix4("projection", camera->Proj());
+		modelShader->SetMatrix4("model", glm::value_ptr(model));
+		//backpack.Draw(modelShader);
+
+		sorted = std::map<float, glm::vec3>();
+		for (unsigned int i = 0; i < windowPositions.size(); i++) {
+			float distance = glm::length(camera->GPosition() - windowPositions[i]);
+			sorted[distance] = windowPositions[i];
+		}
+
+		//Windows
+		GLCall(glBindVertexArray(quadVao));
+
+		GLCall(glActiveTexture(GL_TEXTURE0));
+		GLCall(glBindTexture(GL_TEXTURE_2D, windowTexture));
+
+		vegetationShader->SetMatrix4("view", view);
+		vegetationShader->SetMatrix4("projection", camera->Proj());
+
+		for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
+		{
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, it->second);
+			vegetationShader->SetMatrix4("model", glm::value_ptr(model));
+			GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
+		}
+
+		//Grass
+		GLCall(glActiveTexture(GL_TEXTURE0));
+		GLCall(glBindTexture(GL_TEXTURE_2D, grassTexture));
+		for (unsigned int i = 0; i < 4; i++) {
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, vegetationPositions[i]);
+			vegetationShader->SetMatrix4("model", glm::value_ptr(model));
+			GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
+		}
+
+
+		//Draw the mirror 
+		GLCall(glDisable(GL_DEPTH_TEST));
 
 		GLCall(glBindVertexArray(screenQuadVao));
 		currentShader->BindShaderProgram();
-
-		GLCall(glBindTexture(GL_TEXTURE_2D, texColorBuffer));
+		GLCall(glBindTexture(GL_TEXTURE_2D, rearViewTex));
 		GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
 
 		/* Swap front and back buffers */

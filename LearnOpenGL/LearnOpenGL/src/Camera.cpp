@@ -28,17 +28,20 @@ void Camera::Update(float dt)
 	view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 }
 
-void Camera::ProcessMouseMovement(float xOffset, float yOffset)
+void Camera::ProcessMouseMovement(float xOffset, float yOffset, bool constrainPitch)
 {
 	yaw += xOffset;
 	pitch += yOffset;
 
-	if (pitch > 89.0f) {
-		pitch = 89.0f;
+	if (constrainPitch) {
+		if (pitch > 89.0f) {
+			pitch = 89.0f;
+		}
+		if (pitch < -89.0f) {
+			pitch = -89.0f;
+		}
 	}
-	if (pitch < -89.0f) {
-		pitch = -89.0f;
-	}
+
 
 
 	glm::vec3 direction;

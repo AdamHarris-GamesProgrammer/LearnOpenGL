@@ -44,6 +44,12 @@ void Shader::SetMatrix4(const char* propName, float* value)
 	GLCall(glUniformMatrix4fv(GetLocation(propName), 1, GL_FALSE, value));
 }
 
+void Shader::SetMatrix4(const char* propName, glm::mat4 value)
+{
+	BindShaderProgram();
+	GLCall(glUniformMatrix4fv(GetLocation(propName), 1, GL_FALSE, glm::value_ptr(value)));
+}
+
 void Shader::SetFloat3(const char* propName, float r, float g, float b)
 {
 	BindShaderProgram();

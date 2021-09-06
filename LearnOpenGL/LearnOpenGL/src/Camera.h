@@ -26,6 +26,10 @@ public:
 		return glm::value_ptr(cameraPos);
 	}
 
+	glm::mat4 ViewMat() {
+		return view;
+	}
+
 	glm::vec3 GPosition() {
 		return cameraPos;
 	}
@@ -34,8 +38,13 @@ public:
 		return glm::value_ptr(cameraFront);
 	}
 
-	void ProcessMouseMovement(float xOffset, float yOffset);
+	void ProcessMouseMovement(float xOffset, float yOffset, bool constrainPitch = true);
 	void ProcessScrollMovement(float yOffset);
+
+	float pitch = 0.0f;
+	float yaw = -90.0f;
+
+	float fov = 45.0f;
 	
 private:
 	void PollInput(float dt);
@@ -54,13 +63,12 @@ private:
 	glm::mat4 proj;
 	glm::mat4 view;
 
-	float fov = 45.0f;
+
 
 	int width;
 	int height;
 
-	float pitch = 0.0f;
-	float yaw = -90.0f;
+
 
 	GLFWwindow* _pWindow;
 };
