@@ -30,6 +30,15 @@ float lastY = 360;
 
 Camera* camera;
 
+Shader* currentShader = nullptr;
+
+Shader* framebufferShader = nullptr;
+Shader* inversionShader = nullptr;
+Shader* grayscaleShader = nullptr;
+Shader* sharpenShader = nullptr;
+Shader* blurShader = nullptr;
+Shader* edgeShader = nullptr;
+
 //Vertex Positions
 //Position, Normal, UV Coordinate
 float cubeVertices[] = {
@@ -251,14 +260,14 @@ int main(void)
 	Shader* vegetationShader = new Shader("Res/Shaders/ModelShader.vert", "Res/Shaders/GrassShader.frag");
 	Shader* modelShader = new Shader("Res/Shaders/ModelShader.vert", "Res/Shaders/ModelShader.frag");
 
-	Shader* framebufferShader = new Shader("Res/Shaders/Framebuffer.vert", "Res/Shaders/Framebuffer.frag");
-	Shader* inversionShader = new Shader("Res/Shaders/Framebuffer.vert", "Res/Shaders/InversionEffect.frag");
-	Shader* grayscaleShader = new Shader("Res/Shaders/Framebuffer.vert", "Res/Shaders/GrayscaleEffect.frag");
-	Shader* sharpenShader = new Shader("Res/Shaders/Framebuffer.vert", "Res/Shaders/SharpenKernal.frag");
-	Shader* blurShader = new Shader("Res/Shaders/Framebuffer.vert", "Res/Shaders/BlurKernal.frag");
-	Shader* edgeShader = new Shader("Res/Shaders/Framebuffer.vert", "Res/Shaders/EdgeDetectionKernal.frag");
-	
+	framebufferShader = new Shader("Res/Shaders/Framebuffer.vert", "Res/Shaders/Framebuffer.frag");
+	inversionShader = new Shader("Res/Shaders/Framebuffer.vert", "Res/Shaders/InversionEffect.frag");
+	grayscaleShader = new Shader("Res/Shaders/Framebuffer.vert", "Res/Shaders/GrayscaleEffect.frag");
+	sharpenShader = new Shader("Res/Shaders/Framebuffer.vert", "Res/Shaders/SharpenKernal.frag");
+	blurShader = new Shader("Res/Shaders/Framebuffer.vert", "Res/Shaders/BlurKernal.frag");
+	edgeShader = new Shader("Res/Shaders/Framebuffer.vert", "Res/Shaders/EdgeDetectionKernal.frag");
 
+	currentShader = framebufferShader;
 
 	//Model backpack("Res/Models/backpack/backpack.obj");
 
@@ -405,7 +414,7 @@ int main(void)
 
 
 		GLCall(glBindVertexArray(screenQuadVao));
-		edgeShader->BindShaderProgram();
+		currentShader->BindShaderProgram();
 
 		GLCall(glBindTexture(GL_TEXTURE_2D, texColorBuffer));
 		GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
@@ -439,6 +448,13 @@ void ProcessInput()
 	if (glfwGetKey(_pWindow, GLFW_KEY_ESCAPE)) {
 		glfwSetWindowShouldClose(_pWindow, true);
 	}
+
+	if (glfwGetKey(_pWindow, GLFW_KEY_1)) currentShader = framebufferShader;
+	if (glfwGetKey(_pWindow, GLFW_KEY_2)) currentShader = inversionShader;
+	if (glfwGetKey(_pWindow, GLFW_KEY_3)) currentShader = grayscaleShader;
+	if (glfwGetKey(_pWindow, GLFW_KEY_4)) currentShader = sharpenShader;
+	if (glfwGetKey(_pWindow, GLFW_KEY_5)) currentShader = blurShader;
+	if (glfwGetKey(_pWindow, GLFW_KEY_6)) currentShader = edgeShader;
 }
 
 void MouseCallback(GLFWwindow* window, double xpos, double ypos)
