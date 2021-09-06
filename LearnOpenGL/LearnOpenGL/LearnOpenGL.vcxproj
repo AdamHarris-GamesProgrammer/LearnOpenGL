@@ -155,7 +155,7 @@
     <ClCompile Include="src\TextureLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\GraphicsStructs.h" />
+    <ClInclude Include="Res\Shaders\EdgeDetectionKernal.frag" />
     <ClInclude Include="src\Model.h" />
     <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\GraphicsStructs.h" />
@@ -169,12 +169,18 @@
   <ItemGroup>
     <None Include="Res\Shaders\BasicShader.frag" />
     <None Include="Res\Shaders\BasicShader.vert" />
+    <None Include="Res\Shaders\BlurKernal.frag" />
+    <None Include="Res\Shaders\Framebuffer.frag" />
+    <None Include="Res\Shaders\Framebuffer.vert" />
     <None Include="Res\Shaders\GrassShader.frag" />
+    <None Include="Res\Shaders\GrayscaleEffect.frag" />
+    <None Include="Res\Shaders\InversionEffect.frag" />
     <None Include="Res\Shaders\LightShader.frag" />
     <None Include="Res\Shaders\LightShader.vert" />
     <None Include="Res\Shaders\LightUtilities.glsl" />
     <None Include="Res\Shaders\ModelShader.frag" />
     <None Include="Res\Shaders\ModelShader.vert" />
+    <None Include="Res\Shaders\SharpenKernal.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Res\Textures\awesomeface.png" />

@@ -68,6 +68,9 @@
     <ClInclude Include="src\GraphicsStructs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Res\Shaders\EdgeDetectionKernal.frag">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Res\Shaders\ModelShader.vert" />
@@ -78,6 +81,12 @@
     <None Include="Res\Shaders\LightShader.frag" />
     <None Include="Res\Shaders\LightUtilities.glsl" />
     <None Include="Res\Shaders\GrassShader.frag" />
+    <None Include="Res\Shaders\Framebuffer.vert" />
+    <None Include="Res\Shaders\Framebuffer.frag" />
+    <None Include="Res\Shaders\InversionEffect.frag" />
+    <None Include="Res\Shaders\GrayscaleEffect.frag" />
+    <None Include="Res\Shaders\SharpenKernal.frag" />
+    <None Include="Res\Shaders\BlurKernal.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Res\Textures\wall.jpg">

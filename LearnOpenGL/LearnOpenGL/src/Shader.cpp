@@ -144,6 +144,11 @@ std::stringstream Shader::ParseShader(const std::string& path)
 	std::string line;
 	std::stringstream ss;
 
+	if (stream.fail()) {
+		std::cout << "[SHADER ERROR]: Cannot open shader at path: " << path << std::endl;
+		__debugbreak();
+	}
+
 	while (getline(stream, line)) {
 		if (line.find("#include ") != std::string::npos) {
 			std::string directory = path.substr(0, path.find_last_of('/'));

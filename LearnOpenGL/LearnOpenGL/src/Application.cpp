@@ -98,7 +98,14 @@ float quadVerts[] = {
 	-0.5f, -0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,	 0.0f, 0.0f,
 };
 
-
+float screenQuad[] = {
+	-1.0f, -1.0f,	0.0f, 0.0f, //Bottom left
+	1.0f, -1.0f,	1.0f, 0.0f, //Bottom Right
+	1.0f, 1.0f,		1.0f, 1.0f, //Top Right
+	1.0f, 1.0f,		1.0f, 1.0f, //Top Right
+	-1.0f, 1.0f,	0.0f, 1.0f, //Top Left
+	-1.0f, -1.0f,	0.0f, 0.0f //Bottom Left
+};
 
 void MouseCallback(GLFWwindow* window, double xpos, double ypos);
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
@@ -145,6 +152,50 @@ int main(void)
 {
 	Initialize();
 
+
+	unsigned int framebuffer;
+	GLCall(glGenFramebuffers(1, &framebuffer));
+	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, framebuffer));
+
+	unsigned int texColorBuffer;
+	GLCall(glGenTextures(1, &texColorBuffer));
+	GLCall(glBindTexture(GL_TEXTURE_2D, texColorBuffer));
+	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+	GLCall(glBindTexture(GL_TEXTURE_2D, 0));
+
+	GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texColorBuffer, 0));
+
+	unsigned int rbo;
+	GLCall(glGenRenderbuffers(1, &rbo));
+	GLCall(glBindRenderbuffer(GL_RENDERBUFFER, rbo));
+	GLCall(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height));
+	GLCall(glBindRenderbuffer(GL_RENDERBUFFER, 0));
+
+	GLCall(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo));
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+		std::cout << "[OPENGL ERROR]: Framebuffer is not complete" << std::endl;
+	}
+
+	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+
+	unsigned int screenQuadVao;
+	unsigned int screenQuadVbo;
+
+	GLCall(glGenVertexArrays(1, &screenQuadVao));
+	GLCall(glBindVertexArray(screenQuadVao));
+
+	GLCall(glGenBuffers(1, &screenQuadVbo));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, screenQuadVbo));
+	GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(screenQuad), screenQuad, GL_STATIC_DRAW));
+
+	GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)0));
+	GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(2 * sizeof(float))));
+	GLCall(glEnableVertexAttribArray(0));
+	GLCall(glEnableVertexAttribArray(1));
+
 	unsigned int cubeVao;
 	unsigned int vbo;
 
@@ -180,6 +231,15 @@ int main(void)
 	GLCall(glEnableVertexAttribArray(2));
 
 
+	GLCall(glUseProgram(0));
+	GLCall(glBindVertexArray(0));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
+	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	TextureLoader textureLoader;
 	unsigned int diffuseTexture = textureLoader.LoadTexture("Res/Textures/container2.png");
 	unsigned int specularTexture = textureLoader.LoadTexture("Res/Textures/container2_specular.png");
@@ -191,21 +251,22 @@ int main(void)
 	Shader* vegetationShader = new Shader("Res/Shaders/ModelShader.vert", "Res/Shaders/GrassShader.frag");
 	Shader* modelShader = new Shader("Res/Shaders/ModelShader.vert", "Res/Shaders/ModelShader.frag");
 
+	Shader* framebufferShader = new Shader("Res/Shaders/Framebuffer.vert", "Res/Shaders/Framebuffer.frag");
+	Shader* inversionShader = new Shader("Res/Shaders/Framebuffer.vert", "Res/Shaders/InversionEffect.frag");
+	Shader* grayscaleShader = new Shader("Res/Shaders/Framebuffer.vert", "Res/Shaders/GrayscaleEffect.frag");
+	Shader* sharpenShader = new Shader("Res/Shaders/Framebuffer.vert", "Res/Shaders/SharpenKernal.frag");
+	Shader* blurShader = new Shader("Res/Shaders/Framebuffer.vert", "Res/Shaders/BlurKernal.frag");
+	Shader* edgeShader = new Shader("Res/Shaders/Framebuffer.vert", "Res/Shaders/EdgeDetectionKernal.frag");
+	
+
+
 	//Model backpack("Res/Models/backpack/backpack.obj");
 
 	glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
 
-	GLCall(glUseProgram(0));
-	GLCall(glBindVertexArray(0));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
-	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
 
 	camera = new Camera(_pWindow, width, height, 45.0f);
-
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 
 	glm::vec3 lightDiffuse = glm::vec3(1.0f);
 	glm::vec3 lightAmbient = glm::vec3(0.2f);
@@ -232,6 +293,8 @@ int main(void)
 	windowPositions.push_back(glm::vec3(-0.3f, 0.0f, -2.3f));
 	windowPositions.push_back(glm::vec3(0.5f, 0.0f, -0.6f));
 
+	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(_pWindow))
 	{
@@ -241,9 +304,13 @@ int main(void)
 
 		camera->Update(deltaTime);
 
-		/* Render here */
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+
+		GLCall(glBindFramebuffer(GL_FRAMEBUFFER, framebuffer));
+		GLCall(glClearColor(0.1f, 0.1f, 0.1f, 1.0f));
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+		GLCall(glEnable(GL_DEPTH_TEST));
+
+
 
 		objectShader->SetDirectionalLight("u_dirLight", sun);
 		for (GLuint i = 0; i < 4; i++) {
@@ -253,9 +320,9 @@ int main(void)
 		}
 
 
-		glActiveTexture(GL_TEXTURE0);
+		GLCall(glActiveTexture(GL_TEXTURE0));
 		GLCall(glBindTexture(GL_TEXTURE_2D, diffuseTexture));
-		glActiveTexture(GL_TEXTURE1);
+		GLCall(glActiveTexture(GL_TEXTURE1));
 		GLCall(glBindTexture(GL_TEXTURE_2D, specularTexture));
 
 
@@ -305,9 +372,9 @@ int main(void)
 			sorted[distance] = windowPositions[i];
 		}
 
-		glBindVertexArray(quadVao);
+		GLCall(glBindVertexArray(quadVao));
 
-		glActiveTexture(GL_TEXTURE0);
+		GLCall(glActiveTexture(GL_TEXTURE0));
 		GLCall(glBindTexture(GL_TEXTURE_2D, windowTexture));
 
 		vegetationShader->SetInt("texture1", 0);
@@ -319,17 +386,29 @@ int main(void)
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, it->second);
 			vegetationShader->SetMatrix4("model", glm::value_ptr(model));
-			glDrawArrays(GL_TRIANGLES, 0, 6);
+			GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
 		}
 
-		glActiveTexture(GL_TEXTURE0);
+		GLCall(glActiveTexture(GL_TEXTURE0));
 		GLCall(glBindTexture(GL_TEXTURE_2D, grassTexture));
 		for (unsigned int i = 0; i < 4; i++) {
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, vegetationPositions[i]);
 			vegetationShader->SetMatrix4("model", glm::value_ptr(model));
-			glDrawArrays(GL_TRIANGLES, 0, 6);
+			GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
 		}
+
+		GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+		GLCall(glDisable(GL_DEPTH_TEST));
+		GLCall(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
+		GLCall(glClear(GL_COLOR_BUFFER_BIT));
+
+
+		GLCall(glBindVertexArray(screenQuadVao));
+		edgeShader->BindShaderProgram();
+
+		GLCall(glBindTexture(GL_TEXTURE_2D, texColorBuffer));
+		GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(_pWindow);
@@ -348,6 +427,8 @@ int main(void)
 
 	lightShader = nullptr;
 	objectShader = nullptr;
+
+	glDeleteFramebuffers(1, &framebuffer);
 
 	glfwTerminate();
 	return 0;
