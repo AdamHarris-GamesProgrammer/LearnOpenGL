@@ -108,16 +108,21 @@ float quadVerts[] = {
 };
 
 float screenQuad[] = {
-	0.7f, 0.7f,	0.0f, 0.0f, //Bottom left
-	1.0f, 0.7f,	1.0f, 0.0f, //Bottom Right
-	1.0f, 1.0f,		1.0f, 1.0f, //Top Right
-	1.0f, 1.0f,		1.0f, 1.0f, //Top Right
-	0.7f, 1.0f,	0.0f, 1.0f, //Top Left
-	0.7f, 0.7f,	0.0f, 0.0f //Bottom Left
+	-0.3f, 0.5f,	0.0f, 0.0f, //Bottom left
+	0.3f, 0.5f,		1.0f, 0.0f, //Bottom Right
+	0.3f, 1.0f,		1.0f, 1.0f, //Top Right
+	0.3f, 1.0f,		1.0f, 1.0f, //Top Right
+	-0.3f, 1.0f,	0.0f, 1.0f, //Top Left
+	-0.3f, 0.5f,	0.0f, 0.0f //Bottom Left
 };
 
 void MouseCallback(GLFWwindow* window, double xpos, double ypos);
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+
+void BindTexture(GLenum slot, unsigned int& textureID) {
+	GLCall(glActiveTexture(slot));
+	GLCall(glBindTexture(GL_TEXTURE_2D, textureID));
+}
 
 void Initialize()
 {
@@ -378,10 +383,8 @@ int main(void)
 		camera->Update(deltaTime);
 
 
-		GLCall(glActiveTexture(GL_TEXTURE0));
-		GLCall(glBindTexture(GL_TEXTURE_2D, diffuseTexture));
-		GLCall(glActiveTexture(GL_TEXTURE1));
-		GLCall(glBindTexture(GL_TEXTURE_2D, specularTexture));
+		BindTexture(GL_TEXTURE0, diffuseTexture);
+		BindTexture(GL_TEXTURE1, specularTexture);
 
 		objectShader->SetFloat3("u_viewPos", camera->Position());
 		objectShader->SetMatrix4("u_view", view);
@@ -408,7 +411,7 @@ int main(void)
 		}
 
 
-	
+
 		modelShader->SetFloat3("u_viewPos", camera->View());
 
 
@@ -426,9 +429,7 @@ int main(void)
 
 		GLCall(glBindVertexArray(quadVao));
 
-		GLCall(glActiveTexture(GL_TEXTURE0));
-		GLCall(glBindTexture(GL_TEXTURE_2D, windowTexture));
-
+		BindTexture(GL_TEXTURE0, windowTexture);
 
 		vegetationShader->SetMatrix4("view", view);
 		vegetationShader->SetMatrix4("projection", projection);
@@ -441,8 +442,7 @@ int main(void)
 			GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
 		}
 
-		GLCall(glActiveTexture(GL_TEXTURE0));
-		GLCall(glBindTexture(GL_TEXTURE_2D, grassTexture));
+		BindTexture(GL_TEXTURE0, grassTexture);
 		for (unsigned int i = 0; i < 4; i++) {
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, vegetationPositions[i]);
@@ -459,10 +459,8 @@ int main(void)
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 
-		GLCall(glActiveTexture(GL_TEXTURE0));
-		GLCall(glBindTexture(GL_TEXTURE_2D, diffuseTexture));
-		GLCall(glActiveTexture(GL_TEXTURE1));
-		GLCall(glBindTexture(GL_TEXTURE_2D, specularTexture));
+		BindTexture(GL_TEXTURE0, diffuseTexture);
+		BindTexture(GL_TEXTURE1, specularTexture);
 
 		view = camera->ViewMat();
 
@@ -511,8 +509,7 @@ int main(void)
 		//Windows
 		GLCall(glBindVertexArray(quadVao));
 
-		GLCall(glActiveTexture(GL_TEXTURE0));
-		GLCall(glBindTexture(GL_TEXTURE_2D, windowTexture));
+		BindTexture(GL_TEXTURE0, windowTexture);
 
 		vegetationShader->SetMatrix4("view", view);
 		vegetationShader->SetMatrix4("projection", camera->Proj());
@@ -526,8 +523,7 @@ int main(void)
 		}
 
 		//Grass
-		GLCall(glActiveTexture(GL_TEXTURE0));
-		GLCall(glBindTexture(GL_TEXTURE_2D, grassTexture));
+		BindTexture(GL_TEXTURE0, grassTexture);
 		for (unsigned int i = 0; i < 4; i++) {
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, vegetationPositions[i]);
@@ -541,7 +537,7 @@ int main(void)
 
 		GLCall(glBindVertexArray(screenQuadVao));
 		currentShader->BindShaderProgram();
-		GLCall(glBindTexture(GL_TEXTURE_2D, rearViewTex));
+		BindTexture(GL_TEXTURE0, rearViewTex);
 		GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
 
 		/* Swap front and back buffers */
