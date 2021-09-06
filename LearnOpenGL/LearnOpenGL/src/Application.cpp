@@ -124,6 +124,22 @@ void BindTexture(GLenum slot, unsigned int& textureID) {
 	GLCall(glBindTexture(GL_TEXTURE_2D, textureID));
 }
 
+void CreateBuffers(unsigned int& vao, unsigned int& vbo, float* vert, unsigned int count) {
+	GLCall(glGenVertexArrays(1, &vao));
+	GLCall(glBindVertexArray(vao));
+
+	GLCall(glGenBuffers(1, &vbo));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+	GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(vert) * count, vert, GL_STATIC_DRAW));
+
+	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)0));
+	GLCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(3 * sizeof(float))));
+	GLCall(glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(6 * sizeof(float))));
+	GLCall(glEnableVertexAttribArray(0));
+	GLCall(glEnableVertexAttribArray(1));
+	GLCall(glEnableVertexAttribArray(2));
+}
+
 void Initialize()
 {
 	glewInit();
@@ -238,38 +254,11 @@ int main(void)
 
 	unsigned int cubeVao;
 	unsigned int vbo;
-
-	GLCall(glGenVertexArrays(1, &cubeVao));
-	GLCall(glBindVertexArray(cubeVao));
-
-	GLCall(glGenBuffers(1, &vbo));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
-	GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW));
-
-	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)0));
-	GLCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(3 * sizeof(float))));
-	GLCall(glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(6 * sizeof(float))));
-	GLCall(glEnableVertexAttribArray(0));
-	GLCall(glEnableVertexAttribArray(1));
-	GLCall(glEnableVertexAttribArray(2));
+	CreateBuffers(cubeVao, vbo, cubeVertices, sizeof(cubeVertices) / sizeof(float));
 
 	unsigned int quadVao;
 	unsigned int quadVbo;
-
-	GLCall(glGenVertexArrays(1, &quadVao));
-	GLCall(glBindVertexArray(quadVao));
-
-	GLCall(glGenBuffers(1, &quadVbo));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, quadVbo));
-	GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(quadVerts), quadVerts, GL_STATIC_DRAW));
-
-	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)0));
-	GLCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(3 * sizeof(float))));
-	GLCall(glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 8, (void*)(6 * sizeof(float))));
-	GLCall(glEnableVertexAttribArray(0));
-	GLCall(glEnableVertexAttribArray(1));
-	GLCall(glEnableVertexAttribArray(2));
-
+	CreateBuffers(quadVao, quadVbo, quadVerts, sizeof(quadVerts) / sizeof(float));
 
 	GLCall(glUseProgram(0));
 	GLCall(glBindVertexArray(0));
@@ -279,6 +268,8 @@ int main(void)
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
 	TextureLoader textureLoader;
 	unsigned int diffuseTexture = textureLoader.LoadTexture("Res/Textures/container2.png");
@@ -303,8 +294,6 @@ int main(void)
 	//Model backpack("Res/Models/backpack/backpack.obj");
 
 	glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
-
-
 
 	camera = new Camera(_pWindow, width, height, 45.0f);
 
@@ -333,8 +322,6 @@ int main(void)
 	windowPositions.push_back(glm::vec3(-0.3f, 0.0f, -2.3f));
 	windowPositions.push_back(glm::vec3(0.5f, 0.0f, -0.6f));
 
-	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-
 	objectShader->SetDirectionalLight("u_dirLight", sun);
 	objectShader->SetInt("u_material.diffuse", 0);
 	objectShader->SetInt("u_material.specular", 1);
@@ -351,7 +338,6 @@ int main(void)
 		std::string base = "u_pointLight[" + number + "]";
 		objectShader->SetPointLight(base, pointLights[i]);
 	}
-
 
 
 	/* Loop until the user closes the window */
