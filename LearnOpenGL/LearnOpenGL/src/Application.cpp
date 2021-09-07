@@ -85,6 +85,51 @@ float cubeVertices[] = {
 	-0.5f,  0.5f, -0.5f,	 0.0f,  1.0f,  0.0f,     0.0f, 1.0f
 };
 
+float skyboxVertices[] = {
+	// positions          
+	-1.0f,  1.0f, -1.0f,
+	-1.0f, -1.0f, -1.0f,
+	 1.0f, -1.0f, -1.0f,
+	 1.0f, -1.0f, -1.0f,
+	 1.0f,  1.0f, -1.0f,
+	-1.0f,  1.0f, -1.0f,
+
+	-1.0f, -1.0f,  1.0f,
+	-1.0f, -1.0f, -1.0f,
+	-1.0f,  1.0f, -1.0f,
+	-1.0f,  1.0f, -1.0f,
+	-1.0f,  1.0f,  1.0f,
+	-1.0f, -1.0f,  1.0f,
+
+	 1.0f, -1.0f, -1.0f,
+	 1.0f, -1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f, -1.0f,
+	 1.0f, -1.0f, -1.0f,
+
+	-1.0f, -1.0f,  1.0f,
+	-1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f, -1.0f,  1.0f,
+	-1.0f, -1.0f,  1.0f,
+
+	-1.0f,  1.0f, -1.0f,
+	 1.0f,  1.0f, -1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	-1.0f,  1.0f,  1.0f,
+	-1.0f,  1.0f, -1.0f,
+
+	-1.0f, -1.0f, -1.0f,
+	-1.0f, -1.0f,  1.0f,
+	 1.0f, -1.0f, -1.0f,
+	 1.0f, -1.0f, -1.0f,
+	-1.0f, -1.0f,  1.0f,
+	 1.0f, -1.0f,  1.0f
+};
+
 glm::vec3 cubePositions[] = {
 	glm::vec3(4.0f,  0.0f,  0.0f),
 	glm::vec3(2.0f,  5.0f, -15.0f),
@@ -118,10 +163,13 @@ float screenQuad[] = {
 
 void MouseCallback(GLFWwindow* window, double xpos, double ypos);
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
+unsigned int LoadCubemap(std::vector<std::string> faces);
 
-void BindTexture(GLenum slot, unsigned int& textureID) {
+
+
+void BindTexture(GLenum slot, GLenum target, unsigned int& textureID) {
 	GLCall(glActiveTexture(slot));
-	GLCall(glBindTexture(GL_TEXTURE_2D, textureID));
+	GLCall(glBindTexture(target, textureID));
 }
 
 void CreateBuffers(unsigned int& vao, unsigned int& vbo, float* vert, unsigned int count) {
@@ -252,6 +300,19 @@ int main(void)
 	GLCall(glEnableVertexAttribArray(0));
 	GLCall(glEnableVertexAttribArray(1));
 
+
+	unsigned int skyboxVAO;
+	unsigned int skyboxVBO;
+
+	glGenVertexArrays(1, &skyboxVAO);
+	glBindVertexArray(skyboxVAO);
+
+	glGenBuffers(1, &skyboxVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices, GL_STATIC_DRAW);
+	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3,  (void*)0));
+	GLCall(glEnableVertexAttribArray(0));
+
 	unsigned int cubeVao;
 	unsigned int vbo;
 	CreateBuffers(cubeVao, vbo, cubeVertices, sizeof(cubeVertices) / sizeof(float));
@@ -281,6 +342,9 @@ int main(void)
 	Shader* lightShader = new Shader("Res/Shaders/LightShader.vert", "Res/Shaders/LightShader.frag");
 	Shader* vegetationShader = new Shader("Res/Shaders/ModelShader.vert", "Res/Shaders/GrassShader.frag");
 	Shader* modelShader = new Shader("Res/Shaders/ModelShader.vert", "Res/Shaders/ModelShader.frag");
+	Shader* skyboxShader = new Shader("Res/Shaders/Skybox.vert", "Res/Shaders/Skybox.frag");
+	Shader* environmentShader = new Shader("Res/Shaders/EnvironmentMapping.vert", "Res/Shaders/EnvironmentMapping.frag");
+
 
 	framebufferShader = new Shader("Res/Shaders/Framebuffer.vert", "Res/Shaders/Framebuffer.frag");
 	inversionShader = new Shader("Res/Shaders/Framebuffer.vert", "Res/Shaders/InversionEffect.frag");
@@ -290,6 +354,17 @@ int main(void)
 	edgeShader = new Shader("Res/Shaders/Framebuffer.vert", "Res/Shaders/EdgeDetectionKernal.frag");
 
 	currentShader = framebufferShader;
+
+	std::vector<std::string> faces{
+		"Res/Textures/skybox/right.jpg",
+		"Res/Textures/skybox/left.jpg",
+		"Res/Textures/skybox/top.jpg",
+		"Res/Textures/skybox/bottom.jpg",
+		"Res/Textures/skybox/front.jpg",
+		"Res/Textures/skybox/back.jpg",
+	};
+
+	unsigned int skybox = LoadCubemap(faces);
 
 	//Model backpack("Res/Models/backpack/backpack.obj");
 
@@ -347,6 +422,8 @@ int main(void)
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
+
+
 		//First Draw Pass: Mirror Rendering
 		GLCall(glBindFramebuffer(GL_FRAMEBUFFER, rearViewFB));
 		GLCall(glClearColor(0.1f, 0.1f, 0.1f, 1.0f));
@@ -369,19 +446,22 @@ int main(void)
 		camera->Update(deltaTime);
 
 
-		BindTexture(GL_TEXTURE0, diffuseTexture);
-		BindTexture(GL_TEXTURE1, specularTexture);
+		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, diffuseTexture);
+		BindTexture(GL_TEXTURE1, GL_TEXTURE_2D, specularTexture);
 
 		objectShader->SetFloat3("u_viewPos", camera->Position());
 		objectShader->SetMatrix4("u_view", view);
 		objectShader->SetMatrix4("u_projection", projection);
+
+
 		GLCall(glBindVertexArray(cubeVao));
 		for (unsigned int i = 0; i < 10; i++) {
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, cubePositions[i]);
 			float angle = 20.0f * i;
 			model = glm::rotate(model, (float)glfwGetTime() * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
-			objectShader->SetMatrix4("u_model", glm::value_ptr(model));
+			//objectShader->SetMatrix4("u_model", glm::value_ptr(model));
+			environmentShader->SetMatrix4("model", model);
 			GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
 		}
 
@@ -415,7 +495,7 @@ int main(void)
 
 		GLCall(glBindVertexArray(quadVao));
 
-		BindTexture(GL_TEXTURE0, windowTexture);
+		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, windowTexture);
 
 		vegetationShader->SetMatrix4("view", view);
 		vegetationShader->SetMatrix4("projection", projection);
@@ -428,7 +508,7 @@ int main(void)
 			GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
 		}
 
-		BindTexture(GL_TEXTURE0, grassTexture);
+		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, grassTexture);
 		for (unsigned int i = 0; i < 4; i++) {
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, vegetationPositions[i]);
@@ -439,14 +519,32 @@ int main(void)
 
 		camera->Update(deltaTime);
 
+
+
+
+
+
+
+
+
 		//Second Pass: Draw the scene normally
 		GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 		GLCall(glClearColor(0.3f, 0.3f, 0.3f, 1.0f));
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 
-		BindTexture(GL_TEXTURE0, diffuseTexture);
-		BindTexture(GL_TEXTURE1, specularTexture);
+		glDepthMask(false);
+		glBindVertexArray(skyboxVAO);
+		glm::mat4 skyboxView = glm::mat4(glm::mat3(camera->ViewMat()));
+		skyboxShader->SetMatrix4("projection", camera->Proj());
+		skyboxShader->SetMatrix4("view", skyboxView);
+		BindTexture(GL_TEXTURE0, GL_TEXTURE_CUBE_MAP, skybox);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDepthMask(true);
+
+
+		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, diffuseTexture);
+		BindTexture(GL_TEXTURE1, GL_TEXTURE_2D, specularTexture);
 
 		view = camera->ViewMat();
 
@@ -456,12 +554,18 @@ int main(void)
 
 		//Draw Cubes
 		GLCall(glBindVertexArray(cubeVao));
+
+		BindTexture(GL_TEXTURE0, GL_TEXTURE_CUBE_MAP, skybox);
+		environmentShader->SetMatrix4("view", view);
+		environmentShader->SetMatrix4("projection", projection);
+		environmentShader->SetFloat3("cameraPos", camera->Position());
 		for (unsigned int i = 0; i < 10; i++) {
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, cubePositions[i]);
 			float angle = 20.0f * i;
 			model = glm::rotate(model, (float)glfwGetTime() * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
-			objectShader->SetMatrix4("u_model", glm::value_ptr(model));
+			//objectShader->SetMatrix4("u_model", glm::value_ptr(model));
+			environmentShader->SetMatrix4("model", model);
 			GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
 		}
 
@@ -473,6 +577,7 @@ int main(void)
 			model = glm::translate(model, pointLights[i].position);
 			model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
 			lightShader->SetMatrix4("u_model", glm::value_ptr(model));
+
 			GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
 		}
 
@@ -495,7 +600,7 @@ int main(void)
 		//Windows
 		GLCall(glBindVertexArray(quadVao));
 
-		BindTexture(GL_TEXTURE0, windowTexture);
+		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, windowTexture);
 
 		vegetationShader->SetMatrix4("view", view);
 		vegetationShader->SetMatrix4("projection", camera->Proj());
@@ -509,7 +614,7 @@ int main(void)
 		}
 
 		//Grass
-		BindTexture(GL_TEXTURE0, grassTexture);
+		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, grassTexture);
 		for (unsigned int i = 0; i < 4; i++) {
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, vegetationPositions[i]);
@@ -523,8 +628,10 @@ int main(void)
 
 		GLCall(glBindVertexArray(screenQuadVao));
 		currentShader->BindShaderProgram();
-		BindTexture(GL_TEXTURE0, rearViewTex);
+		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, rearViewTex);
 		GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
+
+
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(_pWindow);
@@ -587,4 +694,36 @@ void MouseCallback(GLFWwindow* window, double xpos, double ypos)
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	camera->ProcessScrollMovement(yoffset);
+}
+
+unsigned int LoadCubemap(std::vector<std::string> faces)
+{
+	unsigned int textureID;
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+	int width, height, nrChannels;
+
+	stbi_set_flip_vertically_on_load(false);
+
+	for (unsigned int i = 0; i < faces.size(); i++) {
+		unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+		
+		if (data) {
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+			stbi_image_free(data);
+		}
+		else {
+			std::cout << "[TEXTURE ERROR]: Could not load cube map at path: " << faces[i] << std::endl;
+			stbi_image_free(data);
+		}
+	}
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	return textureID;
 }

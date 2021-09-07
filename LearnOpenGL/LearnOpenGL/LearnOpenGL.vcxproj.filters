@@ -87,6 +87,10 @@
     <None Include="Res\Shaders\GrayscaleEffect.frag" />
     <None Include="Res\Shaders\SharpenKernal.frag" />
     <None Include="Res\Shaders\BlurKernal.frag" />
+    <None Include="Res\Shaders\Skybox.vert" />
+    <None Include="Res\Shaders\Skybox.frag" />
+    <None Include="Res\Shaders\EnvironmentMapping.vert" />
+    <None Include="Res\Shaders\EnvironmentMapping.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Res\Textures\wall.jpg">

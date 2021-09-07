@@ -170,6 +170,8 @@
     <None Include="Res\Shaders\BasicShader.frag" />
     <None Include="Res\Shaders\BasicShader.vert" />
     <None Include="Res\Shaders\BlurKernal.frag" />
+    <None Include="Res\Shaders\EnvironmentMapping.frag" />
+    <None Include="Res\Shaders\EnvironmentMapping.vert" />
     <None Include="Res\Shaders\Framebuffer.frag" />
     <None Include="Res\Shaders\Framebuffer.vert" />
     <None Include="Res\Shaders\GrassShader.frag" />
@@ -181,6 +183,8 @@
     <None Include="Res\Shaders\ModelShader.frag" />
     <None Include="Res\Shaders\ModelShader.vert" />
     <None Include="Res\Shaders\SharpenKernal.frag" />
+    <None Include="Res\Shaders\Skybox.frag" />
+    <None Include="Res\Shaders\Skybox.vert" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Res\Textures\awesomeface.png" />
