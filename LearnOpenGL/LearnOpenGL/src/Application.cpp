@@ -42,7 +42,6 @@ Shader* edgeShader = nullptr;
 
 void MouseCallback(GLFWwindow* window, double xpos, double ypos);
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
-unsigned int LoadCubemap(std::vector<std::string> faces);
 
 void BindTexture(GLenum slot, GLenum target, unsigned int& textureID) {
 	GLCall(glActiveTexture(slot));
@@ -181,6 +180,17 @@ int main(void)
 	unsigned int grassTexture = textureLoader.LoadTexture("Res/Textures/grass.png", true);
 	unsigned int windowTexture = textureLoader.LoadTexture("Res/Textures/window.png", true);
 
+	std::vector<std::string> faces{
+		"Res/Textures/skybox/right.jpg",
+		"Res/Textures/skybox/left.jpg",
+		"Res/Textures/skybox/top.jpg",
+		"Res/Textures/skybox/bottom.jpg",
+		"Res/Textures/skybox/front.jpg",
+		"Res/Textures/skybox/back.jpg",
+	};
+
+	unsigned int skybox = textureLoader.LoadCubemap(faces);
+
 	Shader* objectShader = new Shader("Res/Shaders/BasicShader.vert", "Res/Shaders/BasicShader.frag");
 	Shader* lightShader = new Shader("Res/Shaders/LightShader.vert", "Res/Shaders/LightShader.frag");
 	Shader* vegetationShader = new Shader("Res/Shaders/ModelShader.vert", "Res/Shaders/GrassShader.frag");
@@ -197,17 +207,6 @@ int main(void)
 	edgeShader = new Shader("Res/Shaders/Framebuffer.vert", "Res/Shaders/EdgeDetectionKernal.frag");
 
 	currentShader = framebufferShader;
-
-	std::vector<std::string> faces{
-		"Res/Textures/skybox/right.jpg",
-		"Res/Textures/skybox/left.jpg",
-		"Res/Textures/skybox/top.jpg",
-		"Res/Textures/skybox/bottom.jpg",
-		"Res/Textures/skybox/front.jpg",
-		"Res/Textures/skybox/back.jpg",
-	};
-
-	unsigned int skybox = LoadCubemap(faces);
 
 	//Model backpack("Res/Models/backpack/backpack.obj");
 
@@ -421,36 +420,4 @@ void MouseCallback(GLFWwindow* window, double xpos, double ypos)
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	camera->ProcessScrollMovement(yoffset);
-}
-
-unsigned int LoadCubemap(std::vector<std::string> faces)
-{
-	unsigned int textureID;
-	glGenTextures(1, &textureID);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-
-	int width, height, nrChannels;
-
-	stbi_set_flip_vertically_on_load(false);
-
-	for (unsigned int i = 0; i < faces.size(); i++) {
-		unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
-
-		if (data) {
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-			stbi_image_free(data);
-		}
-		else {
-			std::cout << "[TEXTURE ERROR]: Could not load cube map at path: " << faces[i] << std::endl;
-			stbi_image_free(data);
-		}
-	}
-
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-	return textureID;
 }
