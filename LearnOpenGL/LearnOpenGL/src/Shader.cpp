@@ -217,3 +217,10 @@ std::stringstream Shader::ParseShader(const std::string& path)
 	return ss;
 }
 
+void Shader::SetFloat2(const char* propName, glm::vec2 values)
+{
+	BindShaderProgram();
+	//std::cout << propName << std::endl;
+	GLCall(glUniform2f(GetLocation(propName), values.x, values.y));
+}
+

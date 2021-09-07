@@ -143,6 +143,11 @@ int main(void)
 
 
 
+
+
+
+
+
 	unsigned int skyboxVAO;
 	unsigned int skyboxVBO;
 
@@ -257,6 +262,50 @@ int main(void)
 	}
 
 
+	Shader* instancedQuads = new Shader("Res/Shaders/InstancedQuad.vert", "Res/Shaders/InstancedQuad.frag");
+
+	glm::vec2 translations[100];
+	int index = 0;
+	float offset = 0.1f;
+	for (int y = -10; y < 10; y+=2) {
+		for (int x = -10; x < 10; x+=2) {
+			glm::vec2 translation;
+			translation.x = (float)x / 10.0f + offset;
+			translation.y = (float)y / 10.0f + offset;
+			translations[index++] = translation;
+		}
+	}
+
+	unsigned int instanceVBO;
+	glGenBuffers(1, &instanceVBO);
+	glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &translations[0], GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
+
+	unsigned int instQuadVAO;
+	unsigned int instQuadVBO;
+
+	GLCall(glGenVertexArrays(1, &instQuadVAO));
+	GLCall(glBindVertexArray(instQuadVAO));
+
+	GLCall(glGenBuffers(1, &instQuadVBO));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, instQuadVBO));
+	GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(instQuads), instQuads, GL_STATIC_DRAW));
+
+
+	GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)0));
+	GLCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(2 * sizeof(float))));
+	GLCall(glEnableVertexAttribArray(0));
+	GLCall(glEnableVertexAttribArray(1));
+
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glVertexAttribDivisor(2, 1);
+
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(_pWindow))
 	{
@@ -360,6 +409,12 @@ int main(void)
 			vegetationShader->SetMatrix4("model", glm::value_ptr(model));
 			GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
 		}
+
+
+		instancedQuads->BindShaderProgram();
+		glBindVertexArray(instQuadVAO);
+		glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
+
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(_pWindow);

@@ -180,6 +180,8 @@
     <None Include="Res\Shaders\GeometryShader.geom" />
     <None Include="Res\Shaders\GrassShader.frag" />
     <None Include="Res\Shaders\GrayscaleEffect.frag" />
+    <None Include="Res\Shaders\InstancedQuad.frag" />
+    <None Include="Res\Shaders\InstancedQuad.vert" />
     <None Include="Res\Shaders\InversionEffect.frag" />
     <None Include="Res\Shaders\LightShader.frag" />
     <None Include="Res\Shaders\LightShader.vert" />

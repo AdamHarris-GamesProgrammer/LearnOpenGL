@@ -97,6 +97,8 @@
     <None Include="Res\Shaders\GeometryShader.geom" />
     <None Include="Res\Shaders\Geometry.vert" />
     <None Include="Res\Shaders\Geometry.frag" />
+    <None Include="Res\Shaders\InstancedQuad.vert" />
+    <None Include="Res\Shaders\InstancedQuad.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Res\Textures\wall.jpg">

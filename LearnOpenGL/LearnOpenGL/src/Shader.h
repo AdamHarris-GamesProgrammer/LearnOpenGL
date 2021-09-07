@@ -55,4 +55,6 @@ private:
 
 private:
 	unsigned int _shaderProgram;
+public:
+	void SetFloat2(const char* param1, glm::vec2 translations);
 };
