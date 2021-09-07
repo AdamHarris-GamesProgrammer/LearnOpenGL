@@ -14,6 +14,23 @@ Shader::Shader(const std::string& vsPath, const std::string& fsPath)
 	CreateShader(v, f);
 }
 
+Shader::Shader(const std::string& vsPath, const std::string& fsPath, const std::string& gePath)
+{
+	std::stringstream vs;
+	std::stringstream fs;
+	std::stringstream gs;
+
+	vs = ParseShader(vsPath);
+	fs = ParseShader(fsPath);
+	gs = ParseShader(gePath);
+
+	unsigned int v = CompileShader(vs.str(), GL_VERTEX_SHADER);
+	unsigned int f = CompileShader(fs.str(), GL_FRAGMENT_SHADER);
+	unsigned int g = CompileShader(gs.str(), GL_GEOMETRY_SHADER);
+
+	CreateShader(v, f, g);
+}
+
 void Shader::BindShaderProgram() {
 	GLCall(glUseProgram(_shaderProgram));
 }
@@ -141,6 +158,20 @@ void Shader::CreateShader(unsigned int vs, unsigned int fs)
 
 	GLCall(glDeleteShader(vs));
 	GLCall(glDeleteShader(fs));
+}
+
+void Shader::CreateShader(unsigned int vs, unsigned int fs, unsigned int gs)
+{
+	GLCall(_shaderProgram = glCreateProgram());
+	GLCall(glAttachShader(_shaderProgram, vs));
+	GLCall(glAttachShader(_shaderProgram, fs));
+	GLCall(glAttachShader(_shaderProgram, gs));
+	GLCall(glLinkProgram(_shaderProgram));
+	GLCall(glValidateProgram(_shaderProgram));
+
+	GLCall(glDeleteShader(vs));
+	GLCall(glDeleteShader(fs));
+	GLCall(glDeleteShader(gs));
 }
 
 std::stringstream Shader::ParseShader(const std::string& path)

@@ -39,6 +39,14 @@ Shader* sharpenShader = nullptr;
 Shader* blurShader = nullptr;
 Shader* edgeShader = nullptr;
 
+float points[] = {
+	-0.5f, 0.5f,	1.0f, 0.0f, 0.0f,
+	0.5f, 0.5f,		0.0f, 1.0f,	0.0f,
+	0.5f, -0.5f,	0.0f, 0.0f, 1.0f,
+	-0.5f, -0.5f,	1.0f, 1.0f, 0.0f
+};
+
+
 //Vertex Positions
 //Position, Normal, UV Coordinate
 float cubeVertices[] = {
@@ -301,6 +309,27 @@ int main(void)
 	GLCall(glEnableVertexAttribArray(1));
 
 
+
+	unsigned int pointVAO;
+	unsigned int pointVBO;
+
+	GLCall(glGenVertexArrays(1, &pointVAO));
+	GLCall(glBindVertexArray(pointVAO));
+
+	GLCall(glGenBuffers(1, &pointVBO));
+	GLCall(glBindBuffer(GL_ARRAY_BUFFER, pointVBO));
+	GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW));
+
+
+	GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)0));
+	GLCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(2 * sizeof(float))));
+	GLCall(glEnableVertexAttribArray(0));
+	GLCall(glEnableVertexAttribArray(1));
+
+	Shader* geomTester = new Shader("Res/Shaders/Geometry.vert", "Res/Shaders/Geometry.frag", "Res/Shaders/GeometryShader.geom");
+
+
+
 	unsigned int skyboxVAO;
 	unsigned int skyboxVBO;
 
@@ -310,7 +339,7 @@ int main(void)
 	glGenBuffers(1, &skyboxVBO);
 	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices, GL_STATIC_DRAW);
-	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3,  (void*)0));
+	GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0));
 	GLCall(glEnableVertexAttribArray(0));
 
 	unsigned int cubeVao;
@@ -422,215 +451,188 @@ int main(void)
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-
-
-		//First Draw Pass: Mirror Rendering
-		GLCall(glBindFramebuffer(GL_FRAMEBUFFER, rearViewFB));
 		GLCall(glClearColor(0.1f, 0.1f, 0.1f, 1.0f));
-		GLCall(glEnable(GL_DEPTH_TEST));
-		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-
-		camera->yaw += 180.0f;
-		camera->ProcessMouseMovement(0.0, 0.0f, false);
-		camera->Update(deltaTime);
-		glm::mat4 view = camera->ViewMat();
-
-		camera->yaw -= 180.0f;
-		camera->ProcessMouseMovement(0.0f, 0.0f);
-
-		glm::mat4 projection = glm::perspective(glm::radians(camera->fov), (float)width / (float)height, 0.1f, 100.0f);
-
-		glm::mat4 model = glm::mat4(1.0);
-
-
-		camera->Update(deltaTime);
-
-
-		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, diffuseTexture);
-		BindTexture(GL_TEXTURE1, GL_TEXTURE_2D, specularTexture);
-
-		objectShader->SetFloat3("u_viewPos", camera->Position());
-		objectShader->SetMatrix4("u_view", view);
-		objectShader->SetMatrix4("u_projection", projection);
-
-
-		GLCall(glBindVertexArray(cubeVao));
-		for (unsigned int i = 0; i < 10; i++) {
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePositions[i]);
-			float angle = 20.0f * i;
-			model = glm::rotate(model, (float)glfwGetTime() * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
-			//objectShader->SetMatrix4("u_model", glm::value_ptr(model));
-			environmentShader->SetMatrix4("model", model);
-			GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
-		}
-
-
-		lightShader->SetMatrix4("u_view", view);
-		lightShader->SetMatrix4("u_projection", projection);
-		for (int i = 0; i < 4; i++) {
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, pointLights[i].position);
-			model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-			lightShader->SetMatrix4("u_model", glm::value_ptr(model));
-			GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
-		}
-
-
-
-		modelShader->SetFloat3("u_viewPos", camera->View());
-
-
-		model = glm::translate(model, glm::vec3(0.0f));
-		modelShader->SetMatrix4("view", view);
-		modelShader->SetMatrix4("projection", projection);
-		modelShader->SetMatrix4("model", glm::value_ptr(model));
-		//backpack.Draw(modelShader);
-
-		std::map<float, glm::vec3> sorted;
-		for (unsigned int i = 0; i < windowPositions.size(); i++) {
-			float distance = glm::length(camera->GPosition() - windowPositions[i]);
-			sorted[distance] = windowPositions[i];
-		}
-
-		GLCall(glBindVertexArray(quadVao));
-
-		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, windowTexture);
-
-		vegetationShader->SetMatrix4("view", view);
-		vegetationShader->SetMatrix4("projection", projection);
-
-		for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
-		{
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, it->second);
-			vegetationShader->SetMatrix4("model", glm::value_ptr(model));
-			GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
-		}
-
-		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, grassTexture);
-		for (unsigned int i = 0; i < 4; i++) {
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, vegetationPositions[i]);
-			vegetationShader->SetMatrix4("model", glm::value_ptr(model));
-			GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
-		}
-
-
-		camera->Update(deltaTime);
-
-
-
-
-
-
-
-
-
-		//Second Pass: Draw the scene normally
-		GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-		GLCall(glClearColor(0.3f, 0.3f, 0.3f, 1.0f));
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 
-		glDepthMask(false);
-		glBindVertexArray(skyboxVAO);
-		glm::mat4 skyboxView = glm::mat4(glm::mat3(camera->ViewMat()));
-		skyboxShader->SetMatrix4("projection", camera->Proj());
-		skyboxShader->SetMatrix4("view", skyboxView);
-		BindTexture(GL_TEXTURE0, GL_TEXTURE_CUBE_MAP, skybox);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glDepthMask(true);
+		////First Draw Pass: Mirror Rendering
+		//GLCall(glBindFramebuffer(GL_FRAMEBUFFER, rearViewFB));
+		//GLCall(glClearColor(0.1f, 0.1f, 0.1f, 1.0f));
+		//GLCall(glEnable(GL_DEPTH_TEST));
+		//GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
+		//camera->yaw += 180.0f;
+		//camera->ProcessMouseMovement(0.0, 0.0f, false);
+		//camera->Update(deltaTime);
+		//glm::mat4 view = camera->ViewMat();
+		//camera->yaw -= 180.0f;
+		//camera->ProcessMouseMovement(0.0f, 0.0f);
+		//glm::mat4 projection = glm::perspective(glm::radians(camera->fov), (float)width / (float)height, 0.1f, 100.0f);
+		//glm::mat4 model = glm::mat4(1.0);
+		//camera->Update(deltaTime);
+		//BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, diffuseTexture);
+		//BindTexture(GL_TEXTURE1, GL_TEXTURE_2D, specularTexture);
+		//objectShader->SetFloat3("u_viewPos", camera->Position());
+		//objectShader->SetMatrix4("u_view", view);
+		//objectShader->SetMatrix4("u_projection", projection);
+		//GLCall(glBindVertexArray(cubeVao));
+		//for (unsigned int i = 0; i < 10; i++) {
+		//	model = glm::mat4(1.0f);
+		//	model = glm::translate(model, cubePositions[i]);
+		//	float angle = 20.0f * i;
+		//	model = glm::rotate(model, (float)glfwGetTime() * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
+		//	//objectShader->SetMatrix4("u_model", glm::value_ptr(model));
+		//	environmentShader->SetMatrix4("model", model);
+		//	GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
+		//}
+		//lightShader->SetMatrix4("u_view", view);
+		//lightShader->SetMatrix4("u_projection", projection);
+		//for (int i = 0; i < 4; i++) {
+		//	model = glm::mat4(1.0f);
+		//	model = glm::translate(model, pointLights[i].position);
+		//	model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+		//	lightShader->SetMatrix4("u_model", glm::value_ptr(model));
+		//	GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
+		//}
+		//modelShader->SetFloat3("u_viewPos", camera->View());
+		//model = glm::translate(model, glm::vec3(0.0f));
+		//modelShader->SetMatrix4("view", view);
+		//modelShader->SetMatrix4("projection", projection);
+		//modelShader->SetMatrix4("model", glm::value_ptr(model));
+		////backpack.Draw(modelShader);
+		//std::map<float, glm::vec3> sorted;
+		//for (unsigned int i = 0; i < windowPositions.size(); i++) {
+		//	float distance = glm::length(camera->GPosition() - windowPositions[i]);
+		//	sorted[distance] = windowPositions[i];
+		//}
+		//GLCall(glBindVertexArray(quadVao));
+		//BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, windowTexture);
+		//vegetationShader->SetMatrix4("view", view);
+		//vegetationShader->SetMatrix4("projection", projection);
+		//for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
+		//{
+		//	model = glm::mat4(1.0f);
+		//	model = glm::translate(model, it->second);
+		//	vegetationShader->SetMatrix4("model", glm::value_ptr(model));
+		//	GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
+		//}
+		//BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, grassTexture);
+		//for (unsigned int i = 0; i < 4; i++) {
+		//	model = glm::mat4(1.0f);
+		//	model = glm::translate(model, vegetationPositions[i]);
+		//	vegetationShader->SetMatrix4("model", glm::value_ptr(model));
+		//	GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
+		//}
+		//camera->Update(deltaTime);
 
 
-		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, diffuseTexture);
-		BindTexture(GL_TEXTURE1, GL_TEXTURE_2D, specularTexture);
-
-		view = camera->ViewMat();
-
-		objectShader->SetFloat3("u_viewPos", camera->Position());
-		objectShader->SetMatrix4("u_view", view);
-		objectShader->SetMatrix4("u_projection", camera->Proj());
-
-		//Draw Cubes
-		GLCall(glBindVertexArray(cubeVao));
-
-		BindTexture(GL_TEXTURE0, GL_TEXTURE_CUBE_MAP, skybox);
-		environmentShader->SetMatrix4("view", view);
-		environmentShader->SetMatrix4("projection", projection);
-		environmentShader->SetFloat3("cameraPos", camera->Position());
-		for (unsigned int i = 0; i < 10; i++) {
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePositions[i]);
-			float angle = 20.0f * i;
-			model = glm::rotate(model, (float)glfwGetTime() * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
-			//objectShader->SetMatrix4("u_model", glm::value_ptr(model));
-			environmentShader->SetMatrix4("model", model);
-			GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
-		}
-
-		//Draw Lights
-		lightShader->SetMatrix4("u_view", view);
-		lightShader->SetMatrix4("u_projection", camera->Proj());
-		for (int i = 0; i < 4; i++) {
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, pointLights[i].position);
-			model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-			lightShader->SetMatrix4("u_model", glm::value_ptr(model));
-
-			GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
-		}
+		////Second Pass: Draw the scene normally
+		//GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+		//GLCall(glClearColor(0.3f, 0.3f, 0.3f, 1.0f));
+		//GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 
-		modelShader->SetFloat3("u_viewPos", camera->View());
-
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f));
-		modelShader->SetMatrix4("view", view);
-		modelShader->SetMatrix4("projection", camera->Proj());
-		modelShader->SetMatrix4("model", glm::value_ptr(model));
-		//backpack.Draw(modelShader);
-
-		sorted = std::map<float, glm::vec3>();
-		for (unsigned int i = 0; i < windowPositions.size(); i++) {
-			float distance = glm::length(camera->GPosition() - windowPositions[i]);
-			sorted[distance] = windowPositions[i];
-		}
-
-		//Windows
-		GLCall(glBindVertexArray(quadVao));
-
-		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, windowTexture);
-
-		vegetationShader->SetMatrix4("view", view);
-		vegetationShader->SetMatrix4("projection", camera->Proj());
-
-		for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
-		{
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, it->second);
-			vegetationShader->SetMatrix4("model", glm::value_ptr(model));
-			GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
-		}
-
-		//Grass
-		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, grassTexture);
-		for (unsigned int i = 0; i < 4; i++) {
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, vegetationPositions[i]);
-			vegetationShader->SetMatrix4("model", glm::value_ptr(model));
-			GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
-		}
+		//glDepthMask(false);
+		//glBindVertexArray(skyboxVAO);
+		//glm::mat4 skyboxView = glm::mat4(glm::mat3(camera->ViewMat()));
+		//skyboxShader->SetMatrix4("projection", camera->Proj());
+		//skyboxShader->SetMatrix4("view", skyboxView);
+		//BindTexture(GL_TEXTURE0, GL_TEXTURE_CUBE_MAP, skybox);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glDepthMask(true);
 
 
-		//Draw the mirror 
-		GLCall(glDisable(GL_DEPTH_TEST));
+		//BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, diffuseTexture);
+		//BindTexture(GL_TEXTURE1, GL_TEXTURE_2D, specularTexture);
 
-		GLCall(glBindVertexArray(screenQuadVao));
-		currentShader->BindShaderProgram();
-		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, rearViewTex);
-		GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
+		//view = camera->ViewMat();
 
+		//objectShader->SetFloat3("u_viewPos", camera->Position());
+		//objectShader->SetMatrix4("u_view", view);
+		//objectShader->SetMatrix4("u_projection", camera->Proj());
+
+		////Draw Cubes
+		//GLCall(glBindVertexArray(cubeVao));
+
+		//BindTexture(GL_TEXTURE0, GL_TEXTURE_CUBE_MAP, skybox);
+		//environmentShader->SetMatrix4("view", view);
+		//environmentShader->SetMatrix4("projection", projection);
+		//environmentShader->SetFloat3("cameraPos", camera->Position());
+		//for (unsigned int i = 0; i < 10; i++) {
+		//	model = glm::mat4(1.0f);
+		//	model = glm::translate(model, cubePositions[i]);
+		//	float angle = 20.0f * i;
+		//	model = glm::rotate(model, (float)glfwGetTime() * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
+		//	//objectShader->SetMatrix4("u_model", glm::value_ptr(model));
+		//	environmentShader->SetMatrix4("model", model);
+		//	GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
+		//}
+
+		////Draw Lights
+		//lightShader->SetMatrix4("u_view", view);
+		//lightShader->SetMatrix4("u_projection", camera->Proj());
+		//for (int i = 0; i < 4; i++) {
+		//	model = glm::mat4(1.0f);
+		//	model = glm::translate(model, pointLights[i].position);
+		//	model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+		//	lightShader->SetMatrix4("u_model", glm::value_ptr(model));
+
+		//	GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
+		//}
+
+
+		//modelShader->SetFloat3("u_viewPos", camera->View());
+
+		//model = glm::mat4(1.0f);
+		//model = glm::translate(model, glm::vec3(0.0f));
+		//modelShader->SetMatrix4("view", view);
+		//modelShader->SetMatrix4("projection", camera->Proj());
+		//modelShader->SetMatrix4("model", glm::value_ptr(model));
+		////backpack.Draw(modelShader);
+
+		//sorted = std::map<float, glm::vec3>();
+		//for (unsigned int i = 0; i < windowPositions.size(); i++) {
+		//	float distance = glm::length(camera->GPosition() - windowPositions[i]);
+		//	sorted[distance] = windowPositions[i];
+		//}
+
+		////Windows
+		//GLCall(glBindVertexArray(quadVao));
+
+		//BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, windowTexture);
+
+		//vegetationShader->SetMatrix4("view", view);
+		//vegetationShader->SetMatrix4("projection", camera->Proj());
+
+		//for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
+		//{
+		//	model = glm::mat4(1.0f);
+		//	model = glm::translate(model, it->second);
+		//	vegetationShader->SetMatrix4("model", glm::value_ptr(model));
+		//	GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
+		//}
+
+		////Grass
+		//BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, grassTexture);
+		//for (unsigned int i = 0; i < 4; i++) {
+		//	model = glm::mat4(1.0f);
+		//	model = glm::translate(model, vegetationPositions[i]);
+		//	vegetationShader->SetMatrix4("model", glm::value_ptr(model));
+		//	GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
+		//}
+
+
+		////Draw the mirror 
+		//GLCall(glDisable(GL_DEPTH_TEST));
+
+		//GLCall(glBindVertexArray(screenQuadVao));
+		//currentShader->BindShaderProgram();
+		//BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, rearViewTex);
+		//GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
+
+		geomTester->BindShaderProgram();
+
+		glBindVertexArray(pointVAO);
+		glDrawArrays(GL_POINTS, 0, 4);
 
 
 		/* Swap front and back buffers */
@@ -708,7 +710,7 @@ unsigned int LoadCubemap(std::vector<std::string> faces)
 
 	for (unsigned int i = 0; i < faces.size(); i++) {
 		unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
-		
+
 		if (data) {
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 			stbi_image_free(data);

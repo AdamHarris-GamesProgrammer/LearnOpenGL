@@ -19,6 +19,7 @@
 class Shader {
 public:
 	Shader(const std::string& vsPath, const std::string& fsPath);
+	Shader(const std::string& vsPath, const std::string& fsPath, const std::string& gePath);
 
 	void BindShaderProgram();
 
@@ -48,6 +49,7 @@ private:
 	unsigned int CompileShader(const std::string& shader, unsigned int type);
 
 	void CreateShader(unsigned int vs, unsigned int fs);
+	void CreateShader(unsigned int vs, unsigned int fs, unsigned int gs);
 
 	std::stringstream ParseShader(const std::string& path);
 

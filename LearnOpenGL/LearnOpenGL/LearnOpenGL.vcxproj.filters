@@ -91,6 +91,9 @@
     <None Include="Res\Shaders\Skybox.frag" />
     <None Include="Res\Shaders\EnvironmentMapping.vert" />
     <None Include="Res\Shaders\EnvironmentMapping.frag" />
+    <None Include="Res\Shaders\GeometryShader.geom" />
+    <None Include="Res\Shaders\Geometry.vert" />
+    <None Include="Res\Shaders\Geometry.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Res\Textures\wall.jpg">
