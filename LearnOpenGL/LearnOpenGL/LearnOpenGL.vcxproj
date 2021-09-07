@@ -156,6 +156,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Res\Shaders\EdgeDetectionKernal.frag" />
+    <ClInclude Include="src\Vertices.h" />
     <ClInclude Include="src\Model.h" />
     <ClInclude Include="src\Mesh.h" />
     <ClInclude Include="src\GraphicsStructs.h" />

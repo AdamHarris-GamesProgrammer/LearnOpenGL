@@ -15,6 +15,7 @@
 #include <gtc/type_ptr.hpp>
 #include <map>
 
+#include "Vertices.h"
 
 GLFWwindow* _pWindow = nullptr;
 
@@ -39,141 +40,9 @@ Shader* sharpenShader = nullptr;
 Shader* blurShader = nullptr;
 Shader* edgeShader = nullptr;
 
-float points[] = {
-	-0.5f, 0.5f,	1.0f, 0.0f, 0.0f,
-	0.5f, 0.5f,		0.0f, 1.0f,	0.0f,
-	0.5f, -0.5f,	0.0f, 0.0f, 1.0f,
-	-0.5f, -0.5f,	1.0f, 1.0f, 0.0f
-};
-
-
-//Vertex Positions
-//Position, Normal, UV Coordinate
-float cubeVertices[] = {
-	-0.5f, -0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,	 0.0f, 0.0f,
-	 0.5f, -0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,	 1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,	 1.0f, 1.0f,
-	 0.5f,  0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,	 1.0f, 1.0f,
-	-0.5f,  0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,	 0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,	 0.0f, 0.0f,
-
-	-0.5f, -0.5f,  0.5f,	 0.0f,  0.0f, 1.0f,		 0.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,	 0.0f,  0.0f, 1.0f,		 1.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,	 0.0f,  0.0f, 1.0f,		 1.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,	 0.0f,  0.0f, 1.0f,		 1.0f, 1.0f,
-	-0.5f,  0.5f,  0.5f,	 0.0f,  0.0f, 1.0f,		 0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,	 0.0f,  0.0f, 1.0f,		 0.0f, 0.0f,
-
-	-0.5f,  0.5f,  0.5f,	 -1.0f,  0.0f,  0.0f,	 1.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f,	 -1.0f,  0.0f,  0.0f,	 1.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,	 -1.0f,  0.0f,  0.0f,	 0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,	 -1.0f,  0.0f,  0.0f,	 0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,	 -1.0f,  0.0f,  0.0f,	 0.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,	 -1.0f,  0.0f,  0.0f,	 1.0f, 0.0f,
-
-	 0.5f,  0.5f,  0.5f,	 1.0f,  0.0f,  0.0f,	 1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,	 1.0f,  0.0f,  0.0f,	 1.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,	 1.0f,  0.0f,  0.0f,	 0.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,	 1.0f,  0.0f,  0.0f,	 0.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,	 1.0f,  0.0f,  0.0f,	 0.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,	 1.0f,  0.0f,  0.0f,	 1.0f, 0.0f,
-
-	-0.5f, -0.5f, -0.5f,	 0.0f, -1.0f,  0.0f,	 0.0f, 1.0f,
-	 0.5f, -0.5f, -0.5f,	 0.0f, -1.0f,  0.0f,	 1.0f, 1.0f,
-	 0.5f, -0.5f,  0.5f,	 0.0f, -1.0f,  0.0f,	 1.0f, 0.0f,
-	 0.5f, -0.5f,  0.5f,	 0.0f, -1.0f,  0.0f,	 1.0f, 0.0f,
-	-0.5f, -0.5f,  0.5f,	 0.0f, -1.0f,  0.0f,	 0.0f, 0.0f,
-	-0.5f, -0.5f, -0.5f,	 0.0f, -1.0f,  0.0f,	 0.0f, 1.0f,
-
-	-0.5f,  0.5f, -0.5f,	 0.0f,  1.0f,  0.0f,	 0.0f, 1.0f,
-	 0.5f,  0.5f, -0.5f,	 0.0f,  1.0f,  0.0f,	 1.0f, 1.0f,
-	 0.5f,  0.5f,  0.5f,	 0.0f,  1.0f,  0.0f,	 1.0f, 0.0f,
-	 0.5f,  0.5f,  0.5f,	 0.0f,  1.0f,  0.0f,	 1.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,	 0.0f,  1.0f,  0.0f,	 0.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f,	 0.0f,  1.0f,  0.0f,     0.0f, 1.0f
-};
-
-float skyboxVertices[] = {
-	// positions          
-	-1.0f,  1.0f, -1.0f,
-	-1.0f, -1.0f, -1.0f,
-	 1.0f, -1.0f, -1.0f,
-	 1.0f, -1.0f, -1.0f,
-	 1.0f,  1.0f, -1.0f,
-	-1.0f,  1.0f, -1.0f,
-
-	-1.0f, -1.0f,  1.0f,
-	-1.0f, -1.0f, -1.0f,
-	-1.0f,  1.0f, -1.0f,
-	-1.0f,  1.0f, -1.0f,
-	-1.0f,  1.0f,  1.0f,
-	-1.0f, -1.0f,  1.0f,
-
-	 1.0f, -1.0f, -1.0f,
-	 1.0f, -1.0f,  1.0f,
-	 1.0f,  1.0f,  1.0f,
-	 1.0f,  1.0f,  1.0f,
-	 1.0f,  1.0f, -1.0f,
-	 1.0f, -1.0f, -1.0f,
-
-	-1.0f, -1.0f,  1.0f,
-	-1.0f,  1.0f,  1.0f,
-	 1.0f,  1.0f,  1.0f,
-	 1.0f,  1.0f,  1.0f,
-	 1.0f, -1.0f,  1.0f,
-	-1.0f, -1.0f,  1.0f,
-
-	-1.0f,  1.0f, -1.0f,
-	 1.0f,  1.0f, -1.0f,
-	 1.0f,  1.0f,  1.0f,
-	 1.0f,  1.0f,  1.0f,
-	-1.0f,  1.0f,  1.0f,
-	-1.0f,  1.0f, -1.0f,
-
-	-1.0f, -1.0f, -1.0f,
-	-1.0f, -1.0f,  1.0f,
-	 1.0f, -1.0f, -1.0f,
-	 1.0f, -1.0f, -1.0f,
-	-1.0f, -1.0f,  1.0f,
-	 1.0f, -1.0f,  1.0f
-};
-
-glm::vec3 cubePositions[] = {
-	glm::vec3(4.0f,  0.0f,  0.0f),
-	glm::vec3(2.0f,  5.0f, -15.0f),
-	glm::vec3(-1.5f, -2.2f, -2.5f),
-	glm::vec3(-3.8f, -2.0f, -12.3f),
-	glm::vec3(2.4f, -0.4f, -3.5f),
-	glm::vec3(-1.7f,  3.0f, -7.5f),
-	glm::vec3(1.3f, -2.0f, -2.5f),
-	glm::vec3(1.5f,  2.0f, -2.5f),
-	glm::vec3(1.5f,  0.2f, -1.5f),
-	glm::vec3(-1.3f,  1.0f, -1.5f)
-};
-
-float quadVerts[] = {
-	-0.5f, -0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,	 0.0f, 0.0f,
-	 0.5f, -0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,	 1.0f, 0.0f,
-	 0.5f,  0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,	 1.0f, 1.0f,
-	 0.5f,  0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,	 1.0f, 1.0f,
-	-0.5f,  0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,	 0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,	 0.0f,  0.0f, -1.0f,	 0.0f, 0.0f,
-};
-
-float screenQuad[] = {
-	-0.3f, 0.5f,	0.0f, 0.0f, //Bottom left
-	0.3f, 0.5f,		1.0f, 0.0f, //Bottom Right
-	0.3f, 1.0f,		1.0f, 1.0f, //Top Right
-	0.3f, 1.0f,		1.0f, 1.0f, //Top Right
-	-0.3f, 1.0f,	0.0f, 1.0f, //Top Left
-	-0.3f, 0.5f,	0.0f, 0.0f //Bottom Left
-};
-
 void MouseCallback(GLFWwindow* window, double xpos, double ypos);
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 unsigned int LoadCubemap(std::vector<std::string> faces);
-
-
 
 void BindTexture(GLenum slot, GLenum target, unsigned int& textureID) {
 	GLCall(glActiveTexture(slot));
@@ -237,61 +106,6 @@ void ProcessInput();
 int main(void)
 {
 	Initialize();
-
-
-	unsigned int framebuffer;
-	GLCall(glGenFramebuffers(1, &framebuffer));
-	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, framebuffer));
-
-	unsigned int texColorBuffer;
-	GLCall(glGenTextures(1, &texColorBuffer));
-	GLCall(glBindTexture(GL_TEXTURE_2D, texColorBuffer));
-	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL));
-	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-	GLCall(glBindTexture(GL_TEXTURE_2D, 0));
-
-	GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texColorBuffer, 0));
-
-	unsigned int rbo;
-	GLCall(glGenRenderbuffers(1, &rbo));
-	GLCall(glBindRenderbuffer(GL_RENDERBUFFER, rbo));
-	GLCall(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height));
-	GLCall(glBindRenderbuffer(GL_RENDERBUFFER, 0));
-
-	GLCall(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo));
-
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-		std::cout << "[OPENGL ERROR]: Framebuffer is not complete" << std::endl;
-	}
-
-
-	unsigned int rearViewFB;
-	glGenFramebuffers(1, &rearViewFB);
-	glBindFramebuffer(GL_FRAMEBUFFER, rearViewFB);
-
-	unsigned int rearViewTex;
-	glGenTextures(1, &rearViewTex);
-	glBindTexture(GL_TEXTURE_2D, rearViewTex);
-	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL));
-	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-	GLCall(glBindTexture(GL_TEXTURE_2D, 0));
-
-	GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, rearViewTex, 0));
-
-	unsigned int rearRbo;
-	glGenRenderbuffers(1, &rearRbo);
-	glBindRenderbuffer(GL_RENDERBUFFER, rearRbo);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rearRbo);
-
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-		std::cout << "[OPENGL ERROR]: Framebuffer is not complete" << std::endl;
-	}
-
-
-	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
 	unsigned int screenQuadVao;
 	unsigned int screenQuadVbo;
@@ -451,193 +265,102 @@ int main(void)
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		GLCall(glClearColor(0.1f, 0.1f, 0.1f, 1.0f));
+		//Second Pass: Draw the scene normally
+		GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+		GLCall(glClearColor(0.3f, 0.3f, 0.3f, 1.0f));
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-
-		////First Draw Pass: Mirror Rendering
-		//GLCall(glBindFramebuffer(GL_FRAMEBUFFER, rearViewFB));
-		//GLCall(glClearColor(0.1f, 0.1f, 0.1f, 1.0f));
-		//GLCall(glEnable(GL_DEPTH_TEST));
-		//GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-		//camera->yaw += 180.0f;
-		//camera->ProcessMouseMovement(0.0, 0.0f, false);
-		//camera->Update(deltaTime);
-		//camera->yaw -= 180.0f;
-		//camera->ProcessMouseMovement(0.0f, 0.0f);
-		//camera->Update(deltaTime);
-		//BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, diffuseTexture);
-		//BindTexture(GL_TEXTURE1, GL_TEXTURE_2D, specularTexture);
-		//objectShader->SetFloat3("u_viewPos", camera->Position());
-		//objectShader->SetMatrix4("u_view", view);
-		//objectShader->SetMatrix4("u_projection", projection);
-		//GLCall(glBindVertexArray(cubeVao));
-		//for (unsigned int i = 0; i < 10; i++) {
-		//	model = glm::mat4(1.0f);
-		//	model = glm::translate(model, cubePositions[i]);
-		//	float angle = 20.0f * i;
-		//	model = glm::rotate(model, (float)glfwGetTime() * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
-		//	//objectShader->SetMatrix4("u_model", glm::value_ptr(model));
-		//	environmentShader->SetMatrix4("model", model);
-		//	GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
-		//}
-		//lightShader->SetMatrix4("u_view", view);
-		//lightShader->SetMatrix4("u_projection", projection);
-		//for (int i = 0; i < 4; i++) {
-		//	model = glm::mat4(1.0f);
-		//	model = glm::translate(model, pointLights[i].position);
-		//	model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-		//	lightShader->SetMatrix4("u_model", glm::value_ptr(model));
-		//	GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
-		//}
-		//modelShader->SetFloat3("u_viewPos", camera->View());
-		//model = glm::translate(model, glm::vec3(0.0f));
-		//modelShader->SetMatrix4("view", view);
-		//modelShader->SetMatrix4("projection", projection);
-		//modelShader->SetMatrix4("model", glm::value_ptr(model));
-		////backpack.Draw(modelShader);
-		//std::map<float, glm::vec3> sorted;
-		//for (unsigned int i = 0; i < windowPositions.size(); i++) {
-		//	float distance = glm::length(camera->GPosition() - windowPositions[i]);
-		//	sorted[distance] = windowPositions[i];
-		//}
-		//GLCall(glBindVertexArray(quadVao));
-		//BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, windowTexture);
-		//vegetationShader->SetMatrix4("view", view);
-		//vegetationShader->SetMatrix4("projection", projection);
-		//for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
-		//{
-		//	model = glm::mat4(1.0f);
-		//	model = glm::translate(model, it->second);
-		//	vegetationShader->SetMatrix4("model", glm::value_ptr(model));
-		//	GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
-		//}
-		//BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, grassTexture);
-		//for (unsigned int i = 0; i < 4; i++) {
-		//	model = glm::mat4(1.0f);
-		//	model = glm::translate(model, vegetationPositions[i]);
-		//	vegetationShader->SetMatrix4("model", glm::value_ptr(model));
-		//	GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
-		//}
-		//camera->Update(deltaTime);
-
-
-		////Second Pass: Draw the scene normally
-		//GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-		//GLCall(glClearColor(0.3f, 0.3f, 0.3f, 1.0f));
-		//GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-
-
-		//glDepthMask(false);
-		//glBindVertexArray(skyboxVAO);
-		//glm::mat4 skyboxView = glm::mat4(glm::mat3(camera->ViewMat()));
-		//skyboxShader->SetMatrix4("projection", camera->Proj());
-		//skyboxShader->SetMatrix4("view", skyboxView);
-		//BindTexture(GL_TEXTURE0, GL_TEXTURE_CUBE_MAP, skybox);
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
-		//glDepthMask(true);
-
-
-		//BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, diffuseTexture);
-		//BindTexture(GL_TEXTURE1, GL_TEXTURE_2D, specularTexture);
-
-		//view = camera->ViewMat();
-
-		//objectShader->SetFloat3("u_viewPos", camera->Position());
-		//objectShader->SetMatrix4("u_view", view);
-		//objectShader->SetMatrix4("u_projection", camera->Proj());
-
-		////Draw Cubes
-		//GLCall(glBindVertexArray(cubeVao));
-
-		//BindTexture(GL_TEXTURE0, GL_TEXTURE_CUBE_MAP, skybox);
-		//environmentShader->SetMatrix4("view", view);
-		//environmentShader->SetMatrix4("projection", projection);
-		//environmentShader->SetFloat3("cameraPos", camera->Position());
-		//for (unsigned int i = 0; i < 10; i++) {
-		//	model = glm::mat4(1.0f);
-		//	model = glm::translate(model, cubePositions[i]);
-		//	float angle = 20.0f * i;
-		//	model = glm::rotate(model, (float)glfwGetTime() * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
-		//	//objectShader->SetMatrix4("u_model", glm::value_ptr(model));
-		//	environmentShader->SetMatrix4("model", model);
-		//	GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
-		//}
-
-		////Draw Lights
-		//lightShader->SetMatrix4("u_view", view);
-		//lightShader->SetMatrix4("u_projection", camera->Proj());
-		//for (int i = 0; i < 4; i++) {
-		//	model = glm::mat4(1.0f);
-		//	model = glm::translate(model, pointLights[i].position);
-		//	model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-		//	lightShader->SetMatrix4("u_model", glm::value_ptr(model));
-
-		//	GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
-		//}
-
-
-		//modelShader->SetFloat3("u_viewPos", camera->View());
-
-		//model = glm::mat4(1.0f);
-		//model = glm::translate(model, glm::vec3(0.0f));
-		//modelShader->SetMatrix4("view", view);
-		//modelShader->SetMatrix4("projection", camera->Proj());
-		//modelShader->SetMatrix4("model", glm::value_ptr(model));
-		////backpack.Draw(modelShader);
-
-		//sorted = std::map<float, glm::vec3>();
-		//for (unsigned int i = 0; i < windowPositions.size(); i++) {
-		//	float distance = glm::length(camera->GPosition() - windowPositions[i]);
-		//	sorted[distance] = windowPositions[i];
-		//}
-
-		////Windows
-		//GLCall(glBindVertexArray(quadVao));
-
-		//BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, windowTexture);
-
-		//vegetationShader->SetMatrix4("view", view);
-		//vegetationShader->SetMatrix4("projection", camera->Proj());
-
-		//for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
-		//{
-		//	model = glm::mat4(1.0f);
-		//	model = glm::translate(model, it->second);
-		//	vegetationShader->SetMatrix4("model", glm::value_ptr(model));
-		//	GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
-		//}
-		////Grass
-		//BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, grassTexture);
-		//for (unsigned int i = 0; i < 4; i++) {
-		//	model = glm::mat4(1.0f);
-		//	model = glm::translate(model, vegetationPositions[i]);
-		//	vegetationShader->SetMatrix4("model", glm::value_ptr(model));
-		//	GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
-		//}
-		////Draw the mirror 
-		//GLCall(glDisable(GL_DEPTH_TEST));
-		//GLCall(glBindVertexArray(screenQuadVao));
-		//currentShader->BindShaderProgram();
-		//BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, rearViewTex);
-		//GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
-
 		camera->Update(deltaTime);
+
 		glm::mat4 view = camera->ViewMat();
-		glm::mat4 projection = glm::perspective(glm::radians(camera->fov), (float)width / (float)height, 0.1f, 100.0f);
 		glm::mat4 model = glm::mat4(1.0);
+		glm::mat4 projection = glm::perspective(glm::radians(camera->fov), (float)width / (float)height, 0.1f, 100.0f);
+
+		glDepthMask(false);
+		glBindVertexArray(skyboxVAO);
+		glm::mat4 skyboxView = glm::mat4(glm::mat3(camera->ViewMat()));
+		skyboxShader->SetMatrix4("projection", camera->Proj());
+		skyboxShader->SetMatrix4("view", skyboxView);
+		BindTexture(GL_TEXTURE0, GL_TEXTURE_CUBE_MAP, skybox);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDepthMask(true);
+
 
 		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, diffuseTexture);
-		geomTester->SetInt("texture_diffuse1", 0);
-		geomTester->BindShaderProgram();
-		geomTester->SetFloat("time", glfwGetTime());
-		geomTester->SetMatrix4("view", view);
-		geomTester->SetMatrix4("projection", projection);
-		geomTester->SetMatrix4("model", model);
+		BindTexture(GL_TEXTURE1, GL_TEXTURE_2D, specularTexture);
 
-		glBindVertexArray(cubeVao);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		objectShader->SetFloat3("u_viewPos", camera->Position());
+		objectShader->SetMatrix4("u_view", view);
+		objectShader->SetMatrix4("u_projection", camera->Proj());
 
+		//Draw Cubes
+		GLCall(glBindVertexArray(cubeVao));
+
+		BindTexture(GL_TEXTURE0, GL_TEXTURE_CUBE_MAP, skybox);
+		environmentShader->SetMatrix4("view", view);
+		environmentShader->SetMatrix4("projection", projection);
+		environmentShader->SetFloat3("cameraPos", camera->Position());
+		for (unsigned int i = 0; i < 10; i++) {
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, cubePositions[i]);
+			float angle = 20.0f * i;
+			model = glm::rotate(model, (float)glfwGetTime() * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
+			//objectShader->SetMatrix4("u_model", glm::value_ptr(model));
+			environmentShader->SetMatrix4("model", model);
+			GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
+		}
+
+		//Draw Lights
+		lightShader->SetMatrix4("u_view", view);
+		lightShader->SetMatrix4("u_projection", camera->Proj());
+		for (int i = 0; i < 4; i++) {
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, pointLights[i].position);
+			model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+			lightShader->SetMatrix4("u_model", glm::value_ptr(model));
+
+			GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
+		}
+
+
+		modelShader->SetFloat3("u_viewPos", camera->View());
+
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(0.0f));
+		modelShader->SetMatrix4("view", view);
+		modelShader->SetMatrix4("projection", camera->Proj());
+		modelShader->SetMatrix4("model", glm::value_ptr(model));
+		//backpack.Draw(modelShader);
+
+		std::map<float, glm::vec3> sorted = std::map<float, glm::vec3>();
+		for (unsigned int i = 0; i < windowPositions.size(); i++) {
+			float distance = glm::length(camera->GPosition() - windowPositions[i]);
+			sorted[distance] = windowPositions[i];
+		}
+
+		//Windows
+		GLCall(glBindVertexArray(quadVao));
+
+		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, windowTexture);
+
+		vegetationShader->SetMatrix4("view", view);
+		vegetationShader->SetMatrix4("projection", camera->Proj());
+
+		for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
+		{
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, it->second);
+			vegetationShader->SetMatrix4("model", glm::value_ptr(model));
+			GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
+		}
+		//Grass
+		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, grassTexture);
+		for (unsigned int i = 0; i < 4; i++) {
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, vegetationPositions[i]);
+			vegetationShader->SetMatrix4("model", glm::value_ptr(model));
+			GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
+		}
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(_pWindow);
@@ -656,8 +379,6 @@ int main(void)
 
 	lightShader = nullptr;
 	objectShader = nullptr;
-
-	glDeleteFramebuffers(1, &framebuffer);
 
 	glfwTerminate();
 	return 0;
