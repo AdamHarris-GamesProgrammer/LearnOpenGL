@@ -64,12 +64,12 @@ float cubeVertices[] = {
 	-0.5f,  0.5f,  0.5f,	 0.0f,  0.0f, 1.0f,		 0.0f, 1.0f,
 	-0.5f, -0.5f,  0.5f,	 0.0f,  0.0f, 1.0f,		 0.0f, 0.0f,
 
-	-0.5f,  0.5f,  0.5f,	 1.0f,  0.0f,  0.0f,	 1.0f, 0.0f,
-	-0.5f,  0.5f, -0.5f,	 1.0f,  0.0f,  0.0f,	 1.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,	 1.0f,  0.0f,  0.0f,	 0.0f, 1.0f,
-	-0.5f, -0.5f, -0.5f,	 1.0f,  0.0f,  0.0f,	 0.0f, 1.0f,
-	-0.5f, -0.5f,  0.5f,	 1.0f,  0.0f,  0.0f,	 0.0f, 0.0f,
-	-0.5f,  0.5f,  0.5f,	 1.0f,  0.0f,  0.0f,	 1.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,	 -1.0f,  0.0f,  0.0f,	 1.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,	 -1.0f,  0.0f,  0.0f,	 1.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,	 -1.0f,  0.0f,  0.0f,	 0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,	 -1.0f,  0.0f,  0.0f,	 0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,	 -1.0f,  0.0f,  0.0f,	 0.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,	 -1.0f,  0.0f,  0.0f,	 1.0f, 0.0f,
 
 	 0.5f,  0.5f,  0.5f,	 1.0f,  0.0f,  0.0f,	 1.0f, 0.0f,
 	 0.5f,  0.5f, -0.5f,	 1.0f,  0.0f,  0.0f,	 1.0f, 1.0f,
@@ -463,11 +463,8 @@ int main(void)
 		//camera->yaw += 180.0f;
 		//camera->ProcessMouseMovement(0.0, 0.0f, false);
 		//camera->Update(deltaTime);
-		//glm::mat4 view = camera->ViewMat();
 		//camera->yaw -= 180.0f;
 		//camera->ProcessMouseMovement(0.0f, 0.0f);
-		//glm::mat4 projection = glm::perspective(glm::radians(camera->fov), (float)width / (float)height, 0.1f, 100.0f);
-		//glm::mat4 model = glm::mat4(1.0);
 		//camera->Update(deltaTime);
 		//BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, diffuseTexture);
 		//BindTexture(GL_TEXTURE1, GL_TEXTURE_2D, specularTexture);
@@ -610,7 +607,6 @@ int main(void)
 		//	vegetationShader->SetMatrix4("model", glm::value_ptr(model));
 		//	GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
 		//}
-
 		////Grass
 		//BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, grassTexture);
 		//for (unsigned int i = 0; i < 4; i++) {
@@ -619,20 +615,28 @@ int main(void)
 		//	vegetationShader->SetMatrix4("model", glm::value_ptr(model));
 		//	GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
 		//}
-
-
 		////Draw the mirror 
 		//GLCall(glDisable(GL_DEPTH_TEST));
-
 		//GLCall(glBindVertexArray(screenQuadVao));
 		//currentShader->BindShaderProgram();
 		//BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, rearViewTex);
 		//GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
 
-		geomTester->BindShaderProgram();
+		camera->Update(deltaTime);
+		glm::mat4 view = camera->ViewMat();
+		glm::mat4 projection = glm::perspective(glm::radians(camera->fov), (float)width / (float)height, 0.1f, 100.0f);
+		glm::mat4 model = glm::mat4(1.0);
 
-		glBindVertexArray(pointVAO);
-		glDrawArrays(GL_POINTS, 0, 4);
+		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, diffuseTexture);
+		geomTester->SetInt("texture_diffuse1", 0);
+		geomTester->BindShaderProgram();
+		geomTester->SetFloat("time", glfwGetTime());
+		geomTester->SetMatrix4("view", view);
+		geomTester->SetMatrix4("projection", projection);
+		geomTester->SetMatrix4("model", model);
+
+		glBindVertexArray(cubeVao);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
 		/* Swap front and back buffers */
