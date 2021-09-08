@@ -119,6 +119,10 @@ int main(void)
 	GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
 	GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
 
+	unsigned int quadVAO;
+	unsigned int quadVBO;
+	CreateBuffers(quadVAO, quadVBO, quadVerts, sizeof(quadVerts) / sizeof(float));
+
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -146,7 +150,6 @@ int main(void)
 	Shader* skyboxShader = new Shader("Res/Shaders/Skybox.vert", "Res/Shaders/Skybox.frag");
 	Shader* instancedShader = new Shader("Res/Shaders/InstancedModel.vert", "Res/Shaders/InstancedModel.frag");
 
-	//Model backpack("Res/Models/backpack/backpack.obj");
 
 	Model planet("Res/Models/planet/planet.obj");
 
@@ -166,18 +169,6 @@ int main(void)
 	pointLights.push_back(PointLight(glm::vec3(-4.0f, 2.0f, -12.0f), lightAmbient, lightDiffuse, lightSpecular, 1.0f, 0.09f, 0.032f));
 	pointLights.push_back(PointLight(glm::vec3(0.0f, 0.0f, -3.0f), lightAmbient, lightDiffuse, lightSpecular, 1.0f, 0.09f, 0.032f));
 
-	std::vector<glm::vec3> vegetationPositions;
-	vegetationPositions.push_back(glm::vec3(1.5f, 0.0f, -1.0f));
-	vegetationPositions.push_back(glm::vec3(-3.8f, 0.0f, -2.5f));
-	vegetationPositions.push_back(glm::vec3(2.5, 0.0f, 2.3f));
-	vegetationPositions.push_back(glm::vec3(-1.2f, 0.0f, 1.5f));
-
-	std::vector<glm::vec3> windowPositions;
-	windowPositions.push_back(glm::vec3(-1.5f, 0.0f, -0.48f));
-	windowPositions.push_back(glm::vec3(1.5f, 0.0f, 0.51f));
-	windowPositions.push_back(glm::vec3(0.0f, 0.0f, 0.7f));
-	windowPositions.push_back(glm::vec3(-0.3f, 0.0f, -2.3f));
-	windowPositions.push_back(glm::vec3(0.5f, 0.0f, -0.6f));
 
 	objectShader->SetDirectionalLight("u_dirLight", sun);
 	objectShader->SetInt("u_material.diffuse", 0);
@@ -240,8 +231,6 @@ int main(void)
 		for (unsigned int i = 0; i < 10; i++) {
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, cubePositions[i]);
-			float angle = 20.0f * i;
-			model = glm::rotate(model, (float)glfwGetTime() * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
 			objectShader->SetMatrix4("u_model", glm::value_ptr(model));
 			GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
 		}
@@ -257,18 +246,30 @@ int main(void)
 
 			GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
 		}
-
-
 		
 		//Draw Planet
 		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f));
-		modelShader->SetFloat3("u_viewPos", camera->View());
+		model = glm::translate(model, glm::vec3(8.0f, 2.35f, -7.0f));
+		modelShader->SetFloat3("u_viewPos", camera->Position());
 		modelShader->SetMatrix4("view", view);
 		modelShader->SetMatrix4("projection", camera->Proj());
 		modelShader->SetMatrix4("model", glm::value_ptr(model));
 		planet.Draw(modelShader);
 
+
+		objectShader->BindShaderProgram();
+
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(6.25f, 0.0f, -12.5f));
+		model = glm::scale(model, glm::vec3(25.0f, 1.0f, 25.0f));
+		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f,0.0f));
+		
+
+		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, diffuseTexture);
+		BindTexture(GL_TEXTURE1, GL_TEXTURE_2D, specularTexture);
+		objectShader->SetMatrix4("u_model", model);
+		glBindVertexArray(quadVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(_pWindow);
