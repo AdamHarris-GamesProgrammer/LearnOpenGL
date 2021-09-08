@@ -26,6 +26,10 @@ public:
 		return glm::value_ptr(cameraPos);
 	}
 
+	glm::mat4 ProjMat() {
+		return proj;
+	}
+
 	glm::mat4 ViewMat() {
 		return view;
 	}
