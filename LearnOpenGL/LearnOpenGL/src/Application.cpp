@@ -75,6 +75,7 @@ void Initialize()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_SAMPLES, 4);
 
 	/* Create a windowed mode window and its OpenGL context */
 	_pWindow = glfwCreateWindow(width, height, "Hello World", NULL, NULL);
@@ -196,6 +197,7 @@ int main(void)
 	Shader* modelShader = new Shader("Res/Shaders/ModelShader.vert", "Res/Shaders/ModelShader.frag");
 	Shader* skyboxShader = new Shader("Res/Shaders/Skybox.vert", "Res/Shaders/Skybox.frag");
 	Shader* environmentShader = new Shader("Res/Shaders/EnvironmentMapping.vert", "Res/Shaders/EnvironmentMapping.frag");
+	Shader* instancedShader = new Shader("Res/Shaders/InstancedModel.vert", "Res/Shaders/InstancedModel.frag");
 
 
 
@@ -307,15 +309,15 @@ int main(void)
 	//glVertexAttribDivisor(2, 1);
 
 
-	unsigned int amount = 15000;
+	unsigned int amount = 10000;
 	glm::mat4* modelMatrices;
 	modelMatrices = new glm::mat4[amount];
 	srand(glfwGetTime());
 
 	float radius = 50.0f;
-	float offset = 2.5f;
+	float offset = 25.0f;
 
-	for (unsigned int i = 0; i < amount; i++) {
+	for (unsigned int i = 0; i < amount / 2; i++) {
 		glm::mat4 model = glm::mat4(1.0);
 
 		float angle = (float)i / (float)amount * 360.0f;
@@ -335,6 +337,59 @@ int main(void)
 
 		modelMatrices[i] = model;
 	}
+
+	radius = 100.0f;
+
+	for (unsigned int i = amount / 2; i < amount; i++) {
+		glm::mat4 model = glm::mat4(1.0);
+
+		float angle = (float)i / (float)amount * 360.0f;
+		float displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+		float x = sin(angle) * radius + displacement;
+		displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+		float y = displacement * 0.4f;
+		displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+		float z = cos(angle) * radius + displacement;
+		model = glm::translate(model, glm::vec3(x, y, z));
+
+		float scale = (rand() % 20) / 100.0f + 0.05f;
+		model = glm::scale(model, glm::vec3(scale));
+
+		float rotAngle = (rand() % 360);
+		model = glm::rotate(model, rotAngle, glm::vec3(0.4f, 0.6f, 0.8f));
+
+		modelMatrices[i] = model;
+	}
+
+	unsigned int buffer;
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, amount * sizeof(glm::mat4), &modelMatrices[0], GL_STATIC_DRAW);
+
+	for (unsigned int i = 0; i < asteroid.meshes.size(); i++) {
+		unsigned int VAO = asteroid.meshes[i].VAO;
+		glBindVertexArray(VAO);
+
+		std::size_t vec4Size = sizeof(glm::vec4);
+
+		glEnableVertexAttribArray(3);
+		glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)0);
+		glEnableVertexAttribArray(4);
+		glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(1 * vec4Size));
+		glEnableVertexAttribArray(5);
+		glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(2 * vec4Size));
+		glEnableVertexAttribArray(6);
+		glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void*)(3 * vec4Size));
+
+		glVertexAttribDivisor(3, 1);
+		glVertexAttribDivisor(4, 1);
+		glVertexAttribDivisor(5, 1);
+		glVertexAttribDivisor(6, 1);
+
+		glBindVertexArray(0);
+	}
+
+	glEnable(GL_MULTISAMPLE);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(_pWindow))
@@ -356,7 +411,7 @@ int main(void)
 
 		glm::mat4 view = camera->ViewMat();
 		glm::mat4 model = glm::mat4(1.0);
-		glm::mat4 projection = glm::perspective(glm::radians(camera->fov), (float)width / (float)height, 0.1f, 100.0f);
+		glm::mat4 projection = glm::perspective(glm::radians(camera->fov), (float)width / (float)height, 0.1f, 1000.0f);
 
 		//glDepthMask(false);
 		//glBindVertexArray(skyboxVAO);
@@ -451,9 +506,14 @@ int main(void)
 		modelShader->SetMatrix4("model", model);
 		planet.Draw(modelShader);
 
-		for (unsigned int i = 0; i < amount; i++) {
-			modelShader->SetMatrix4("model", modelMatrices[i]);
-			asteroid.Draw(modelShader);
+
+		instancedShader->SetMatrix4("view", view);
+		instancedShader->SetMatrix4("projection", projection);
+ 		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, asteroid.textures_loaded[0].id);
+		instancedShader->SetInt("u_material.texture_diffuse1", 0);
+		for (unsigned int i = 0; i < asteroid.meshes.size(); i++) {
+			glBindVertexArray(asteroid.meshes[i].VAO);
+			glDrawElementsInstanced(GL_TRIANGLES, asteroid.meshes[i].indices.size(), GL_UNSIGNED_INT, 0, amount);
 		}
 
 		//instancedQuads->BindShaderProgram();

@@ -16,7 +16,7 @@ Camera::Camera(GLFWwindow* window, int width, int height, float fov)
 		glm::vec3(0.0f, 0.0f, 0.0f),
 		glm::vec3(0.0f, 1.0f, 0.0f));
 
-	proj = glm::perspective(glm::radians(fov), (float)width / (float)height, 0.1f, 100.0f);
+	proj = glm::perspective(glm::radians(fov), (float)width / (float)height, 0.1f, 1000.0f);
 
 
 }
@@ -65,7 +65,7 @@ void Camera::ProcessScrollMovement(float yOffset)
 
 void Camera::PollInput(float dt)
 {
-	float cameraSpeed = 2.5f * dt;
+	float cameraSpeed = 12.5f * dt;
 	if (glfwGetKey(_pWindow, GLFW_KEY_W) == GLFW_PRESS)
 		cameraPos += cameraSpeed * cameraFront;
 	if (glfwGetKey(_pWindow, GLFW_KEY_S) == GLFW_PRESS)

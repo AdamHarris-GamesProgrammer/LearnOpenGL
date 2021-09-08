@@ -14,10 +14,12 @@ public:
 	}
 	void Draw(Shader* shader);
 
-private:
 	std::vector<Mesh> meshes;
-	std::string directory;
 	std::vector<Texture> textures_loaded;
+private:
+
+	std::string directory;
+
 
 	void LoadModel(std::string path);
 	void ProcessNode(aiNode* node, const aiScene* scene);
