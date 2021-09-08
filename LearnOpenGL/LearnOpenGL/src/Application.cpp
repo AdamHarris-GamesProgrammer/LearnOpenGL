@@ -130,8 +130,9 @@ int main(void)
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
 	TextureLoader textureLoader;
-	unsigned int diffuseTexture = textureLoader.LoadTexture("Res/Textures/container2.png");
-	unsigned int specularTexture = textureLoader.LoadTexture("Res/Textures/container2_specular.png");
+	unsigned int crateDiffuse = textureLoader.LoadTexture("Res/Textures/container2.png");
+	unsigned int crateSpecular = textureLoader.LoadTexture("Res/Textures/container2_specular.png");
+	unsigned int floorTexture = textureLoader.LoadTexture("Res/Textures/floor.png");
 
 	std::vector<std::string> faces{
 		"Res/Textures/skybox/right.jpg",
@@ -158,7 +159,7 @@ int main(void)
 	camera = new Camera(_pWindow, width, height, 45.0f);
 
 	glm::vec3 lightDiffuse = glm::vec3(1.0f);
-	glm::vec3 lightAmbient = glm::vec3(0.2f);
+	glm::vec3 lightAmbient = glm::vec3(0.5f);
 	glm::vec3 lightSpecular = glm::vec3(1.0f);
 
 	DirectionalLight sun(glm::vec3(-0.2f, -1.0f, -0.3f), lightAmbient, lightDiffuse, lightSpecular);
@@ -180,11 +181,6 @@ int main(void)
 	modelShader->SetDirectionalLight("u_dirLight", sun);
 	modelShader->SetFloat("u_material.shininess", 32.0f);
 
-	for (GLuint i = 0; i < 4; i++) {
-		std::string number = std::to_string(i);
-		std::string base = "u_pointLight[" + number + "]";
-		objectShader->SetPointLight(base, pointLights[i]);
-	}
 
 	glEnable(GL_MULTISAMPLE);
 
@@ -198,6 +194,13 @@ int main(void)
 		float fps = 1.0 / deltaTime;
 
 		glfwSetWindowTitle(_pWindow, ("[OpenGL Experiments] FPS: " + std::to_string(fps)).c_str());
+
+		for (GLuint i = 0; i < 4; i++) {
+			std::string number = std::to_string(i);
+			std::string base = "u_pointLight[" + number + "]";
+			objectShader->SetPointLight(base, pointLights[i]);
+		}
+
 
 		GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 		GLCall(glClearColor(0.3f, 0.3f, 0.3f, 1.0f));
@@ -219,8 +222,8 @@ int main(void)
 		glDepthMask(true);
 
 
-		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, diffuseTexture);
-		BindTexture(GL_TEXTURE1, GL_TEXTURE_2D, specularTexture);
+		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, crateDiffuse);
+		BindTexture(GL_TEXTURE1, GL_TEXTURE_2D, crateSpecular);
 		objectShader->SetFloat3("u_viewPos", camera->Position());
 		objectShader->SetMatrix4("u_view", view);
 		objectShader->SetMatrix4("u_projection", camera->Proj());
@@ -265,8 +268,8 @@ int main(void)
 		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f,0.0f));
 		
 
-		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, diffuseTexture);
-		BindTexture(GL_TEXTURE1, GL_TEXTURE_2D, specularTexture);
+		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, floorTexture);
+		BindTexture(GL_TEXTURE1, GL_TEXTURE_2D, crateSpecular);
 		objectShader->SetMatrix4("u_model", model);
 		glBindVertexArray(quadVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
