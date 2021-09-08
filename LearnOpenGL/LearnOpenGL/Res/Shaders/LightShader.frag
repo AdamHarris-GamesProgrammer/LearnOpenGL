@@ -1,10 +1,9 @@
 #version 330 core
 
-uniform vec3 u_lightColor;
+uniform vec3 lightColor;
 
 out vec4 FragColor;
 
 void main() {
-	//FragColor = mix(texture(texture1, texCoord), texture(texture2, texCoord), 0.2);
-	FragColor = vec4(u_lightColor, 1.0);
+	FragColor = vec4(lightColor, 1.0);
 }

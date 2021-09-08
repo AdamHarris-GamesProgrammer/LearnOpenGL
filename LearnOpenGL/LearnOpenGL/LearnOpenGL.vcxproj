@@ -168,6 +168,8 @@
     <ClInclude Include="src\TextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Res\Shaders\AdvancedLighting.frag" />
+    <None Include="Res\Shaders\AdvancedLighting.vert" />
     <None Include="Res\Shaders\BasicShader.frag" />
     <None Include="Res\Shaders\BasicShader.vert" />
     <None Include="Res\Shaders\BlurKernal.frag" />

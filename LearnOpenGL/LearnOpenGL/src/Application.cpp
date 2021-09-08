@@ -132,7 +132,8 @@ int main(void)
 	TextureLoader textureLoader;
 	unsigned int crateDiffuse = textureLoader.LoadTexture("Res/Textures/container2.png");
 	unsigned int crateSpecular = textureLoader.LoadTexture("Res/Textures/container2_specular.png");
-	unsigned int floorTexture = textureLoader.LoadTexture("Res/Textures/floor.png");
+	unsigned int floorDiffuse = textureLoader.LoadTexture("Res/Textures/floor.png");
+	unsigned int floorSpecular = textureLoader.LoadTexture("Res/Textures/floorSpecular.png");
 
 	std::vector<std::string> faces{
 		"Res/Textures/skybox/right.jpg",
@@ -145,16 +146,11 @@ int main(void)
 
 	unsigned int skybox = textureLoader.LoadCubemap(faces);
 
-	Shader* objectShader = new Shader("Res/Shaders/BasicShader.vert", "Res/Shaders/BasicShader.frag");
 	Shader* lightShader = new Shader("Res/Shaders/LightShader.vert", "Res/Shaders/LightShader.frag");
-	Shader* modelShader = new Shader("Res/Shaders/ModelShader.vert", "Res/Shaders/ModelShader.frag");
 	Shader* skyboxShader = new Shader("Res/Shaders/Skybox.vert", "Res/Shaders/Skybox.frag");
-	Shader* instancedShader = new Shader("Res/Shaders/InstancedModel.vert", "Res/Shaders/InstancedModel.frag");
+	Shader* advancedLightingShader = new Shader("Res/Shaders/AdvancedLighting.vert", "Res/Shaders/AdvancedLighting.frag");
 
-
-	Model planet("Res/Models/planet/planet.obj");
-
-	glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
+	glm::vec3 lightPos(1.0,1.0,1.0);
 
 	camera = new Camera(_pWindow, width, height, 45.0f);
 
@@ -165,24 +161,19 @@ int main(void)
 	DirectionalLight sun(glm::vec3(-0.2f, -1.0f, -0.3f), lightAmbient, lightDiffuse, lightSpecular);
 
 	std::vector<PointLight> pointLights;
-	pointLights.push_back(PointLight(glm::vec3(0.7f, 0.2f, 2.0f), lightAmbient, lightDiffuse, lightSpecular, 1.0f, 0.09f, 0.032f));
+	pointLights.push_back(PointLight(glm::vec3(0.2f, 0.2f, 2.0f), lightAmbient, lightDiffuse, lightSpecular, 1.0f, 0.09f, 0.032f));
 	pointLights.push_back(PointLight(glm::vec3(2.3f, -3.3f, -4.0f), lightAmbient, lightDiffuse, lightSpecular, 1.0f, 0.09f, 0.032f));
 	pointLights.push_back(PointLight(glm::vec3(-4.0f, 2.0f, -12.0f), lightAmbient, lightDiffuse, lightSpecular, 1.0f, 0.09f, 0.032f));
 	pointLights.push_back(PointLight(glm::vec3(0.0f, 0.0f, -3.0f), lightAmbient, lightDiffuse, lightSpecular, 1.0f, 0.09f, 0.032f));
 
 
-	objectShader->SetDirectionalLight("u_dirLight", sun);
-	objectShader->SetInt("u_material.diffuse", 0);
-	objectShader->SetInt("u_material.specular", 1);
-	objectShader->SetFloat("u_material.shininess", 32.0f);
-
-	lightShader->SetFloat3("u_lightColor", glm::value_ptr(lightDiffuse));
-
-	modelShader->SetDirectionalLight("u_dirLight", sun);
-	modelShader->SetFloat("u_material.shininess", 32.0f);
-
+	for (int i = 0; i < 4; i++) {
+		advancedLightingShader->SetFloat3(("lightPosition[" + std::to_string(i) + "]").c_str(), pointLights[i].position);
+		advancedLightingShader->SetFloat3(("lightColors[" + std::to_string(i) + "]").c_str(), pointLights[i].diffuse);
+	}
 
 	glEnable(GL_MULTISAMPLE);
+	//glEnable(GL_FRAMEBUFFER_SRGB);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(_pWindow))
@@ -195,15 +186,8 @@ int main(void)
 
 		glfwSetWindowTitle(_pWindow, ("[OpenGL Experiments] FPS: " + std::to_string(fps)).c_str());
 
-		for (GLuint i = 0; i < 4; i++) {
-			std::string number = std::to_string(i);
-			std::string base = "u_pointLight[" + number + "]";
-			objectShader->SetPointLight(base, pointLights[i]);
-		}
-
-
 		GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-		GLCall(glClearColor(0.3f, 0.3f, 0.3f, 1.0f));
+		GLCall(glClearColor(0.1f, 0.1f, 0.1f, 1.0f));
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 		camera->Update(deltaTime);
@@ -212,65 +196,61 @@ int main(void)
 		glm::mat4 model = glm::mat4(1.0);
 		glm::mat4 projection = camera->ProjMat();
 
+		//Draw Skybox
 		glDepthMask(false);
 		glBindVertexArray(skyboxVAO);
 		glm::mat4 skyboxView = glm::mat4(glm::mat3(camera->ViewMat()));
-		skyboxShader->SetMatrix4("projection", camera->Proj());
+		skyboxShader->SetMatrix4("projection", projection);
 		skyboxShader->SetMatrix4("view", skyboxView);
 		BindTexture(GL_TEXTURE0, GL_TEXTURE_CUBE_MAP, skybox);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glDepthMask(true);
 
 
-		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, crateDiffuse);
-		BindTexture(GL_TEXTURE1, GL_TEXTURE_2D, crateSpecular);
-		objectShader->SetFloat3("u_viewPos", camera->Position());
-		objectShader->SetMatrix4("u_view", view);
-		objectShader->SetMatrix4("u_projection", camera->Proj());
+		//Draw Light
+		glBindVertexArray(cubeVao);
+		lightShader->SetMatrix4("view", view);
+		lightShader->SetMatrix4("projection", projection);
+		for (int i = 0; i < 4; i++) {
+			model = glm::mat4(1.0);
+			model = glm::translate(model, pointLights[i].position);
+			model = glm::scale(model, glm::vec3(0.2));
+			
+			lightShader->SetMatrix4("model", model);
+			lightShader->SetFloat3("lightColor", pointLights[i].diffuse);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+
+
+
+
+		advancedLightingShader->SetInt("diffuseTexture", 0);
+		advancedLightingShader->SetFloat3("viewPos", camera->Position());
+
+		advancedLightingShader->SetMatrix4("view", view);
+		advancedLightingShader->SetMatrix4("projection", projection);
+
+
 
 		//Draw Cubes
 		GLCall(glBindVertexArray(cubeVao));
-		BindTexture(GL_TEXTURE0, GL_TEXTURE_CUBE_MAP, skybox);
+		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, crateDiffuse);
 		for (unsigned int i = 0; i < 10; i++) {
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, cubePositions[i]);
-			objectShader->SetMatrix4("u_model", glm::value_ptr(model));
+			advancedLightingShader->SetMatrix4("model", model);
 			GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
 		}
 
-		//Draw Lights
-		lightShader->SetMatrix4("u_view", view);
-		lightShader->SetMatrix4("u_projection", camera->Proj());
-		for (int i = 0; i < 4; i++) {
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, pointLights[i].position);
-			model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-			lightShader->SetMatrix4("u_model", glm::value_ptr(model));
-
-			GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
-		}
-		
-		//Draw Planet
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(8.0f, 2.35f, -7.0f));
-		modelShader->SetFloat3("u_viewPos", camera->Position());
-		modelShader->SetMatrix4("view", view);
-		modelShader->SetMatrix4("projection", camera->Proj());
-		modelShader->SetMatrix4("model", glm::value_ptr(model));
-		planet.Draw(modelShader);
-
-
-		objectShader->BindShaderProgram();
-
+		//move floor plane
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(6.25f, 0.0f, -12.5f));
 		model = glm::scale(model, glm::vec3(25.0f, 1.0f, 25.0f));
 		model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f,0.0f));
-		
+		advancedLightingShader->SetMatrix4("model", model);
 
-		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, floorTexture);
-		BindTexture(GL_TEXTURE1, GL_TEXTURE_2D, crateSpecular);
-		objectShader->SetMatrix4("u_model", model);
+		//Draw Floor
+		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, floorDiffuse);
 		glBindVertexArray(quadVAO);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -283,14 +263,11 @@ int main(void)
 		ProcessInput();
 	}
 
-	objectShader->CleanupShader();
 	lightShader->CleanupShader();
 
 	delete lightShader;
-	delete objectShader;
 
 	lightShader = nullptr;
-	objectShader = nullptr;
 
 	glfwTerminate();
 	return 0;
