@@ -142,12 +142,6 @@ int main(void)
 	Shader* geomTester = new Shader("Res/Shaders/Geometry.vert", "Res/Shaders/Geometry.frag", "Res/Shaders/GeometryShader.geom");
 
 
-
-
-
-
-
-
 	unsigned int skyboxVAO;
 	unsigned int skyboxVBO;
 
@@ -204,6 +198,9 @@ int main(void)
 	Shader* environmentShader = new Shader("Res/Shaders/EnvironmentMapping.vert", "Res/Shaders/EnvironmentMapping.frag");
 
 
+
+
+
 	framebufferShader = new Shader("Res/Shaders/Framebuffer.vert", "Res/Shaders/Framebuffer.frag");
 	inversionShader = new Shader("Res/Shaders/Framebuffer.vert", "Res/Shaders/InversionEffect.frag");
 	grayscaleShader = new Shader("Res/Shaders/Framebuffer.vert", "Res/Shaders/GrayscaleEffect.frag");
@@ -214,6 +211,9 @@ int main(void)
 	currentShader = framebufferShader;
 
 	//Model backpack("Res/Models/backpack/backpack.obj");
+
+	Model planet("Res/Models/planet/planet.obj");
+	Model asteroid("Res/Models/rock/rock.obj");
 
 	glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
 
@@ -264,47 +264,77 @@ int main(void)
 
 	Shader* instancedQuads = new Shader("Res/Shaders/InstancedQuad.vert", "Res/Shaders/InstancedQuad.frag");
 
-	glm::vec2 translations[100];
-	int index = 0;
-	float offset = 0.1f;
-	for (int y = -10; y < 10; y+=2) {
-		for (int x = -10; x < 10; x+=2) {
-			glm::vec2 translation;
-			translation.x = (float)x / 10.0f + offset;
-			translation.y = (float)y / 10.0f + offset;
-			translations[index++] = translation;
-		}
+	//glm::vec2 translations[100];
+	//int index = 0;
+	//float offset = 0.1f;
+	//for (int y = -10; y < 10; y+=2) {
+	//	for (int x = -10; x < 10; x+=2) {
+	//		glm::vec2 translation;
+	//		translation.x = (float)x / 10.0f + offset;
+	//		translation.y = (float)y / 10.0f + offset;
+	//		translations[index++] = translation;
+	//	}
+	//}
+
+	//unsigned int instanceVBO;
+	//glGenBuffers(1, &instanceVBO);
+	//glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+	//glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &translations[0], GL_STATIC_DRAW);
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+
+
+	//unsigned int instQuadVAO;
+	//unsigned int instQuadVBO;
+
+	//GLCall(glGenVertexArrays(1, &instQuadVAO));
+	//GLCall(glBindVertexArray(instQuadVAO));
+
+	//GLCall(glGenBuffers(1, &instQuadVBO));
+	//GLCall(glBindBuffer(GL_ARRAY_BUFFER, instQuadVBO));
+	//GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(instQuads), instQuads, GL_STATIC_DRAW));
+
+
+	//GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)0));
+	//GLCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(2 * sizeof(float))));
+	//GLCall(glEnableVertexAttribArray(0));
+	//GLCall(glEnableVertexAttribArray(1));
+
+	//glEnableVertexAttribArray(2);
+	//glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+	//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+	//glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//glVertexAttribDivisor(2, 1);
+
+
+	unsigned int amount = 15000;
+	glm::mat4* modelMatrices;
+	modelMatrices = new glm::mat4[amount];
+	srand(glfwGetTime());
+
+	float radius = 50.0f;
+	float offset = 2.5f;
+
+	for (unsigned int i = 0; i < amount; i++) {
+		glm::mat4 model = glm::mat4(1.0);
+
+		float angle = (float)i / (float)amount * 360.0f;
+		float displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+		float x = sin(angle) * radius + displacement;
+		displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+		float y = displacement * 0.4f;
+		displacement = (rand() % (int)(2 * offset * 100)) / 100.0f - offset;
+		float z = cos(angle) * radius + displacement;
+		model = glm::translate(model, glm::vec3(x, y, z));
+
+		float scale = (rand() % 20) / 100.0f + 0.05f;
+		model = glm::scale(model, glm::vec3(scale));
+
+		float rotAngle = (rand() % 360);
+		model = glm::rotate(model, rotAngle, glm::vec3(0.4f, 0.6f, 0.8f));
+
+		modelMatrices[i] = model;
 	}
-
-	unsigned int instanceVBO;
-	glGenBuffers(1, &instanceVBO);
-	glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec2) * 100, &translations[0], GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-
-
-	unsigned int instQuadVAO;
-	unsigned int instQuadVBO;
-
-	GLCall(glGenVertexArrays(1, &instQuadVAO));
-	GLCall(glBindVertexArray(instQuadVAO));
-
-	GLCall(glGenBuffers(1, &instQuadVBO));
-	GLCall(glBindBuffer(GL_ARRAY_BUFFER, instQuadVBO));
-	GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(instQuads), instQuads, GL_STATIC_DRAW));
-
-
-	GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)0));
-	GLCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(2 * sizeof(float))));
-	GLCall(glEnableVertexAttribArray(0));
-	GLCall(glEnableVertexAttribArray(1));
-
-	glEnableVertexAttribArray(2);
-	glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glVertexAttribDivisor(2, 1);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(_pWindow))
@@ -312,6 +342,10 @@ int main(void)
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
+
+		float fps = 1.0 / deltaTime;
+
+		glfwSetWindowTitle(_pWindow, ("[OpenGL Experiments] FPS: " + std::to_string(fps)).c_str());
 
 		//Second Pass: Draw the scene normally
 		GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
@@ -324,96 +358,107 @@ int main(void)
 		glm::mat4 model = glm::mat4(1.0);
 		glm::mat4 projection = glm::perspective(glm::radians(camera->fov), (float)width / (float)height, 0.1f, 100.0f);
 
-		glDepthMask(false);
-		glBindVertexArray(skyboxVAO);
-		glm::mat4 skyboxView = glm::mat4(glm::mat3(camera->ViewMat()));
-		skyboxShader->SetMatrix4("projection", camera->Proj());
-		skyboxShader->SetMatrix4("view", skyboxView);
-		BindTexture(GL_TEXTURE0, GL_TEXTURE_CUBE_MAP, skybox);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glDepthMask(true);
+		//glDepthMask(false);
+		//glBindVertexArray(skyboxVAO);
+		//glm::mat4 skyboxView = glm::mat4(glm::mat3(camera->ViewMat()));
+		//skyboxShader->SetMatrix4("projection", camera->Proj());
+		//skyboxShader->SetMatrix4("view", skyboxView);
+		//BindTexture(GL_TEXTURE0, GL_TEXTURE_CUBE_MAP, skybox);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
+		//glDepthMask(true);
 
 
-		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, diffuseTexture);
-		BindTexture(GL_TEXTURE1, GL_TEXTURE_2D, specularTexture);
+		//BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, diffuseTexture);
+		//BindTexture(GL_TEXTURE1, GL_TEXTURE_2D, specularTexture);
 
-		objectShader->SetFloat3("u_viewPos", camera->Position());
-		objectShader->SetMatrix4("u_view", view);
-		objectShader->SetMatrix4("u_projection", camera->Proj());
+		//objectShader->SetFloat3("u_viewPos", camera->Position());
+		//objectShader->SetMatrix4("u_view", view);
+		//objectShader->SetMatrix4("u_projection", camera->Proj());
 
-		//Draw Cubes
-		GLCall(glBindVertexArray(cubeVao));
+		////Draw Cubes
+		//GLCall(glBindVertexArray(cubeVao));
 
-		BindTexture(GL_TEXTURE0, GL_TEXTURE_CUBE_MAP, skybox);
-		environmentShader->SetMatrix4("view", view);
-		environmentShader->SetMatrix4("projection", projection);
-		environmentShader->SetFloat3("cameraPos", camera->Position());
-		for (unsigned int i = 0; i < 10; i++) {
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, cubePositions[i]);
-			float angle = 20.0f * i;
-			model = glm::rotate(model, (float)glfwGetTime() * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
-			//objectShader->SetMatrix4("u_model", glm::value_ptr(model));
-			environmentShader->SetMatrix4("model", model);
-			GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
-		}
+		//BindTexture(GL_TEXTURE0, GL_TEXTURE_CUBE_MAP, skybox);
+		//environmentShader->SetMatrix4("view", view);
+		//environmentShader->SetMatrix4("projection", projection);
+		//environmentShader->SetFloat3("cameraPos", camera->Position());
+		//for (unsigned int i = 0; i < 10; i++) {
+		//	model = glm::mat4(1.0f);
+		//	model = glm::translate(model, cubePositions[i]);
+		//	float angle = 20.0f * i;
+		//	model = glm::rotate(model, (float)glfwGetTime() * glm::radians(angle), glm::vec3(0.5f, 1.0f, 0.0f));
+		//	//objectShader->SetMatrix4("u_model", glm::value_ptr(model));
+		//	environmentShader->SetMatrix4("model", model);
+		//	GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
+		//}
 
-		//Draw Lights
-		lightShader->SetMatrix4("u_view", view);
-		lightShader->SetMatrix4("u_projection", camera->Proj());
-		for (int i = 0; i < 4; i++) {
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, pointLights[i].position);
-			model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
-			lightShader->SetMatrix4("u_model", glm::value_ptr(model));
+		////Draw Lights
+		//lightShader->SetMatrix4("u_view", view);
+		//lightShader->SetMatrix4("u_projection", camera->Proj());
+		//for (int i = 0; i < 4; i++) {
+		//	model = glm::mat4(1.0f);
+		//	model = glm::translate(model, pointLights[i].position);
+		//	model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+		//	lightShader->SetMatrix4("u_model", glm::value_ptr(model));
 
-			GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
-		}
+		//	GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
+		//}
 
 
-		modelShader->SetFloat3("u_viewPos", camera->View());
+		//modelShader->SetFloat3("u_viewPos", camera->View());
 
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(0.0f));
+		//model = glm::mat4(1.0f);
+		//model = glm::translate(model, glm::vec3(0.0f));
+		//modelShader->SetMatrix4("view", view);
+		//modelShader->SetMatrix4("projection", camera->Proj());
+		//modelShader->SetMatrix4("model", glm::value_ptr(model));
+		////backpack.Draw(modelShader);
+
+		//std::map<float, glm::vec3> sorted = std::map<float, glm::vec3>();
+		//for (unsigned int i = 0; i < windowPositions.size(); i++) {
+		//	float distance = glm::length(camera->GPosition() - windowPositions[i]);
+		//	sorted[distance] = windowPositions[i];
+		//}
+
+		////Windows
+		//GLCall(glBindVertexArray(quadVao));
+
+		//BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, windowTexture);
+
+		//vegetationShader->SetMatrix4("view", view);
+		//vegetationShader->SetMatrix4("projection", camera->Proj());
+
+		//for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
+		//{
+		//	model = glm::mat4(1.0f);
+		//	model = glm::translate(model, it->second);
+		//	vegetationShader->SetMatrix4("model", glm::value_ptr(model));
+		//	GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
+		//}
+		////Grass
+		//BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, grassTexture);
+		//for (unsigned int i = 0; i < 4; i++) {
+		//	model = glm::mat4(1.0f);
+		//	model = glm::translate(model, vegetationPositions[i]);
+		//	vegetationShader->SetMatrix4("model", glm::value_ptr(model));
+		//	GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
+		//}
+
+
+		model = glm::mat4(1.0);
 		modelShader->SetMatrix4("view", view);
-		modelShader->SetMatrix4("projection", camera->Proj());
-		modelShader->SetMatrix4("model", glm::value_ptr(model));
-		//backpack.Draw(modelShader);
+		modelShader->SetMatrix4("projection", projection);
+		modelShader->SetMatrix4("model", model);
+		planet.Draw(modelShader);
 
-		std::map<float, glm::vec3> sorted = std::map<float, glm::vec3>();
-		for (unsigned int i = 0; i < windowPositions.size(); i++) {
-			float distance = glm::length(camera->GPosition() - windowPositions[i]);
-			sorted[distance] = windowPositions[i];
+		for (unsigned int i = 0; i < amount; i++) {
+			modelShader->SetMatrix4("model", modelMatrices[i]);
+			asteroid.Draw(modelShader);
 		}
 
-		//Windows
-		GLCall(glBindVertexArray(quadVao));
-
-		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, windowTexture);
-
-		vegetationShader->SetMatrix4("view", view);
-		vegetationShader->SetMatrix4("projection", camera->Proj());
-
-		for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
-		{
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, it->second);
-			vegetationShader->SetMatrix4("model", glm::value_ptr(model));
-			GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
-		}
-		//Grass
-		BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, grassTexture);
-		for (unsigned int i = 0; i < 4; i++) {
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, vegetationPositions[i]);
-			vegetationShader->SetMatrix4("model", glm::value_ptr(model));
-			GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
-		}
-
-
-		instancedQuads->BindShaderProgram();
-		glBindVertexArray(instQuadVAO);
-		glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
+		//instancedQuads->BindShaderProgram();
+		//glBindVertexArray(instQuadVAO);
+		//glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 100);
 
 
 		/* Swap front and back buffers */
