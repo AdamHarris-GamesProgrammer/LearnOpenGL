@@ -74,6 +74,9 @@
     <ClInclude Include="src\Vertices.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Res\Shaders\ShadowMapping.vert">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Res\Shaders\ModelShader.vert" />
@@ -103,6 +106,9 @@
     <None Include="Res\Shaders\InstancedModel.frag" />
     <None Include="Res\Shaders\AdvancedLighting.frag" />
     <None Include="Res\Shaders\AdvancedLighting.vert" />
+    <None Include="Res\Shaders\RenderToDepthMap.vert" />
+    <None Include="Res\Shaders\RenderToDepthMap.frag" />
+    <None Include="Res\Shaders\ShadowMapping.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Res\Textures\wall.jpg">
