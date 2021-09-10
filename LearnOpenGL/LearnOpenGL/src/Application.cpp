@@ -151,8 +151,6 @@ int main(void)
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-
-
 	camera = new Camera(_pWindow, width, height, 45.0f);
 
 	glm::vec3 lightDiffuse = glm::vec3(1.0f);
@@ -179,37 +177,42 @@ int main(void)
 	glBindTexture(GL_TEXTURE_2D, depthMap);
 	framebufferShader->SetInt("screenTexture", 0);
 
+	//Calculate data for the shadow rendering
+	float near_plane = 1.0f, far_plane = 7.5f;
+	glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+	glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0), glm::vec3(0.0, 1.0, 0.0));
+	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+	depthShader->SetMatrix4("lightSpaceMatrix", lightSpaceMatrix);
 
+	//Render Depth Map to Screen
+	framebufferShader->SetFloat("near_plane", near_plane);
+	framebufferShader->SetFloat("far_plane", far_plane);
+
+	shadowShader->SetInt("diffuseTexture", 0);
+	shadowShader->SetInt("shadowMap", 1);
+	shadowShader->SetMatrix4("lightSpaceMatrix", lightSpaceMatrix);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(_pWindow))
 	{
+		//Calculate Delta Time
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
+		//Calculate FPS
 		float fps = 1.0 / deltaTime;
-
-		camera->Update(deltaTime);
-
-		glm::mat4 view = camera->ViewMat();
-		glm::mat4 model = glm::mat4(1.0);
-		glm::mat4 projection = camera->ProjMat();
-
 		glfwSetWindowTitle(_pWindow, ("[OpenGL Experiments] FPS: " + std::to_string(fps)).c_str());
+
+		//Recalculate camera values
+		camera->Update(deltaTime);
+		
 
 		GLCall(glClearColor(0.1f, 0.1f, 0.1f, 1.0f));
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 
-		float near_plane = 1.0f, far_plane = 7.5f;
-
-		glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
-		glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0), glm::vec3(0.0, 1.0, 0.0));
-		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
-
-		depthShader->SetMatrix4("lightSpaceMatrix", lightSpaceMatrix);
-
+		//First Pass: Render to the depth texture
 		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 		glClear(GL_DEPTH_BUFFER_BIT);
@@ -226,22 +229,19 @@ int main(void)
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 
-		//Render Depth Map to Screen
-		framebufferShader->SetFloat("near_plane", near_plane);
-		framebufferShader->SetFloat("far_plane", far_plane);
-
-		//Draw Skybox
+		//Draw Skybox and Lights
 		RenderSkybox();
-		RenderLights();
-
-		shadowShader->SetInt("diffuseTexture", 0);
+		//RenderLights();
+		
+		//Set information for the shadow shader
 		shadowShader->SetFloat3("viewPos", camera->Position());
-		shadowShader->SetMatrix4("view", view);
-		shadowShader->SetMatrix4("projection", projection);
-		shadowShader->SetMatrix4("lightSpaceMatrix", lightSpaceMatrix);
-		BindTexture(GL_TEXTURE1, GL_TEXTURE_2D, depthMap);
+		shadowShader->SetMatrix4("view", camera->ViewMat());
+		shadowShader->SetMatrix4("projection", camera->ProjMat());
 
+		//Draw the Scene with the shadow shader
+		BindTexture(GL_TEXTURE1, GL_TEXTURE_2D, depthMap);
 		RenderScene(shadowShader);
+
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(_pWindow);
