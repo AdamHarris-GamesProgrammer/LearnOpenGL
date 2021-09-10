@@ -109,6 +109,9 @@
     <None Include="Res\Shaders\RenderToDepthMap.vert" />
     <None Include="Res\Shaders\RenderToDepthMap.frag" />
     <None Include="Res\Shaders\ShadowMapping.frag" />
+    <None Include="Res\Shaders\DepthCube.vert" />
+    <None Include="Res\Shaders\DepthCube.frag" />
+    <None Include="Res\Shaders\DepthCube.geom" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Res\Textures\wall.jpg">
