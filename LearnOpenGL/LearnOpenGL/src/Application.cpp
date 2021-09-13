@@ -5,7 +5,6 @@
 #include "ErrorHandling.h"
 
 #include "Shader.h"
-#include "TextureLoader.h"
 
 #include "Camera.h"
 #include "Model.h"
@@ -19,6 +18,8 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+
+#include "ResourceManager.h"
 
 struct Character {
 	unsigned int TextureID;
@@ -49,26 +50,18 @@ Camera* camera;
 std::vector<PointLight> pointLights;
 glm::vec3 lightPos(0.0, 0.5, -2.0);
 
-unsigned int crateDiffuse;
-unsigned int crateSpecular;
-unsigned int floorDiffuse;
-unsigned int floorSpecular;
+Texture2D floorDiffuse;
+Texture2D crateDiffuse;
+
 
 void MouseCallback(GLFWwindow* window, double xpos, double ypos);
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 void RenderCube();
 void RenderQuad();
 void RenderScene(Shader* shader);
-void RenderSkybox();
 void RenderLights();
 void RenderText(Shader* s, std::string text, float x, float y, float scale, glm::vec3 color);
 
-
-
-void BindTexture(GLenum slot, GLenum target, unsigned int& textureID) {
-	GLCall(glActiveTexture(slot));
-	GLCall(glBindTexture(target, textureID));
-}
 
 void CreateBuffers(unsigned int& vao, unsigned int& vbo, float* vert, unsigned int count) {
 	GLCall(glGenVertexArrays(1, &vao));
@@ -100,7 +93,7 @@ void Initialize()
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
 	/* Create a windowed mode window and its OpenGL context */
-	_pWindow = glfwCreateWindow(width, height, "Hello World", NULL, NULL);
+	_pWindow = glfwCreateWindow(width, height, "Breakout", NULL, NULL);
 	if (!_pWindow)
 	{
 		glfwTerminate();
@@ -133,23 +126,20 @@ int main(void)
 
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
-	TextureLoader textureLoader;
-	crateDiffuse = textureLoader.LoadTexture("Res/Textures/container2.png");
-	crateSpecular = textureLoader.LoadTexture("Res/Textures/container2_specular.png");
-	floorDiffuse = textureLoader.LoadTexture("Res/Textures/floor.png");
-	floorSpecular = textureLoader.LoadTexture("Res/Textures/floorSpecular.png");
-
-
-	Shader* advancedLightingShader = new Shader("Res/Shaders/AdvancedLighting.vert", "Res/Shaders/AdvancedLighting.frag");
-	Shader* depthShader = new Shader("Res/Shaders/RenderToDepthMap.vert", "Res/Shaders/RenderToDepthMap.frag");
-
-	Shader* shadowShader = new Shader("Res/Shaders/ShadowMapping.vert", "Res/Shaders/ShadowMapping.frag");
-
-	Shader* depthCubeShader = new Shader("Res/Shaders/DepthCube.vert", "Res/Shaders/DepthCube.frag", "Res/Shaders/DepthCube.geom");
 
 	Shader* textShader = new Shader("Res/Shaders/Text.vert", "Res/Shaders/Text.frag");
 
 	camera = new Camera(_pWindow, width, height, 45.0f);
+
+	Shader depthCubeShader = ResourceManager::LoadShader("Res/Shaders/DepthCube.vert", "Res/Shaders/DepthCube.frag", "Res/Shaders/DepthCube.geom", "depthCube");
+	Shader shadowShader = ResourceManager::LoadShader("Res/Shaders/ShadowMapping.vert", "Res/Shaders/ShadowMapping.frag", nullptr, "shadowMap");
+
+	ResourceManager::LoadTexture("Res/Textures/Container2.png", true, "crateDiffuse");
+	ResourceManager::LoadTexture("Res/Textures/floor.png", true, "floorDiffuse");
+
+	crateDiffuse = ResourceManager::GetTexture("crateDiffuse");
+	floorDiffuse = ResourceManager::GetTexture("floorDiffuse");
+
 
 	glm::vec3 lightDiffuse = glm::vec3(1.0f);
 	glm::vec3 lightAmbient = glm::vec3(0.5f);
@@ -164,11 +154,6 @@ int main(void)
 	pointLights.push_back(PointLight(glm::vec3(0.0f, 0.0f, -3.0f), lightAmbient, lightDiffuse, lightSpecular, 1.0f, 0.09f, 0.032f));
 
 
-	for (int i = 0; i < 4; i++) {
-		advancedLightingShader->SetFloat3(("lightPosition[" + std::to_string(i) + "]").c_str(), pointLights[i].position);
-		advancedLightingShader->SetFloat3(("lightColors[" + std::to_string(i) + "]").c_str(), pointLights[i].diffuse);
-	}
-
 	glEnable(GL_DEPTH_TEST);
 
 		//Calculate data for the shadow rendering
@@ -176,7 +161,6 @@ int main(void)
 	glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
 	glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0), glm::vec3(0.0, 1.0, 0.0));
 	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
-	depthShader->SetMatrix4("lightSpaceMatrix", lightSpaceMatrix);
 
 	const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
 	unsigned int depthMapFBO;
@@ -214,11 +198,11 @@ int main(void)
 
 
 
-	shadowShader->SetFloat3("lightPos", lightPos);
-	shadowShader->SetFloat("far_plane", far_plane);
-	shadowShader->SetInt("diffuseTexture", 0);
-	shadowShader->SetInt("depthMap", 1);
-	shadowShader->SetInt("shadows", 1);
+	shadowShader.SetFloat3("lightPos", lightPos);
+	shadowShader.SetFloat("far_plane", far_plane);
+	shadowShader.SetInt("diffuseTexture", 0);
+	shadowShader.SetInt("depthMap", 1);
+	shadowShader.SetInt("shadows", 1);
 
 
 	FT_Library ft;
@@ -307,15 +291,15 @@ int main(void)
 		glClear(GL_DEPTH_BUFFER_BIT);
 
 		for (unsigned int i = 0; i < 6; ++i) {
-			depthCubeShader->SetMatrix4(("shadowMatrices[" + std::to_string(i) + "]").c_str(), shadowTransforms[i]);
-			depthCubeShader->SetFloat("far_plane", far_plane);
-			depthCubeShader->SetFloat3("lightPos", lightPos);
+			depthCubeShader.SetMatrix4(("shadowMatrices[" + std::to_string(i) + "]").c_str(), shadowTransforms[i]);
+			depthCubeShader.SetFloat("far_plane", far_plane);
+			depthCubeShader.SetFloat3("lightPos", lightPos);
 		}
 
 
 		glCullFace(GL_FRONT);
 
-		RenderScene(depthCubeShader);
+		RenderScene(&depthCubeShader);
 
 		glCullFace(GL_BACK); // don't forget to reset original culling face
 
@@ -325,26 +309,19 @@ int main(void)
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 
-		//Draw Skybox and Lights
-		RenderSkybox();
+		//Draw Lights
 		RenderLights();
 
 
-
-
 		//Set information for the shadow shader
-		shadowShader->SetFloat3("viewPos", camera->Position());
-		shadowShader->SetMatrix4("view", camera->ViewMat());
-		shadowShader->SetMatrix4("projection", camera->ProjMat());
-
-
+		shadowShader.SetFloat3("viewPos", camera->Position());
+		shadowShader.SetMatrix4("view", camera->ViewMat());
+		shadowShader.SetMatrix4("projection", camera->ProjMat());
 
 		//Draw the Scene with the shadow shader
 		glActiveTexture(GL_TEXTURE1);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
-		RenderScene(shadowShader);
-
-
+		RenderScene(&shadowShader);
 		
 
 		RenderText(textShader, "Hello World", 25.0f, 25.0f, 1.0f, glm::vec3(0.5f, 0.8f, 0.2f));
@@ -360,6 +337,8 @@ int main(void)
 
 	FT_Done_Face(face);
 	FT_Done_FreeType(ft);
+
+	ResourceManager::Clear();
 
 	glfwTerminate();
 	return 0;
@@ -394,7 +373,7 @@ void RenderScene(Shader* shader)
 	glm::mat4 model = glm::mat4(1.0);
 
 	//Draw Cubes
-	BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, crateDiffuse);
+	ResourceManager::GetTexture("crateDiffuse").Bind(GL_TEXTURE0);
 	for (unsigned int i = 0; i < 10; i++) {
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, cubePositions[i]);
@@ -410,49 +389,8 @@ void RenderScene(Shader* shader)
 	shader->SetMatrix4("model", model);
 
 	//Draw Floor
-	BindTexture(GL_TEXTURE0, GL_TEXTURE_2D, floorDiffuse);
+	ResourceManager::GetTexture("floorDiffuse").Bind(GL_TEXTURE0);
 	RenderQuad();
-}
-
-
-unsigned int skyboxVAO;
-unsigned int skyboxVBO;
-Shader* skyboxShader;
-unsigned int skyboxTexture;
-void RenderSkybox() {
-	if (skyboxVAO == 0) {
-		glGenVertexArrays(1, &skyboxVAO);
-		glBindVertexArray(skyboxVAO);
-
-		glGenBuffers(1, &skyboxVBO);
-		glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), skyboxVertices, GL_STATIC_DRAW);
-		GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0));
-		GLCall(glEnableVertexAttribArray(0));
-
-		skyboxShader = new Shader("Res/Shaders/Skybox.vert", "Res/Shaders/Skybox.frag");
-
-		std::vector<std::string> faces{
-			"Res/Textures/skybox/right.jpg",
-			"Res/Textures/skybox/left.jpg",
-			"Res/Textures/skybox/top.jpg",
-			"Res/Textures/skybox/bottom.jpg",
-			"Res/Textures/skybox/front.jpg",
-			"Res/Textures/skybox/back.jpg",
-		};
-
-		TextureLoader textureLoader;
-		skyboxTexture = textureLoader.LoadCubemap(faces);
-	}
-
-	glDepthMask(false);
-	glBindVertexArray(skyboxVAO);
-	glm::mat4 skyboxView = glm::mat4(glm::mat3(camera->ViewMat()));
-	skyboxShader->SetMatrix4("projection", camera->ProjMat());
-	skyboxShader->SetMatrix4("view", skyboxView);
-	BindTexture(GL_TEXTURE0, GL_TEXTURE_CUBE_MAP, skyboxTexture);
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-	glDepthMask(true);
 }
 
 

@@ -18,6 +18,8 @@
 
 class Shader {
 public:
+
+	Shader() = default;
 	Shader(const std::string& vsPath, const std::string& fsPath);
 	Shader(const std::string& vsPath, const std::string& fsPath, const std::string& gePath);
 
