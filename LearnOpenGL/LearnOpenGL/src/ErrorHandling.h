@@ -20,7 +20,19 @@ static void GLClearError() {
 }
 
 static bool GLLogCall(const char* function, const char* file, int line) {
-	while (GLenum error = glGetError()) {
+	while (GLenum errorCode = glGetError()) {
+		std::string error;
+
+		switch (errorCode) {
+		case GL_INVALID_ENUM: error = "INVLAID ENUM"; break;
+		case GL_INVALID_OPERATION: error = "INVALID OPERATION"; break;
+		case GL_INVALID_VALUE: error = "INVALID VALUE"; break;
+		case GL_STACK_OVERFLOW: error = "STACK OVERFLOW"; break;
+		case GL_STACK_UNDERFLOW: error = "STACK UNDERFLOW"; break;
+		case GL_OUT_OF_MEMORY: error = "OUT OF MEMORY"; break;
+		case GL_INVALID_FRAMEBUFFER_OPERATION: error = "INVALID FRAMEBUFFER OPERATION"; break;
+		}
+
 		std::cout << "[OpenGL ERROR]: (" << error << "): " << function << " " << file << " Line: " << line << std::endl;
 		return false;
 	}
