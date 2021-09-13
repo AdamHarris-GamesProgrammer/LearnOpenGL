@@ -112,6 +112,8 @@
     <None Include="Res\Shaders\DepthCube.vert" />
     <None Include="Res\Shaders\DepthCube.frag" />
     <None Include="Res\Shaders\DepthCube.geom" />
+    <None Include="Res\Shaders\Text.vert" />
+    <None Include="Res\Shaders\Text.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Res\Textures\wall.jpg">
