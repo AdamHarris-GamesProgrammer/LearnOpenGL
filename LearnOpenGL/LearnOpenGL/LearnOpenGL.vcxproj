@@ -117,13 +117,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);GLEW_STATIC</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependancies\GLFW\include;$(SolutionDir)Dependancies\GLEW\include;$(SolutionDir)Dependancies\glm;$(SolutionDir)Dependancies\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependancies\GLFW\include;$(SolutionDir)Dependancies\GLEW\include;$(SolutionDir)Dependancies\glm;$(SolutionDir)Dependancies\assimp\include;$(SolutionDir)Dependancies\freetype;$(SolutionDir)Dependancies\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Dependancies\GLFW\lib-vc2019;$(SolutionDir)Dependancies\GLEW\lib\Release\x64;$(SolutionDir)Dependancies\assimp\lib\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies) opengl32.lib;glew32s.lib;assimpd.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependancies\GLFW\lib-vc2019;$(SolutionDir)Dependancies\GLEW\lib\Release\x64;$(SolutionDir)Dependancies\assimp\lib\;$(SolutionDir)Dependancies\freetype</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies) opengl32.lib;glew32s.lib;freetype.lib;assimpd.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -134,15 +134,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);GLEW_STATIC</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependancies\GLFW\include;$(SolutionDir)Dependancies\GLEW\include;$(SolutionDir)Dependancies\glm;$(SolutionDir)Dependancies\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependancies\GLFW\include;$(SolutionDir)Dependancies\GLEW\include;$(SolutionDir)Dependancies\glm;$(SolutionDir)Dependancies\assimp\include;$(SolutionDir)Dependancies\freetype;$(SolutionDir)Dependancies\</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Dependancies\GLFW\lib-vc2019;$(SolutionDir)Dependancies\GLEW\lib\Release\x64;$(SolutionDir)Dependancies\assimp\lib\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies) opengl32.lib;glew32s.lib;assimp.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependancies\GLFW\lib-vc2019;$(SolutionDir)Dependancies\GLEW\lib\Release\x64;$(SolutionDir)Dependancies\assimp\lib\;$(SolutionDir)Dependancies\freetype</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;%(AdditionalDependencies) opengl32.lib;glew32s.lib;freetype.lib;assimp.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

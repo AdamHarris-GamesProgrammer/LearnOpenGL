@@ -17,6 +17,10 @@
 
 #include "Vertices.h"
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
+
 GLFWwindow* _pWindow = nullptr;
 
 unsigned int width = 1280;
@@ -103,6 +107,19 @@ void Initialize()
 	if (err != GLEW_OK) {
 		std::cout << "[ERROR]: With setting up GLEW" << std::endl;
 	}
+
+	FT_Library ft;
+	if (FT_Init_FreeType(&ft)) {
+		std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+		return;
+	}
+
+	FT_Face face;
+	if (FT_New_Face(ft, "Res/Fonts/arial.ttf", 0, &face)) {
+		std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+		return;
+	}
+
 }
 
 void ProcessInput();
