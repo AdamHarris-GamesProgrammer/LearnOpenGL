@@ -1,17 +1,39 @@
 #include "Game.h"
 
-bool CheckCollision(GameObject& a, GameObject& b) {
-	bool collisionX = a._postion.x + a._size.x >= b._postion.x && b._postion.x + b._size.x >= a._postion.x;
-	bool collisionY = a._postion.y + a._size.y >= b._postion.y && b._postion.y + b._size.y >= a._postion.y;
+glm::vec2 initialBallVel(100.0f, -350.0f);
 
-	return collisionX && collisionY;
+
+Direction VectorDirection(glm::vec2 target) {
+	glm::vec2 compass[] = {
+		glm::vec2(0.0f, 1.0f),
+		glm::vec2(1.0f, 0.0f),
+		glm::vec2(0.0f, -1.0f),
+		glm::vec2(-1.0f, 0.0f)
+	};
+
+	float max = 0.0f;
+	unsigned int bestMatch = -1;
+
+	for (unsigned int i = 0; i < 4; i++) 
+	{
+		float dot = glm::dot(glm::normalize(target), compass[i]);
+		if (dot > max) {
+			max = dot;
+			bestMatch = i;
+		}
+	}
+
+	return(Direction)bestMatch;
 }
 
-float clamp(float value, float min, float max) {
-	return std::max(min, std::min(max, value));
-}
+//bool CheckCollision(GameObject& a, GameObject& b) {
+//	bool collisionX = a._postion.x + a._size.x >= b._postion.x && b._postion.x + b._size.x >= a._postion.x;
+//	bool collisionY = a._postion.y + a._size.y >= b._postion.y && b._postion.y + b._size.y >= a._postion.y;
+//
+//	return collisionX && collisionY;
+//}
 
-bool CheckCollision(BallObject& a, GameObject& b) {
+Collision CheckCollision(BallObject& a, GameObject& b) {
 	glm::vec2 center(a._postion + a._radius);
 
 	glm::vec2 aabb_extents(b._size.x / 2.0f, b._size.y / 2.0f);
@@ -19,13 +41,18 @@ bool CheckCollision(BallObject& a, GameObject& b) {
 
 	glm::vec2 difference = center - aabb_center;
 
+
+
 	glm::vec2 clamped = glm::clamp(difference, -aabb_extents, aabb_extents);
 
 	glm::vec2 closest = aabb_center + clamped;
 
 	difference = closest - center;
 
-	return glm::length(difference) < a._radius;
+	if (glm::length(difference) <= a._radius)
+		return std::make_tuple(true, VectorDirection(difference), difference);
+	else
+		return std::make_tuple(false, UP, glm::vec2(0.0f));
 }
 
 Game::Game(unsigned int width, unsigned int height)
@@ -61,13 +88,17 @@ void Game::Init()
 
 	glm::vec2 playerPos = glm::vec2(_width / 2.0f - _playerSize.x / 2.0f, (_height - _playerSize.y) - 20.0f);
 
+	_originalPlayerPos = playerPos;
+
 	_pPaddle = new GameObject(playerPos, _playerSize, ResourceManager::GetTexture("paddle"));
 
 
 	float ballRadius = 12.5f;
 	glm::vec2 ballPos = playerPos + glm::vec2(_playerSize.x / 2.0f - ballRadius, -ballRadius * 2.0f);
 
-	_pBall = new BallObject(ballPos, ballRadius, glm::vec2(100.0f, -350.0f), ResourceManager::GetTexture("face"));
+	_originalBallPos = ballPos;
+
+	_pBall = new BallObject(ballPos, ballRadius, initialBallVel, ResourceManager::GetTexture("face"));
 
 }
 
@@ -101,12 +132,53 @@ void Game::Update(float dt)
 
 	for (GameObject& box : _pCurrentLevel->_bricks) {
 		if (!box._destroyed) {
-			if (CheckCollision(*_pBall, box)) {
-				if (!box._isSolid) {
-					box._destroyed = true;
+			Collision collision = CheckCollision(*_pBall, box);
+
+			if (std::get<0>(collision)) {
+				if (!box._isSolid) box._destroyed = true;
+
+				Direction dir = std::get<1>(collision);
+				glm::vec2 diff_vec = std::get<2>(collision);
+
+				if (dir == LEFT || dir == RIGHT) {
+					_pBall->_velocity.x = -_pBall->_velocity.x;
+
+					float penetration = _pBall->_radius - std::abs(diff_vec.x);
+					if (dir == LEFT)
+						_pBall->_postion.x += penetration;
+					else
+						_pBall->_postion.x -= penetration;
+				}
+				else {
+					_pBall->_velocity.y = -_pBall->_velocity.y;
+
+					float penetration = _pBall->_radius - std::abs(diff_vec.y);
+					if (dir == UP)
+						_pBall->_postion.y -= penetration;
+					else
+						_pBall->_postion.y += penetration;
 				}
 			}
 		}
+	}
+
+	Collision result = CheckCollision(*_pBall, *_pPaddle);
+	if (!_pBall->_stuck && std::get<0>(result)) {
+		float centerBoard = _pPaddle->_postion.x + _pPaddle->_size.x / 2.0f;
+		float distance = (_pBall->_postion.x + _pBall->_radius) - centerBoard;
+		float percentage = distance / (_pPaddle->_size.x / 2.0f);
+
+		float strength = 2.0f;
+		glm::vec2 oldVelocity = _pBall->_velocity;
+		_pBall->_velocity.x = initialBallVel.x * percentage * strength;
+		_pBall->_velocity.y = -1.0f * abs(_pBall->_velocity.y);
+		_pBall->_velocity = glm::normalize(_pBall->_velocity) * glm::length(oldVelocity);
+	}
+
+	if (_pBall->_postion.y >= _height) {
+		_pBall->Reset(_originalBallPos, initialBallVel);
+		_pCurrentLevel->Reset();
+		_pPaddle->_postion = _originalPlayerPos;
 	}
 }
 

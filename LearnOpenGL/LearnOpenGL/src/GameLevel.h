@@ -18,6 +18,8 @@ public:
 
 	bool IsCompleted();
 
+	void Reset();
+
 private:
 	void Init(std::vector<std::vector<unsigned int>> tileData, unsigned int levelWidth, unsigned int levelHeight);
 };

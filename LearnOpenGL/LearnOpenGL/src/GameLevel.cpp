@@ -31,7 +31,7 @@ void GameLevel::Load(const char* file, unsigned int levelWidth, unsigned int lev
 
 void GameLevel::Draw(SpriteRenderer& renderer)
 {
-	for (auto go : _bricks) {
+	for (auto& go : _bricks) {
 		if (go._destroyed) continue;
 
 		go.Draw(renderer);
@@ -41,6 +41,13 @@ void GameLevel::Draw(SpriteRenderer& renderer)
 bool GameLevel::IsCompleted()
 {
 	return false;
+}
+
+void GameLevel::Reset()
+{
+	for (auto& go : _bricks) {
+		go._destroyed = false;
+	}
 }
 
 void GameLevel::Init(std::vector<std::vector<unsigned int>> tileData, unsigned int levelWidth, unsigned int levelHeight)

@@ -6,6 +6,7 @@
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
+#include <tuple>
 
 #include "ResourceManager.h"
 #include "SpriteRenderer.h"
@@ -18,6 +19,17 @@ enum GameState {
 	GAME_MENU,
 	GAME_WIN
 };
+
+enum Direction {
+	UP,
+	RIGHT,
+	DOWN,
+	LEFT
+};
+
+typedef std::tuple<bool, Direction, glm::vec2> Collision;
+
+
 
 class Game
 {
@@ -45,5 +57,8 @@ private:
 
 	glm::vec2 _playerSize = glm::vec2(100.0f, 20.0f);
 	float _playerVeloicty = 500.0f;
+
+	glm::vec2 _originalPlayerPos;
+	glm::vec2 _originalBallPos;
 };
 
