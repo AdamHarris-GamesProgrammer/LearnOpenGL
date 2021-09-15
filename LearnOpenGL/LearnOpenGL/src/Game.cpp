@@ -1,5 +1,33 @@
 #include "Game.h"
 
+bool CheckCollision(GameObject& a, GameObject& b) {
+	bool collisionX = a._postion.x + a._size.x >= b._postion.x && b._postion.x + b._size.x >= a._postion.x;
+	bool collisionY = a._postion.y + a._size.y >= b._postion.y && b._postion.y + b._size.y >= a._postion.y;
+
+	return collisionX && collisionY;
+}
+
+float clamp(float value, float min, float max) {
+	return std::max(min, std::min(max, value));
+}
+
+bool CheckCollision(BallObject& a, GameObject& b) {
+	glm::vec2 center(a._postion + a._radius);
+
+	glm::vec2 aabb_extents(b._size.x / 2.0f, b._size.y / 2.0f);
+	glm::vec2 aabb_center(b._postion.x + aabb_extents.x, b._postion.y + aabb_extents.y);
+
+	glm::vec2 difference = center - aabb_center;
+
+	glm::vec2 clamped = glm::clamp(difference, -aabb_extents, aabb_extents);
+
+	glm::vec2 closest = aabb_center + clamped;
+
+	difference = closest - center;
+
+	return glm::length(difference) < a._radius;
+}
+
 Game::Game(unsigned int width, unsigned int height)
 	: _width(width), _height(height), _state(GAME_ACTIVE)
 {
@@ -69,6 +97,17 @@ void Game::ProcessInput(float dt)
 void Game::Update(float dt)
 {
 	_pBall->Move(dt, _width);
+
+
+	for (GameObject& box : _pCurrentLevel->_bricks) {
+		if (!box._destroyed) {
+			if (CheckCollision(*_pBall, box)) {
+				if (!box._isSolid) {
+					box._destroyed = true;
+				}
+			}
+		}
+	}
 }
 
 void Game::Render()
