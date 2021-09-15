@@ -14,6 +14,8 @@
 #include <gtc/type_ptr.hpp>
 #include <map>
 
+#include "Game.h"
+
 #include "Vertices.h"
 
 #include "ResourceManager.h"
@@ -30,11 +32,11 @@ bool firstMouse = true;
 float lastX = 640;
 float lastY = 360;
 
-Camera* camera;
+Game* Breakout = new Game(width, height);
 
 void MouseCallback(GLFWwindow* window, double xpos, double ypos);
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
-void ProcessInput();
+void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 void Initialize()
 {
@@ -66,11 +68,14 @@ void Initialize()
 	glfwSetInputMode(_pWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPosCallback(_pWindow, MouseCallback);
 	glfwSetScrollCallback(_pWindow, ScrollCallback);
+	glfwSetKeyCallback(_pWindow, KeyCallback);
 
 	GLenum err = glewInit();
 	if (err != GLEW_OK) {
 		std::cout << "[ERROR]: With setting up GLEW" << std::endl;
 	}
+
+	Breakout->Init();
 }
 
 
@@ -81,10 +86,6 @@ int main(void)
 
 	GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
-
-	camera = new Camera(_pWindow, width, height, 45.0f);
-
-	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -96,12 +97,14 @@ int main(void)
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 
-		//Recalculate camera values
-		camera->Update(deltaTime);
+		Breakout->ProcessInput(deltaTime);
+
+		Breakout->Update(deltaTime);
+
 
 		GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
-		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
-
+		GLCall(glClear(GL_COLOR_BUFFER_BIT));
+		Breakout->Render();
 
 
 		/* Swap front and back buffers */
@@ -109,8 +112,6 @@ int main(void)
 
 		/* Poll for and process events */
 		glfwPollEvents();
-
-		ProcessInput();
 	}
 
 	ResourceManager::Clear();
@@ -119,34 +120,28 @@ int main(void)
 	return 0;
 }
 
-void ProcessInput()
-{
-	if (glfwGetKey(_pWindow, GLFW_KEY_ESCAPE)) {
-		glfwSetWindowShouldClose(_pWindow, true);
-	}
-}
 
 void MouseCallback(GLFWwindow* window, double xpos, double ypos)
 {
-	if (firstMouse) {
-		lastX = xpos;
-		lastY = ypos;
-		firstMouse = false;
-	}
 
-	float xOffset = xpos - lastX;
-	float yOffset = lastY - ypos;
-	lastX = xpos;
-	lastY = ypos;
-
-	const float sensitivity = 0.1f;
-	xOffset *= sensitivity;
-	yOffset *= sensitivity;
-
-	camera->ProcessMouseMovement(xOffset, yOffset);
 }
 
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	camera->ProcessScrollMovement(yoffset);
+	
+}
+
+void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode) {
+	if (glfwGetKey(_pWindow, GLFW_KEY_ESCAPE)) {
+		glfwSetWindowShouldClose(_pWindow, true);
+	}
+
+	if (key >= 0 && key < 1024)
+	{
+		if (action == GLFW_PRESS)
+			Breakout->_keys[key] = true;
+		else if (action == GLFW_RELEASE)
+			Breakout->_keys[key] = false;
+	}
+
 }
