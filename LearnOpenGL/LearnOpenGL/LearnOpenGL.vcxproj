@@ -146,6 +146,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\SpriteRenderer.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\ResourceManager.cpp" />
     <ClCompile Include="src\Model.cpp" />
@@ -158,6 +159,7 @@
     <ClCompile Include="src\Texture2D.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\SpriteRenderer.h" />
     <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\ResourceManager.h" />
     <ClInclude Include="Res\Shaders\EdgeDetectionKernal.frag" />
@@ -208,6 +210,8 @@
     <None Include="Res\Shaders\SharpenKernal.frag" />
     <None Include="Res\Shaders\Skybox.frag" />
     <None Include="Res\Shaders\Skybox.vert" />
+    <None Include="Res\Shaders\Sprite.frag" />
+    <None Include="Res\Shaders\Sprite.vert" />
     <None Include="Res\Shaders\Text.frag" />
     <None Include="Res\Shaders\Text.vert" />
   </ItemGroup>

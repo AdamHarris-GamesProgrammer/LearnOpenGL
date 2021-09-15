@@ -3,6 +3,7 @@
 #include <iostream>
 #include <GL/glew.h>
 
+#include "ErrorHandling.h"
 
 class Texture2D
 {

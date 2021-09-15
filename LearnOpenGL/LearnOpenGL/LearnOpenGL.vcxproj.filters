@@ -45,6 +45,9 @@
     <ClCompile Include="src\ResourceManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\SpriteRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h">
@@ -95,6 +98,9 @@
     <ClInclude Include="src\ResourceManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\SpriteRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Res\Shaders\ModelShader.vert" />
@@ -132,6 +138,8 @@
     <None Include="Res\Shaders\DepthCube.geom" />
     <None Include="Res\Shaders\Text.vert" />
     <None Include="Res\Shaders\Text.frag" />
+    <None Include="Res\Shaders\Sprite.vert" />
+    <None Include="Res\Shaders\Sprite.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Res\Textures\wall.jpg">

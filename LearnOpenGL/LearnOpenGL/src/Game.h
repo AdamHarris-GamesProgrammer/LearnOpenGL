@@ -3,6 +3,13 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <gtc/type_ptr.hpp>
+
+#include "ResourceManager.h"
+#include "SpriteRenderer.h"
+
 enum GameState {
 	GAME_ACTIVE,
 	GAME_MENU,
@@ -24,5 +31,8 @@ public:
 	void ProcessInput(float dt);
 	void Update(float dt);
 	void Render();
+
+private:
+	SpriteRenderer* _pSpriteRenderer = nullptr;
 };
 
