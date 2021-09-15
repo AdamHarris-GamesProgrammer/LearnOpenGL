@@ -9,6 +9,9 @@
 
 #include "ResourceManager.h"
 #include "SpriteRenderer.h"
+#include "GameLevel.h"
+
+#include "BallObject.h"
 
 enum GameState {
 	GAME_ACTIVE,
@@ -34,5 +37,13 @@ public:
 
 private:
 	SpriteRenderer* _pSpriteRenderer = nullptr;
+	GameLevel* _pCurrentLevel = nullptr;
+
+	GameObject* _pPaddle = nullptr;
+
+	BallObject* _pBall = nullptr;
+
+	glm::vec2 _playerSize = glm::vec2(100.0f, 20.0f);
+	float _playerVeloicty = 500.0f;
 };
 

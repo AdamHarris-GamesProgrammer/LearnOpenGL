@@ -11,7 +11,7 @@ Shader ResourceManager::LoadShader(const char* vs, const char* fs, const char* g
 	return _shaders[name];
 }
 
-Shader ResourceManager::GetShader(std::string name)
+Shader& ResourceManager::GetShader(std::string name)
 {
 	return _shaders[name];
 }
@@ -22,7 +22,7 @@ Texture2D ResourceManager::LoadTexture(const char* file, bool alpha, std::string
 	return _textures[name];
 }
 
-Texture2D ResourceManager::GetTexture(std::string name)
+Texture2D& ResourceManager::GetTexture(std::string name)
 {
 	return _textures[name];
 }
