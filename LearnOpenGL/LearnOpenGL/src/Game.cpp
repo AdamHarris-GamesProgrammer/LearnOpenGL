@@ -77,11 +77,21 @@ void Game::Init()
 
 	_pSpriteRenderer = new SpriteRenderer(spriteShader);
 
+	Shader particleShader = ResourceManager::LoadShader("Res/Shaders/particle.vert", "Res/Shaders/particle.frag", nullptr, "particle");
+	ResourceManager::LoadTexture("Res/Textures/particle.png", true, "particle");
+	particleShader.SetInt("sprite", 0);
+	particleShader.SetMatrix4("projection", projection);
+
+	_pParticleGenerator = new ParticleGenerator(particleShader, ResourceManager::GetTexture("particle"), 100);
+
+
+
 	ResourceManager::LoadTexture("Res/Textures/background.jpg", false, "background");
 	ResourceManager::LoadTexture("Res/Textures/awesomeface.png", true, "face");
 	ResourceManager::LoadTexture("Res/Textures/block.png", false, "block");
 	ResourceManager::LoadTexture("Res/Textures/block_solid.png", false, "block_solid");
 	ResourceManager::LoadTexture("Res/Textures/paddle.png", true, "paddle");
+	
 
 	_pCurrentLevel = new GameLevel();
 	_pCurrentLevel->Load("Res/Levels/level1.txt", _width, _height / 2);
@@ -128,6 +138,8 @@ void Game::ProcessInput(float dt)
 void Game::Update(float dt)
 {
 	_pBall->Move(dt, _width);
+
+	_pParticleGenerator->Update(dt, *_pBall, 2, glm::vec2(_pBall->_radius / 2.0f));
 
 
 	for (GameObject& box : _pCurrentLevel->_bricks) {
@@ -190,6 +202,8 @@ void Game::Render()
 		_pCurrentLevel->Draw(*_pSpriteRenderer);
 
 		_pPaddle->Draw(*_pSpriteRenderer);
+
+		_pParticleGenerator->Draw();
 
 		_pBall->Draw(*_pSpriteRenderer);
 	}

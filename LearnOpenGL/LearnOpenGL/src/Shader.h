@@ -32,6 +32,8 @@ public:
 	void SetInt(const char* propName, int value);
 
 	void SetFloat4(const char* propName, float r, float g, float b, float a);
+	void SetFloat4(const char* propName, glm::vec4 value);
+	void SetFloat4(const char* propName, float* value);
 
 	void SetMatrix4(const char* propName, float* value);
 	void SetMatrix4(const char* propName, glm::mat4 value);
@@ -48,7 +50,7 @@ public:
 private:
 	int GetLocation(const char* propName);
 
-	unsigned int CompileShader(const std::string& shader, unsigned int type);
+	unsigned int CompileShader(const std::string& _shader, unsigned int type);
 
 	void CreateShader(unsigned int vs, unsigned int fs);
 	void CreateShader(unsigned int vs, unsigned int fs, unsigned int gs);

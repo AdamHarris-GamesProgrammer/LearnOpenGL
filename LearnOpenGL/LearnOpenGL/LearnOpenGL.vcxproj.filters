@@ -57,6 +57,9 @@
     <ClCompile Include="src\BallObject.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ParticleGenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Application.h">
@@ -119,6 +122,9 @@
     <ClInclude Include="src\BallObject.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\ParticleGenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Res\Shaders\ModelShader.vert" />
@@ -158,6 +164,8 @@
     <None Include="Res\Shaders\Text.frag" />
     <None Include="Res\Shaders\Sprite.vert" />
     <None Include="Res\Shaders\Sprite.frag" />
+    <None Include="Res\Shaders\Particle.vert" />
+    <None Include="Res\Shaders\Particle.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Res\Textures\wall.jpg">

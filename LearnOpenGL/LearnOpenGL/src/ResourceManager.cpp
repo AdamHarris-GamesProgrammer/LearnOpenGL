@@ -37,30 +37,30 @@ void ResourceManager::Clear()
 
 Shader ResourceManager::LoadShaderFromFile(const char* vs, const char* fs, const char* gs /*= nullptr*/)
 {
-	Shader shader;
+	Shader _shader;
 	if (gs != nullptr)
-		shader = Shader(vs, fs, gs);
+		_shader = Shader(vs, fs, gs);
 	else
-		shader = Shader(vs, fs);
+		_shader = Shader(vs, fs);
 
-	return shader;
+	return _shader;
 }
 
 Texture2D ResourceManager::LoadTextureFromFile(const char* file, bool alpha)
 {
-	Texture2D texture;
+	Texture2D _texture;
 
 	if (alpha) {
-		texture._imageFormat = GL_RGBA;
-		texture._internalFormat = GL_RGBA;
+		_texture._imageFormat = GL_RGBA;
+		_texture._internalFormat = GL_RGBA;
 	}
 
 	int width, height, nrChannels;
 	unsigned char* data = stbi_load(file, &width, &height, &nrChannels, 0);
 
-	texture.Generate(width, height, data);
+	_texture.Generate(width, height, data);
 
 	stbi_image_free(data);
 
-	return texture;
+	return _texture;
 }

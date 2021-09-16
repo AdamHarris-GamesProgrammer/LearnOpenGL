@@ -4,10 +4,10 @@
 
 unsigned int TextureFromFile(const char* path, const std::string& directory, bool gamma = false);
 
-void Model::Draw(Shader* shader)
+void Model::Draw(Shader* _shader)
 {
 	for (unsigned int i = 0; i < meshes.size(); i++) {
-		meshes[i].Draw(shader);
+		meshes[i].Draw(_shader);
 	}
 }
 
@@ -115,12 +115,12 @@ std::vector<Texture> Model::LoadMaterialTextures(aiMaterial* mat, aiTextureType 
 		}
 
 		if (!skip) {
-			Texture texture;
-			texture.id = TextureFromFile(str.C_Str(), directory);
-			texture.type = typeName;
-			texture.path = str.C_Str();
-			textures.push_back(texture);
-			textures_loaded.push_back(texture);
+			Texture _texture;
+			_texture.id = TextureFromFile(str.C_Str(), directory);
+			_texture.type = typeName;
+			_texture.path = str.C_Str();
+			textures.push_back(_texture);
+			textures_loaded.push_back(_texture);
 		}
 
 	}

@@ -14,6 +14,8 @@
 
 #include "BallObject.h"
 
+#include "ParticleGenerator.h"
+
 enum GameState {
 	GAME_ACTIVE,
 	GAME_MENU,
@@ -28,8 +30,6 @@ enum Direction {
 };
 
 typedef std::tuple<bool, Direction, glm::vec2> Collision;
-
-
 
 class Game
 {
@@ -60,5 +60,7 @@ private:
 
 	glm::vec2 _originalPlayerPos;
 	glm::vec2 _originalBallPos;
+
+	ParticleGenerator* _pParticleGenerator;
 };
 

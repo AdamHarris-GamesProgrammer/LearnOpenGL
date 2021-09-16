@@ -146,6 +146,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\ParticleGenerator.cpp" />
     <ClCompile Include="src\BallObject.cpp" />
     <ClCompile Include="src\GameLevel.cpp" />
     <ClCompile Include="src\GameObject.cpp" />
@@ -162,6 +163,7 @@
     <ClCompile Include="src\Texture2D.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ParticleGenerator.h" />
     <ClInclude Include="src\BallObject.h" />
     <ClInclude Include="src\GameLevel.h" />
     <ClInclude Include="src\GameObject.h" />
@@ -210,6 +212,8 @@
     <None Include="Res\Shaders\LightUtilities.glsl" />
     <None Include="Res\Shaders\ModelShader.frag" />
     <None Include="Res\Shaders\ModelShader.vert" />
+    <None Include="Res\Shaders\Particle.frag" />
+    <None Include="Res\Shaders\Particle.vert" />
     <None Include="Res\Shaders\RenderToDepthMap.frag" />
     <None Include="Res\Shaders\RenderToDepthMap.vert" />
     <None Include="Res\Shaders\ShadowMapping.frag" />

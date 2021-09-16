@@ -55,6 +55,18 @@ void Shader::SetFloat4(const char* propName, float r, float g, float b, float a)
 	GLCall(glUniform4f(GetLocation(propName), r, g, b, a));
 }
 
+void Shader::SetFloat4(const char* propName, glm::vec4 value)
+{
+	BindShaderProgram();
+	GLCall(glUniform4f(GetLocation(propName), value.x, value.y, value.z, value.w));
+}
+
+void Shader::SetFloat4(const char* propName, float* value)
+{
+	BindShaderProgram();
+	GLCall(glUniform4f(GetLocation(propName), value[0], value[1], value[2], value[3]));
+}
+
 void Shader::SetMatrix4(const char* propName, float* value)
 {
 	BindShaderProgram();
@@ -122,10 +134,10 @@ int Shader::GetLocation(const char* propName) {
 }
 
 
-unsigned int Shader::CompileShader(const std::string& shader, unsigned int type) {
+unsigned int Shader::CompileShader(const std::string& _shader, unsigned int type) {
 	GLCall(unsigned int  id = glCreateShader(type));
 
-	const char* src = shader.c_str();
+	const char* src = _shader.c_str();
 
 	GLCall(glShaderSource(id, 1, &src, nullptr));
 	GLCall(glCompileShader(id));

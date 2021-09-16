@@ -1,8 +1,8 @@
 #include "SpriteRenderer.h"
 
-SpriteRenderer::SpriteRenderer(Shader& shader)
+SpriteRenderer::SpriteRenderer(Shader& _shader)
 {
-	this->shader = shader;
+	this->_shader = _shader;
 	InitRenderData();
 }
 
@@ -11,7 +11,7 @@ SpriteRenderer::~SpriteRenderer()
 
 }
 
-void SpriteRenderer::DrawSprite(Texture2D& texture, glm::vec2 position, glm::vec2 size /*= glm::vec2(10.0f)*/, float rotate /*= 0.0f*/, glm::vec3 color /*= glm::vec3(1.0f)*/)
+void SpriteRenderer::DrawSprite(Texture2D& _texture, glm::vec2 position, glm::vec2 size /*= glm::vec2(10.0f)*/, float rotate /*= 0.0f*/, glm::vec3 color /*= glm::vec3(1.0f)*/)
 {
 	glm::mat4 model = glm::mat4(1.0f);
 
@@ -23,12 +23,12 @@ void SpriteRenderer::DrawSprite(Texture2D& texture, glm::vec2 position, glm::vec
 
 	model = glm::scale(model, glm::vec3(size, 1.0f));
 
-	shader.SetMatrix4("model", model);
-	shader.SetFloat3("spriteColor", color);
+	_shader.SetMatrix4("model", model);
+	_shader.SetFloat3("spriteColor", color);
 
 	//texture.Bind(GL_TEXTURE0);
 	glActiveTexture(GL_TEXTURE0);
-	texture.Bind();
+	_texture.Bind();
 
 	GLCall(glBindVertexArray(quadVAO));
 	GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
