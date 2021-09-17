@@ -15,6 +15,9 @@
 #include "BallObject.h"
 
 #include "ParticleGenerator.h"
+#include "PostProcessor.h"
+
+#include "PowerUp.h"
 
 enum GameState {
 	GAME_ACTIVE,
@@ -38,6 +41,7 @@ public:
 	bool _keys[1024];
 	unsigned int _width, _height;
 
+	void ActivatePowerup(PowerUp& powerup);
 	Game(unsigned int width, unsigned int height);
 	~Game();
 
@@ -47,6 +51,11 @@ public:
 	void Update(float dt);
 	void Render();
 
+
+	std::vector<PowerUp> _powerUps;
+
+	void SpawnPowerUps(GameObject& block);
+	void UpdatePowerUps(float dt);
 private:
 	SpriteRenderer* _pSpriteRenderer = nullptr;
 	GameLevel* _pCurrentLevel = nullptr;
@@ -62,5 +71,9 @@ private:
 	glm::vec2 _originalBallPos;
 
 	ParticleGenerator* _pParticleGenerator;
+
+	PostProcessor* _pPostProcessor;
+
+	float _shakeTime;
 };
 

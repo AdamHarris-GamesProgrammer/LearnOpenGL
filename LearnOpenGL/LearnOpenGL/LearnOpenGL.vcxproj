@@ -146,6 +146,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\PostProcessor.cpp" />
     <ClCompile Include="src\ParticleGenerator.cpp" />
     <ClCompile Include="src\BallObject.cpp" />
     <ClCompile Include="src\GameLevel.cpp" />
@@ -163,6 +164,8 @@
     <ClCompile Include="src\Texture2D.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\PowerUp.h" />
+    <ClInclude Include="src\PostProcessor.h" />
     <ClInclude Include="src\ParticleGenerator.h" />
     <ClInclude Include="src\BallObject.h" />
     <ClInclude Include="src\GameLevel.h" />
@@ -190,6 +193,8 @@
     <None Include="Res\Shaders\BasicShader.frag" />
     <None Include="Res\Shaders\BasicShader.vert" />
     <None Include="Res\Shaders\BlurKernal.frag" />
+    <None Include="Res\Shaders\Breakout.frag" />
+    <None Include="Res\Shaders\Breakout.vert" />
     <None Include="Res\Shaders\DepthCube.frag" />
     <None Include="Res\Shaders\DepthCube.geom" />
     <None Include="Res\Shaders\DepthCube.vert" />

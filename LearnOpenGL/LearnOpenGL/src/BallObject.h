@@ -7,6 +7,8 @@ public:
 	float _radius;
 
 	bool _stuck;
+	bool _sticky;
+	bool _passthrough;
 
 	BallObject();
 	BallObject(glm::vec2 pos, float radius, glm::vec2 velocity, Texture2D sprite);
