@@ -19,6 +19,8 @@
 
 #include "PowerUp.h"
 
+#include "TextRenderer.h"
+
 enum GameState {
 	GAME_ACTIVE,
 	GAME_MENU,
@@ -67,11 +69,15 @@ private:
 
 	BallObject* _pBall = nullptr;
 
+	TextRenderer* _pTextRenderer = nullptr;
+
 	glm::vec2 _playerSize = glm::vec2(100.0f, 20.0f);
 	float _playerVeloicty = 500.0f;
 
 	glm::vec2 _originalPlayerPos;
 	glm::vec2 _originalBallPos;
+
+	unsigned int _lives = 3;
 
 	ParticleGenerator* _pParticleGenerator;
 

@@ -151,6 +151,9 @@ void Game::Init()
 	_pBall = new BallObject(ballPos, ballRadius, initialBallVel, ResourceManager::GetTexture("face"));
 
 	_pPostProcessor = new PostProcessor(ResourceManager::GetShader("breakout"), _width, _height);
+
+	_pTextRenderer = new TextRenderer(_width, _height);
+	_pTextRenderer->Load("Res/Fonts/OCRAEXT.TTF", 24);
 }
 
 void Game::ProcessInput(float dt)
@@ -215,6 +218,10 @@ void Game::Render()
 		_pPostProcessor->EndRender();
 
 		_pPostProcessor->Render(glfwGetTime());
+
+		std::stringstream ss;
+		ss << "Lives: " << _lives;
+		_pTextRenderer->RenderText(ss.str(), 25.0f, 25.0f, 1.0f);
 	}
 }
 
@@ -225,6 +232,7 @@ void Game::Reset()
 	_pPaddle->_postion = _originalPlayerPos;
 	_pPaddle->_size = _playerSize;
 	_pPostProcessor->ResetState();
+	_lives = 3;
 }
 
 void Game::CollisionChecks()
@@ -305,7 +313,18 @@ void Game::CollisionChecks()
 	}
 
 	if (_pBall->_postion.y >= _height) {
-		Reset();
+		_lives--;
+
+		if (_lives <= 0) {
+			Reset();
+		}
+		else
+		{
+			_pPaddle->_postion = _originalPlayerPos;
+			_pBall->_postion = _originalBallPos;
+			_pBall->_stuck = true;
+		}
+		
 	}
 }
 
