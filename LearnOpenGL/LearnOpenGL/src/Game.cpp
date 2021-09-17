@@ -177,21 +177,35 @@ void Game::ProcessInput(float dt)
 		if (_keys[GLFW_KEY_SPACE])
 			_pBall->_stuck = false;
 	}
+
+	if (_state == GAME_LOSS) {
+		if (_keys[GLFW_KEY_ENTER]) _state = GAME_ACTIVE;
+	}
+
+	if (_state == GAME_WIN) {
+		if (_keys[GLFW_KEY_ENTER]) _state = GAME_MENU;
+	}
+
+	if (_state == GAME_MENU) {
+		if (_keys[GLFW_KEY_ENTER]) _state = GAME_ACTIVE;
+	}
 }
 
 void Game::Update(float dt)
 {
-	_pBall->Move(dt, _width);
+	if (_state == GAME_ACTIVE) {
+		_pBall->Move(dt, _width);
 
-	_pParticleGenerator->Update(dt, *_pBall, 2, glm::vec2(_pBall->_radius / 2.0f));
+		_pParticleGenerator->Update(dt, *_pBall, 2, glm::vec2(_pBall->_radius / 2.0f));
 
-	UpdatePowerUps(dt);
+		UpdatePowerUps(dt);
 
-	CollisionChecks();
+		CollisionChecks();
 
-	if (_shakeTime > 0.0f) {
-		_shakeTime -= dt;
-		if (_shakeTime <= 0.0f) _pPostProcessor->_shake = false;
+		if (_shakeTime > 0.0f) {
+			_shakeTime -= dt;
+			if (_shakeTime <= 0.0f) _pPostProcessor->_shake = false;
+		}
 	}
 }
 
@@ -265,6 +279,9 @@ void Game::CollisionChecks()
 					box._destroyed = true;
 					pSoundEngine->play2D("Res/Audio/bleep.mp3", false);
 					SpawnPowerUps(box);
+
+					_pCurrentLevel->_currentActiveBricks--;
+					if (_pCurrentLevel->IsCompleted()) _state = GAME_WIN;
 				}
 				else
 				{

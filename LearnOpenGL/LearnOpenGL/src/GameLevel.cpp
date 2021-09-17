@@ -40,7 +40,7 @@ void GameLevel::Draw(SpriteRenderer& renderer)
 
 bool GameLevel::IsCompleted()
 {
-	return false;
+	return _currentActiveBricks <= 0;
 }
 
 void GameLevel::Reset()
@@ -48,6 +48,7 @@ void GameLevel::Reset()
 	for (auto& go : _bricks) {
 		go._destroyed = false;
 	}
+	_currentActiveBricks = _amountOfActiveBricks;
 }
 
 void GameLevel::Init(std::vector<std::vector<unsigned int>> tileData, unsigned int levelWidth, unsigned int levelHeight)
@@ -58,6 +59,7 @@ void GameLevel::Init(std::vector<std::vector<unsigned int>> tileData, unsigned i
 	float unit_width = levelWidth / (float)width;
 	float unit_height = levelHeight / (float)height;
 
+	int counter = 0;
 	for (unsigned int y = 0; y < height; y++) {
 		for (unsigned int x = 0; x < width; x++) {
 			glm::vec2 pos(unit_width * x, unit_height * y);
@@ -79,9 +81,12 @@ void GameLevel::Init(std::vector<std::vector<unsigned int>> tileData, unsigned i
 				else if (tileValue == 5) color = glm::vec3(1.0f, 0.5f, 0.0f);
 
 				_bricks.push_back(GameObject(pos, size, ResourceManager::GetTexture("block"), color));
+
+				counter++;
 			}
-
-
 		}
 	}
+	//_amountOfActiveBricks = 1;
+	_amountOfActiveBricks = counter;
+	_currentActiveBricks = _amountOfActiveBricks;
 }

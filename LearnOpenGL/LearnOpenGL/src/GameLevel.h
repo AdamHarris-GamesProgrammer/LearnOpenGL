@@ -20,7 +20,11 @@ public:
 
 	void Reset();
 
+	int _currentActiveBricks;
+
 private:
 	void Init(std::vector<std::vector<unsigned int>> tileData, unsigned int levelWidth, unsigned int levelHeight);
+	int _amountOfActiveBricks;
+	
 };
 
