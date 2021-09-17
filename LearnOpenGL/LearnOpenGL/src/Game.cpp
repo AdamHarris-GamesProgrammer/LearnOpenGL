@@ -1,5 +1,9 @@
 #include "Game.h"
 
+#include <irrKlang.h>
+
+using namespace irrklang;
+
 glm::vec2 initialBallVel(100.0f, -350.0f);
 
 
@@ -91,8 +95,13 @@ Game::~Game()
 
 }
 
+ISoundEngine* pSoundEngine = createIrrKlangDevice();
+
 void Game::Init()
 {
+	pSoundEngine->play2D("Res/Audio/breakout.mp3", true);
+
+
 	Shader spriteShader = ResourceManager::LoadShader("Res/Shaders/Sprite.vert", "Res/Shaders/Sprite.frag", nullptr, "sprite");
 
 	glm::mat4 projection = glm::ortho(0.0f, (float)_width, (float)_height, 0.0f, -1.0f, 1.0f);
@@ -230,11 +239,13 @@ void Game::CollisionChecks()
 
 				if (!box._isSolid) {
 					box._destroyed = true;
+					pSoundEngine->play2D("Res/Audio/bleep.mp3", false);
 					SpawnPowerUps(box);
 				}
 				else
 				{
 					_shakeTime = 0.05f;
+					pSoundEngine->play2D("Res/Audio/solid.wav", false);
 					_pPostProcessor->_shake = true;
 				}
 
@@ -276,6 +287,7 @@ void Game::CollisionChecks()
 		_pBall->_velocity.x = initialBallVel.x * percentage * strength;
 		_pBall->_velocity.y = -1.0f * abs(_pBall->_velocity.y);
 		_pBall->_velocity = glm::normalize(_pBall->_velocity) * glm::length(oldVelocity);
+		pSoundEngine->play2D("Res/Audio/bleep.wav", false);
 	}
 
 	for (PowerUp& p : _powerUps) {
@@ -285,6 +297,7 @@ void Game::CollisionChecks()
 			}
 			if (CheckCollision(*_pPaddle, p)) {
 				ActivatePowerup(p);
+				pSoundEngine->play2D("Res/Audio/powerup.wav", false);
 				p._destroyed = true;
 				p._activated = true;
 			}
