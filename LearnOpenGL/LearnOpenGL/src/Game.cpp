@@ -34,27 +34,29 @@ bool CheckCollision(GameObject& a, GameObject& b) {
 }
 
 void Game::ActivatePowerup(PowerUp& powerup) {
-	if (powerup._type == "speed") {
+	switch (powerup._type)
+	{
+	case SPEED:
 		_pBall->_velocity *= 1.2f;
-	}
-	else if (powerup._type == "sticky") {
+		break;
+	case STICKY:
 		_pBall->_sticky = true;
 		_pPaddle->_color = glm::vec3(1.0f, 0.5f, 1.0f);
-	}
-	else if (powerup._type == "passthrough") {
+		break;
+	case PASSTHROUGH:
 		_pBall->_passthrough = true;
 		_pBall->_color = glm::vec3(1.0f, 0.5f, 0.5f);
-	}
-	else if (powerup._type == "increase") {
+		break;
+	case PADSIZE_INCREASE:
 		_pPaddle->_size.x += 50.0f;
-	}
-	else if (powerup._type == "confuse") {
+		break;
+	case CONFUSE:
 		_pPostProcessor->_confuse = true;
-	}
-	else if (powerup._type == "chaos") {
+		break;
+	case CHAOS:
 		_pPostProcessor->_chaos = true;
+		break;
 	}
-
 }
 
 Collision CheckCollision(BallObject& a, GameObject& b) {
@@ -290,26 +292,26 @@ bool ShouldSpawn(unsigned int chance) {
 void Game::SpawnPowerUps(GameObject& block)
 {
 	if (ShouldSpawn(75)) {
-		_powerUps.push_back(PowerUp("speed", glm::vec3(0.5f, 0.5f, 1.0f), 0.0f, block._postion, ResourceManager::GetTexture("powerup_speed")));
+		_powerUps.push_back(PowerUp(SPEED, glm::vec3(0.5f, 0.5f, 1.0f), 0.0f, block._postion, ResourceManager::GetTexture("powerup_speed")));
 	}
 	if (ShouldSpawn(75)) {
-		_powerUps.push_back(PowerUp("sticky", glm::vec3(0.5f, 0.5f, 1.0f), 20.0f, block._postion, ResourceManager::GetTexture("powerup_sticky")));
+		_powerUps.push_back(PowerUp(STICKY, glm::vec3(0.5f, 0.5f, 1.0f), 20.0f, block._postion, ResourceManager::GetTexture("powerup_sticky")));
 	}
 	if (ShouldSpawn(75)) {
-		_powerUps.push_back(PowerUp("passthrough", glm::vec3(0.5f, 0.5f, 1.0f), 10.0f, block._postion, ResourceManager::GetTexture("powerup_passthrough")));
+		_powerUps.push_back(PowerUp(PASSTHROUGH, glm::vec3(0.5f, 0.5f, 1.0f), 10.0f, block._postion, ResourceManager::GetTexture("powerup_passthrough")));
 	}
 	if (ShouldSpawn(75)) {
-		_powerUps.push_back(PowerUp("increase", glm::vec3(0.5f, 0.5f, 1.0f), 0.0f, block._postion, ResourceManager::GetTexture("powerup_increase")));
+		_powerUps.push_back(PowerUp(PADSIZE_INCREASE, glm::vec3(0.5f, 0.5f, 1.0f), 0.0f, block._postion, ResourceManager::GetTexture("powerup_increase")));
 	}
 	if (ShouldSpawn(15)) {
-		_powerUps.push_back(PowerUp("confuse", glm::vec3(0.5f, 0.5f, 1.0f), 15.0f, block._postion, ResourceManager::GetTexture("powerup_confuse")));
+		_powerUps.push_back(PowerUp(CONFUSE, glm::vec3(0.5f, 0.5f, 1.0f), 15.0f, block._postion, ResourceManager::GetTexture("powerup_confuse")));
 	}
 	if (ShouldSpawn(15)) {
-		_powerUps.push_back(PowerUp("chaos", glm::vec3(0.5f, 0.5f, 1.0f), 15.0f, block._postion, ResourceManager::GetTexture("powerup_chaos")));
+		_powerUps.push_back(PowerUp(CHAOS, glm::vec3(0.5f, 0.5f, 1.0f), 15.0f, block._postion, ResourceManager::GetTexture("powerup_chaos")));
 	}
 }
 
-bool IsOtherPowerupActive(std::vector<PowerUp>& powerups, std::string type) {
+bool IsOtherPowerupActive(std::vector<PowerUp>& powerups, PickupType type) {
 	for (const PowerUp& p : powerups) {
 		if (p._activated && p._type == type) return true;
 	}
@@ -329,27 +331,30 @@ void Game::UpdatePowerUps(float dt)
 			if (p._duration <= 0.0f) {
 				p._activated = false;
 
-				if (p._type == "sticky") {
-					if (!IsOtherPowerupActive(_powerUps, "sticky")) {
+				switch (p._type)
+				{
+				case STICKY:
+					if (!IsOtherPowerupActive(_powerUps, STICKY)) {
 						_pBall->_sticky = false;
 						_pPaddle->_color = glm::vec3(1.0f);
 					}
-				}
-				else if (p._type == "passthrough") {
-					if (!IsOtherPowerupActive(_powerUps, "passthrough")) {
+					break;
+				case PASSTHROUGH:
+					if (!IsOtherPowerupActive(_powerUps, PASSTHROUGH)) {
 						_pBall->_passthrough = false;
 						_pBall->_color = glm::vec3(1.0f);
 					}
-				}
-				else if (p._type == "confuse") {
-					if (!IsOtherPowerupActive(_powerUps, "confuse")) {
+					break;
+				case CONFUSE:
+					if (!IsOtherPowerupActive(_powerUps, CONFUSE)) {
 						_pPostProcessor->_confuse = false;
 					}
-				}
-				else if (p._type == "chaos") {
-					if (!IsOtherPowerupActive(_powerUps, "chaos")) {
+					break;
+				case CHAOS:
+					if (!IsOtherPowerupActive(_powerUps, CHAOS)) {
 						_pPostProcessor->_chaos = false;
 					}
+					break;
 				}
 			}
 		}
