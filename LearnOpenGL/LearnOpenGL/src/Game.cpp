@@ -18,7 +18,7 @@ Direction VectorDirection(glm::vec2 target) {
 	float max = 0.0f;
 	unsigned int bestMatch = -1;
 
-	for (unsigned int i = 0; i < 4; i++) 
+	for (unsigned int i = 0; i < 4; i++)
 	{
 		float dot = glm::dot(glm::normalize(target), compass[i]);
 		if (dot > max) {
@@ -124,7 +124,7 @@ void Game::Init()
 	ResourceManager::LoadTexture("Res/Textures/block.png", false, "block");
 	ResourceManager::LoadTexture("Res/Textures/block_solid.png", false, "block_solid");
 	ResourceManager::LoadTexture("Res/Textures/paddle.png", true, "paddle");
-	
+
 	ResourceManager::LoadTexture("Res/Textures/powerup_chaos.png", true, "powerup_chaos");
 	ResourceManager::LoadTexture("Res/Textures/powerup_confuse.png", true, "powerup_confuse");
 	ResourceManager::LoadTexture("Res/Textures/powerup_increase.png", true, "powerup_increase");
@@ -197,7 +197,7 @@ void Game::Update(float dt)
 
 void Game::Render()
 {
-	if (_state == GAME_ACTIVE) {
+	if (_state == GAME_ACTIVE || _state == GAME_MENU || _state == GAME_WIN || _state == GAME_LOSS) {
 		_pPostProcessor->BeginRender();
 
 		_pSpriteRenderer->DrawSprite(ResourceManager::GetTexture("background"), glm::vec2(0.0f), glm::vec2(_width, _height), 0.0f);
@@ -209,7 +209,7 @@ void Game::Render()
 		_pParticleGenerator->Draw();
 
 		for (PowerUp& p : _powerUps) {
-			if(!p._destroyed)
+			if (!p._destroyed)
 				p.Draw(*_pSpriteRenderer);
 		}
 
@@ -223,10 +223,26 @@ void Game::Render()
 		ss << "Lives: " << _lives;
 		_pTextRenderer->RenderText(ss.str(), 25.0f, 25.0f, 1.0f);
 	}
+
+	if (_state == GAME_MENU) {
+		_pTextRenderer->RenderText("Press Enter to start", (float)_width / 2, _height + 10, 2.0f);
+		_pTextRenderer->RenderText("Press W or S to select level", _width / 2, _height + 35, 1.5f);
+	}
+
+	if (_state == GAME_WIN) {
+		_pTextRenderer->RenderText("YOU WON!", (float)_width / 2, (float)_height / 2, 2.0f);
+		_pTextRenderer->RenderText("Press Enter to return to menu or ESC to quit", (float)_width / 2, (float)(_height / 2) + 20, 1.5f);
+	}
+
+	if (_state == GAME_LOSS) {
+		_pTextRenderer->RenderText("YOU LOST!", (float)_width / 2, (float)_height / 2, 2.0f);
+		_pTextRenderer->RenderText("Press Enter to retry or ESC to quit", (float)_width / 2, (float)(_height / 2) + 20, 1.5f);
+	}
 }
 
 void Game::Reset()
 {
+	_state = GAME_LOSS;
 	_pBall->Reset(_originalBallPos, initialBallVel);
 	_pCurrentLevel->Reset();
 	_pPaddle->_postion = _originalPlayerPos;
@@ -324,7 +340,7 @@ void Game::CollisionChecks()
 			_pBall->_postion = _originalBallPos;
 			_pBall->_stuck = true;
 		}
-		
+
 	}
 }
 
@@ -368,7 +384,7 @@ void Game::UpdatePowerUps(float dt)
 	for (PowerUp& p : _powerUps) {
 		p._postion += p._velocity * dt;
 
-		if (p._activated) 
+		if (p._activated)
 		{
 			p._duration -= dt;
 
