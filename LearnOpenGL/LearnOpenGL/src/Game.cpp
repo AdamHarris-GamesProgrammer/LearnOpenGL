@@ -175,6 +175,51 @@ void Game::Update(float dt)
 
 	UpdatePowerUps(dt);
 
+	CollisionChecks();
+
+	if (_shakeTime > 0.0f) {
+		_shakeTime -= dt;
+		if (_shakeTime <= 0.0f) _pPostProcessor->_shake = false;
+	}
+}
+
+void Game::Render()
+{
+	if (_state == GAME_ACTIVE) {
+		_pPostProcessor->BeginRender();
+
+		_pSpriteRenderer->DrawSprite(ResourceManager::GetTexture("background"), glm::vec2(0.0f), glm::vec2(_width, _height), 0.0f);
+
+		_pCurrentLevel->Draw(*_pSpriteRenderer);
+
+		_pPaddle->Draw(*_pSpriteRenderer);
+
+		_pParticleGenerator->Draw();
+
+		for (PowerUp& p : _powerUps) {
+			if(!p._destroyed)
+				p.Draw(*_pSpriteRenderer);
+		}
+
+		_pBall->Draw(*_pSpriteRenderer);
+
+		_pPostProcessor->EndRender();
+
+		_pPostProcessor->Render(glfwGetTime());
+	}
+}
+
+void Game::Reset()
+{
+	_pBall->Reset(_originalBallPos, initialBallVel);
+	_pCurrentLevel->Reset();
+	_pPaddle->_postion = _originalPlayerPos;
+	_pPaddle->_size = _playerSize;
+	_pPostProcessor->ResetState();
+}
+
+void Game::CollisionChecks()
+{
 	for (GameObject& box : _pCurrentLevel->_bricks) {
 		if (!box._destroyed) {
 			Collision collision = CheckCollision(*_pBall, box);
@@ -247,40 +292,7 @@ void Game::Update(float dt)
 	}
 
 	if (_pBall->_postion.y >= _height) {
-		_pBall->Reset(_originalBallPos, initialBallVel);
-		_pCurrentLevel->Reset();
-		_pPaddle->_postion = _originalPlayerPos;
-	}
-
-	if (_shakeTime > 0.0f) {
-		_shakeTime -= dt;
-		if (_shakeTime <= 0.0f) _pPostProcessor->_shake = false;
-	}
-}
-
-void Game::Render()
-{
-	if (_state == GAME_ACTIVE) {
-		_pPostProcessor->BeginRender();
-
-		_pSpriteRenderer->DrawSprite(ResourceManager::GetTexture("background"), glm::vec2(0.0f), glm::vec2(_width, _height), 0.0f);
-
-		_pCurrentLevel->Draw(*_pSpriteRenderer);
-
-		_pPaddle->Draw(*_pSpriteRenderer);
-
-		_pParticleGenerator->Draw();
-
-		for (PowerUp& p : _powerUps) {
-			if(!p._destroyed)
-				p.Draw(*_pSpriteRenderer);
-		}
-
-		_pBall->Draw(*_pSpriteRenderer);
-
-		_pPostProcessor->EndRender();
-
-		_pPostProcessor->Render(glfwGetTime());
+		Reset();
 	}
 }
 

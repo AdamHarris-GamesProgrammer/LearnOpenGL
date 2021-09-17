@@ -51,6 +51,9 @@ public:
 	void Update(float dt);
 	void Render();
 
+	void Reset();
+	void CollisionChecks();
+
 
 	std::vector<PowerUp> _powerUps;
 

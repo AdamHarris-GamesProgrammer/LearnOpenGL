@@ -88,6 +88,13 @@ void PostProcessor::Render(float time)
 	glBindVertexArray(0);
 }
 
+void PostProcessor::ResetState()
+{
+	_confuse = false;
+	_chaos = false;
+	_shake = false;
+}
+
 void PostProcessor::InitRenderData()
 {
 	unsigned int VBO;

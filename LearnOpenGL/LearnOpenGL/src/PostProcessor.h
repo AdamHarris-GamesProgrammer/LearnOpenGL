@@ -21,6 +21,8 @@ public:
 	void BeginRender();
 	void EndRender();
 	void Render(float time);
+	void ResetState();
+
 private:
 	unsigned int MSFBO, FBO;
 	unsigned int RBO;
