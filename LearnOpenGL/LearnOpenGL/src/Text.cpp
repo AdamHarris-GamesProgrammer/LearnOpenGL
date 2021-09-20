@@ -71,8 +71,6 @@ void Text::UpdateVBO()
 		float xpos = x + ch.bearing.x * scale;
 		float ypos = y + (_characters['H'].bearing.y - ch.bearing.y) * scale;
 
-		std::cout << xpos << std::endl;
-
 		float w = ch.size.x * scale;
 		float h = ch.size.y * scale;
 

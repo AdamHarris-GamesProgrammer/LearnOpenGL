@@ -403,7 +403,7 @@ void Game::CollisionChecks()
 		livesText.SetText(ss.str());
 
 		if (_lives <= 0) {
-			_state == GAME_LOSS;
+			_state = GAME_LOSS;
 			//Reset();
 		}
 		else
