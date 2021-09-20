@@ -20,6 +20,8 @@
 #include "PowerUp.h"
 
 #include "TextRenderer.h"
+#include <memory>
+
 
 enum GameState {
 	GAME_ACTIVE,
@@ -63,14 +65,18 @@ public:
 	void SpawnPowerUps(GameObject& block);
 	void UpdatePowerUps(float dt);
 private:
-	SpriteRenderer* _pSpriteRenderer = nullptr;
-	GameLevel* _pCurrentLevel = nullptr;
+	std::unique_ptr<SpriteRenderer> _pSpriteRenderer = nullptr;
+	std::unique_ptr<GameLevel> _pCurrentLevel = nullptr;
 
-	GameObject* _pPaddle = nullptr;
+	std::unique_ptr<GameObject> _pPaddle = nullptr;
 
-	BallObject* _pBall = nullptr;
+	std::unique_ptr<BallObject> _pBall = nullptr;
 
-	TextRenderer* _pTextRenderer = nullptr;
+	std::unique_ptr<TextRenderer> _pTextRenderer = nullptr;
+
+	std::unique_ptr<ParticleGenerator> _pParticleGenerator = nullptr;
+
+	std::unique_ptr<PostProcessor> _pPostProcessor = nullptr;
 
 	glm::vec2 _playerSize = glm::vec2(100.0f, 20.0f);
 	float _playerVeloicty = 500.0f;
@@ -79,10 +85,6 @@ private:
 	glm::vec2 _originalBallPos;
 
 	unsigned int _lives = 3;
-
-	ParticleGenerator* _pParticleGenerator;
-
-	PostProcessor* _pPostProcessor;
 
 	float _shakeTime;
 };

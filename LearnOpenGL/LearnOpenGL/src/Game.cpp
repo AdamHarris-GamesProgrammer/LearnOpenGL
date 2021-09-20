@@ -92,7 +92,6 @@ Game::Game(unsigned int width, unsigned int height)
 
 Game::~Game()
 {
-
 }
 
 ISoundEngine* pSoundEngine = createIrrKlangDevice();
@@ -108,14 +107,14 @@ void Game::Init()
 	spriteShader.SetInt("image", 0);
 	spriteShader.SetMatrix4("projection", projection);
 
-	_pSpriteRenderer = new SpriteRenderer(spriteShader);
+	_pSpriteRenderer = std::make_unique<SpriteRenderer>(spriteShader);
 
 	Shader particleShader = ResourceManager::LoadShader("Res/Shaders/particle.vert", "Res/Shaders/particle.frag", nullptr, "particle");
 	ResourceManager::LoadTexture("Res/Textures/particle.png", true, "particle");
 	particleShader.SetInt("sprite", 0);
 	particleShader.SetMatrix4("projection", projection);
 
-	_pParticleGenerator = new ParticleGenerator(particleShader, ResourceManager::GetTexture("particle"), 100);
+	_pParticleGenerator = std::make_unique<ParticleGenerator>(particleShader, ResourceManager::GetTexture("particle"), 100);
 
 	ResourceManager::LoadShader("Res/Shaders/Breakout.vert", "Res/Shaders/Breakout.frag", nullptr, "breakout");
 
@@ -133,14 +132,14 @@ void Game::Init()
 	ResourceManager::LoadTexture("Res/Textures/powerup_sticky.png", true, "powerup_sticky");
 
 
-	_pCurrentLevel = new GameLevel();
+	_pCurrentLevel = std::make_unique<GameLevel>();
 	_pCurrentLevel->Load("Res/Levels/level1.txt", _width, _height / 2);
 
 	glm::vec2 playerPos = glm::vec2(_width / 2.0f - _playerSize.x / 2.0f, (_height - _playerSize.y) - 20.0f);
 
 	_originalPlayerPos = playerPos;
 
-	_pPaddle = new GameObject(playerPos, _playerSize, ResourceManager::GetTexture("paddle"));
+	_pPaddle = std::make_unique<GameObject>(playerPos, _playerSize, ResourceManager::GetTexture("paddle"));
 
 
 	float ballRadius = 12.5f;
@@ -148,11 +147,11 @@ void Game::Init()
 
 	_originalBallPos = ballPos;
 
-	_pBall = new BallObject(ballPos, ballRadius, initialBallVel, ResourceManager::GetTexture("face"));
+	_pBall = std::make_unique<BallObject>(ballPos, ballRadius, initialBallVel, ResourceManager::GetTexture("face"));
 
-	_pPostProcessor = new PostProcessor(ResourceManager::GetShader("breakout"), _width, _height);
+	_pPostProcessor = std::make_unique<PostProcessor>(ResourceManager::GetShader("breakout"), _width, _height);
 
-	_pTextRenderer = new TextRenderer(_width, _height);
+	_pTextRenderer = std::make_unique<TextRenderer>(_width, _height);
 	_pTextRenderer->Load("Res/Fonts/OCRAEXT.TTF", 24);
 }
 
@@ -262,6 +261,7 @@ void Game::Reset()
 	_pPaddle->_postion = _originalPlayerPos;
 	_pPaddle->_size = _playerSize;
 	_pPostProcessor->ResetState();
+	_powerUps.clear();
 	_lives = 3;
 }
 

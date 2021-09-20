@@ -1,13 +1,9 @@
 #include <gl/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-#include "Application.h"
 #include "ErrorHandling.h"
 
-#include "Shader.h"
-
-#include "Camera.h"
-#include "Model.h"
+#include <memory>
 
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
@@ -15,8 +11,6 @@
 #include <map>
 
 #include "Game.h"
-
-#include "Vertices.h"
 
 #include "ResourceManager.h"
 
