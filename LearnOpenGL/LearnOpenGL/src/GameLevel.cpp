@@ -86,7 +86,7 @@ void GameLevel::Init(std::vector<std::vector<unsigned int>> tileData, unsigned i
 			}
 		}
 	}
-	//_amountOfActiveBricks = 1;
 	_amountOfActiveBricks = counter;
+	//_amountOfActiveBricks = 1;
 	_currentActiveBricks = _amountOfActiveBricks;
 }

@@ -22,6 +22,8 @@
 #include "TextRenderer.h"
 #include <memory>
 
+#include "Text.h"
+
 
 enum GameState {
 	GAME_ACTIVE,
@@ -87,5 +89,12 @@ private:
 	unsigned int _lives = 3;
 
 	float _shakeTime;
+
+	Text livesText;
+	Text finishText;
+	Text gameWinInstructionText;
+	Text gameLoseInstructionText;
+	Text startText;
+	Text selectText;
 };
 

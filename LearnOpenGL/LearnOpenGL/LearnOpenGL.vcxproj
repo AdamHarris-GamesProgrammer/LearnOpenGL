@@ -163,6 +163,7 @@
     <ClCompile Include="src\TextureLoader.cpp" />
     <ClCompile Include="src\Texture2D.cpp" />
     <ClCompile Include="src\TextRenderer.cpp" />
+    <ClCompile Include="src\Text.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\PowerUp.h" />
@@ -182,12 +183,13 @@
     <ClInclude Include="src\GraphicsStructs.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\Shader.h" />
-    <ClInclude Include="src\Application.h" />
     <ClInclude Include="src\ErrorHandling.h" />
     <ClInclude Include="src\stb_image.h" />
     <ClInclude Include="src\TextureLoader.h" />
     <ClInclude Include="src\Texture2D.h" />
     <ClInclude Include="src\TextRenderer.h" />
+    <ClInclude Include="src\Text.h" />
+    <ClInclude Include="src\Timer.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Res\Shaders\AdvancedLighting.frag" />

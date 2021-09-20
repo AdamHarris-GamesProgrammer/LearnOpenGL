@@ -38,3 +38,4 @@ struct PointLight : public Light {
 		quadratic = quad;
 	}
 };
+

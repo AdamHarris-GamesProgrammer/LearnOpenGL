@@ -2,10 +2,26 @@
 
 #include <irrKlang.h>
 
+#include "Timer.h"
+
 using namespace irrklang;
 
 glm::vec2 initialBallVel(100.0f, -350.0f);
 
+/* TODO
+- Create a Text Class
+	- Holds the text to display
+	- VAO and VBO
+	- Only recreates the VBO when it is needed 
+	- Handles color, font, size, transform, and anchor
+	- Create an anchoring system where text position is calculated based on where the text origin is
+- Make text renderer take in a text object that draws the object 
+- Create a button class
+- Audio class system?
+- Make a input define system for GLFW_KEY_A etc so you can use KEY_A instead
+- Texture Atlas to make drawing maps more efficient
+- Image UI class
+*/
 
 Direction VectorDirection(glm::vec2 target) {
 	glm::vec2 compass[] = {
@@ -124,7 +140,7 @@ void Game::Init()
 	ResourceManager::LoadTexture("Res/Textures/block_solid.png", false, "block_solid");
 	ResourceManager::LoadTexture("Res/Textures/paddle.png", true, "paddle");
 
-	ResourceManager::LoadTexture("Res/Textures/powerup_chaos.png", true, "powerup_chaos");
+ 	ResourceManager::LoadTexture("Res/Textures/powerup_chaos.png", true, "powerup_chaos");
 	ResourceManager::LoadTexture("Res/Textures/powerup_confuse.png", true, "powerup_confuse");
 	ResourceManager::LoadTexture("Res/Textures/powerup_increase.png", true, "powerup_increase");
 	ResourceManager::LoadTexture("Res/Textures/powerup_passthrough.png", true, "powerup_passthrough");
@@ -153,6 +169,28 @@ void Game::Init()
 
 	_pTextRenderer = std::make_unique<TextRenderer>(_width, _height);
 	_pTextRenderer->Load("Res/Fonts/OCRAEXT.TTF", 24);
+
+	livesText = Text("Lives: 3", "generalFont");
+	finishText = Text("You Win!", "generalFont");
+	gameWinInstructionText = Text("Press Enter to return to menu or ESC to quit", "generalFont");
+	gameLoseInstructionText = Text("Press Enter to retry or ESC to quit", "generalFont");
+	startText = Text("Press Enter to start", "generalFont");
+	selectText = Text("Press W or S to select level", "generalFont");
+
+	finishText.SetPosition(glm::vec2((float)_width / 2, (float)_height / 2));
+	finishText.SetScale(2.0f);
+
+	gameLoseInstructionText.SetPosition(glm::vec2((float)_width / 2, (float)(_height / 2) + 20));
+	gameWinInstructionText.SetPosition(glm::vec2((float)_width / 2, (float)(_height / 2) + 20));
+	gameWinInstructionText.SetScale(1.5f);
+	gameLoseInstructionText.SetScale(1.5f);
+
+
+	startText.SetPosition(glm::vec2((float)_width / 2, _height + 10));
+	selectText.SetPosition(glm::vec2((float)_width / 2, _height + 35));
+
+	startText.SetScale(2.0f);
+	selectText.SetScale(1.5f);
 }
 
 void Game::ProcessInput(float dt)
@@ -178,15 +216,24 @@ void Game::ProcessInput(float dt)
 	}
 
 	if (_state == GAME_LOSS) {
-		if (_keys[GLFW_KEY_ENTER]) _state = GAME_ACTIVE;
+		if (_keys[GLFW_KEY_ENTER]) {
+			_state = GAME_ACTIVE;
+			Reset();
+		}
 	}
 
 	if (_state == GAME_WIN) {
-		if (_keys[GLFW_KEY_ENTER]) _state = GAME_MENU;
+		if (_keys[GLFW_KEY_ENTER]) {
+			_state = GAME_MENU;
+			Reset();
+		}
 	}
 
 	if (_state == GAME_MENU) {
-		if (_keys[GLFW_KEY_ENTER]) _state = GAME_ACTIVE;
+		if (_keys[GLFW_KEY_ENTER]) {
+			_state = GAME_ACTIVE;
+			Reset();
+		}
 	}
 }
 
@@ -232,30 +279,32 @@ void Game::Render()
 
 		_pPostProcessor->Render(glfwGetTime());
 
-		std::stringstream ss;
-		ss << "Lives: " << _lives;
-		_pTextRenderer->RenderText(ss.str(), 25.0f, 25.0f, 1.0f);
+		
+
+		_pTextRenderer->RenderText(livesText);
 	}
 
 	if (_state == GAME_MENU) {
-		_pTextRenderer->RenderText("Press Enter to start", (float)_width / 2, _height + 10, 2.0f);
-		_pTextRenderer->RenderText("Press W or S to select level", _width / 2, _height + 35, 1.5f);
+		_pTextRenderer->RenderText(startText);
+		_pTextRenderer->RenderText(selectText);
 	}
 
 	if (_state == GAME_WIN) {
-		_pTextRenderer->RenderText("YOU WON!", (float)_width / 2, (float)_height / 2, 2.0f);
-		_pTextRenderer->RenderText("Press Enter to return to menu or ESC to quit", (float)_width / 2, (float)(_height / 2) + 20, 1.5f);
+		finishText.SetText("You Won!");
+		_pTextRenderer->RenderText(finishText);
+		_pTextRenderer->RenderText(gameWinInstructionText);
 	}
 
 	if (_state == GAME_LOSS) {
-		_pTextRenderer->RenderText("YOU LOST!", (float)_width / 2, (float)_height / 2, 2.0f);
-		_pTextRenderer->RenderText("Press Enter to retry or ESC to quit", (float)_width / 2, (float)(_height / 2) + 20, 1.5f);
+		finishText.SetText("You Lost!");
+		_pTextRenderer->RenderText(finishText);
+		_pTextRenderer->RenderText(gameLoseInstructionText);
 	}
 }
 
 void Game::Reset()
 {
-	_state = GAME_LOSS;
+	//_state = GAME_LOSS;
 	_pBall->Reset(_originalBallPos, initialBallVel);
 	_pCurrentLevel->Reset();
 	_pPaddle->_postion = _originalPlayerPos;
@@ -263,6 +312,7 @@ void Game::Reset()
 	_pPostProcessor->ResetState();
 	_powerUps.clear();
 	_lives = 3;
+	livesText.SetText("Lives: 3");
 }
 
 void Game::CollisionChecks()
@@ -348,8 +398,13 @@ void Game::CollisionChecks()
 	if (_pBall->_postion.y >= _height) {
 		_lives--;
 
+		std::stringstream ss;
+		ss << "Lives: " << _lives;
+		livesText.SetText(ss.str());
+
 		if (_lives <= 0) {
-			Reset();
+			_state == GAME_LOSS;
+			//Reset();
 		}
 		else
 		{
@@ -381,10 +436,10 @@ void Game::SpawnPowerUps(GameObject& block)
 		_powerUps.push_back(PowerUp(PADSIZE_INCREASE, glm::vec3(0.5f, 0.5f, 1.0f), 0.0f, block._postion, ResourceManager::GetTexture("powerup_increase")));
 	}
 	if (ShouldSpawn(15)) {
-		_powerUps.push_back(PowerUp(CONFUSE, glm::vec3(0.5f, 0.5f, 1.0f), 15.0f, block._postion, ResourceManager::GetTexture("powerup_confuse")));
+		_powerUps.push_back(PowerUp(CONFUSE, glm::vec3(1.0f, 0.0f, 0.0f), 15.0f, block._postion, ResourceManager::GetTexture("powerup_confuse")));
 	}
 	if (ShouldSpawn(15)) {
-		_powerUps.push_back(PowerUp(CHAOS, glm::vec3(0.5f, 0.5f, 1.0f), 15.0f, block._postion, ResourceManager::GetTexture("powerup_chaos")));
+		_powerUps.push_back(PowerUp(CHAOS, glm::vec3(1.0f, 0.0f, 0.0f), 15.0f, block._postion, ResourceManager::GetTexture("powerup_chaos")));
 	}
 }
 
