@@ -16,25 +16,28 @@ public:
 	void SetPosition(glm::vec2 pos);
 	void SetPosition(float x, float y);
 	void SetScale(float s);
+	void SetLineSpacing(int s);
 
 	int GetLength();
 	
 	
 	std::string modifiedString;
 
-	std::string text;
+	
 	glm::vec3 color;
 
 
 	std::map<char, Character> _characters;
 	std::vector<unsigned int> _VBOs;
 	std::vector<unsigned int> _VAOs;
-
 private:
+	std::string text;
+
 	void UpdateVBO();
 	void CalculateLength();
 
 	int calcedLength;
+	int lineSpacing;
 
 	glm::vec2 position;
 	float scale;

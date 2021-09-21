@@ -92,9 +92,6 @@ private:
 
 	Text livesText;
 	Text finishText;
-	Text gameWinInstructionText;
-	Text gameLoseInstructionText;
-	Text startText;
-	Text selectText;
+	Text menuText;
 };
 

@@ -6,7 +6,7 @@ Text::~Text()
 }
 
 Text::Text(std::string text, std::string fontName, glm::vec3 color /*= glm::vec3(1.0)*/)
-	: color(color), position(0.0f), scale(1.0f)
+	: color(color), position(0.0f), scale(1.0f), lineSpacing(5)
 {
 	_characters = ResourceManager::GetFont(fontName);
 	SetText(text);
@@ -40,6 +40,12 @@ void Text::SetPosition(float x, float y)
 void Text::SetScale(float s)
 {
 	scale = s;
+	UpdateVBO();
+}
+
+void Text::SetLineSpacing(int s)
+{
+	lineSpacing = s;
 	UpdateVBO();
 }
 
@@ -91,7 +97,7 @@ void Text::UpdateVBO()
 		Character ch = _characters[*c];
 
 		if (*c == '\n') {
-			y += _characters['H'].bearing.y * scale;
+			y += (_characters['H'].bearing.y * scale) + lineSpacing; 
 			x = position.x;
 			continue;
 		}
