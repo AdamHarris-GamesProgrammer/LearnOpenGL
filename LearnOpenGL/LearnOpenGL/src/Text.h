@@ -16,14 +16,15 @@ class Text
 public:
 	Text();
 	~Text();
-	Text(std::string text, std::string fontName, glm::vec3 color = glm::vec3(1.0));
+	Text(std::string _text, std::string fontName, glm::vec3 color = glm::vec3(1.0));
 
-	void SetText(std::string text);
+	void SetText(std::string _text);
 	void SetPosition(glm::vec2 pos);
 	void SetPosition(float x, float y);
 	void SetScale(float s);
 	void SetLineSpacing(int s);
 	void SetAlignment(Alignment align);
+	void Finalize();
 
 	int GetLength();
 	
@@ -40,7 +41,7 @@ public:
 private:
 	Alignment alignment;
 
-	std::string text;
+	std::string _text;
 
 	void UpdateVBO();
 	void CalculateLength();
@@ -51,7 +52,7 @@ private:
 	int calcedLength;
 	int lineSpacing;
 
-	glm::vec2 size;
+	glm::vec2 _size;
 
 	glm::vec2 position;
 	float scale;

@@ -5,11 +5,11 @@ Text::~Text()
 
 }
 
-Text::Text(std::string text, std::string fontName, glm::vec3 color /*= glm::vec3(1.0)*/)
+Text::Text(std::string _text, std::string fontName, glm::vec3 color /*= glm::vec3(1.0)*/)
 	: color(color), position(0.0f), scale(1.0f), lineSpacing(5), alignment(ALIGN_LEFT)
 {
 	_characters = ResourceManager::GetFont(fontName);
-	SetText(text);
+	SetText(_text);
 	
 }
 
@@ -17,41 +17,40 @@ Text::Text()
 {
 }
 
-void Text::SetText(std::string text)
+void Text::SetText(std::string _text)
 {
-	if (text == this->text) return;
+	if (_text == this->_text) return;
 
-	this->text = text;
-	UpdateVBO();
+	this->_text = _text;
 }
 
 void Text::SetPosition(glm::vec2 pos)
 {
 	position = pos;
-	UpdateVBO();
 }
 
 void Text::SetPosition(float x, float y)
 {
 	position = glm::vec2(x, y);
-	UpdateVBO();
 }
 
 void Text::SetScale(float s)
 {
 	scale = s;
-	UpdateVBO();
 }
 
 void Text::SetLineSpacing(int s)
 {
 	lineSpacing = s;
-	UpdateVBO();
 }
 
 void Text::SetAlignment(Alignment align)
 {
 	alignment = align;
+}
+
+void Text::Finalize()
+{
 	UpdateVBO();
 }
 
@@ -67,7 +66,7 @@ void Text::CalculateLength()
 	modifiedString = "";
 
 	std::string::const_iterator c;
-	for (c = text.begin(); c != text.end(); c++) {
+	for (c = _text.begin(); c != _text.end(); c++) {
 		if (*c == '\n') {
 
 		}
@@ -89,7 +88,7 @@ glm::vec2 Text::CalculateTextBlockSize()
 	glm::vec2 size = glm::vec2(0.0f);
 
 	std::string::const_iterator c;
-	for (c = text.begin(); c != text.end(); c++) {
+	for (c = _text.begin(); c != _text.end(); c++) {
 		Character ch = _characters[*c];
 		if (*c == '\n') {
 			size.y += (_characters['H'].bearing.y * scale) + lineSpacing;
@@ -132,9 +131,9 @@ void Text::UpdateVBO()
 	float startingX;
 	float startingY;
 
-	size = CalculateTextBlockSize();
+	_size = CalculateTextBlockSize();
 
-	size_t posOfSlash = text.find_first_of('\n');
+	size_t posOfSlash = _text.find_first_of('\n');
 
 	switch (alignment) {
 	case ALIGN_LEFT:
@@ -142,18 +141,30 @@ void Text::UpdateVBO()
 		startingY = position.y;
 		break;
 	case ALIGN_CENTER:
-		startingX = position.x - (size.x / 4);
-		startingY = position.y - (size.y / 4);
+		startingX = position.x - (_size.x / 4);
+		startingY = position.y - (_size.y / 4);
 
 		
 		if (posOfSlash != std::string::npos) {
-			std::string newStr = text.substr(0, posOfSlash - 1);
+			std::string newStr = _text.substr(0, posOfSlash - 1);
 			glm::vec2 sizeOfLine = CalculateLineSize(newStr);
 			startingX = position.x - (sizeOfLine.x / 2);
 		}
 		break;
 	case ALIGN_RIGHT:
+		startingX = position.x - (_size.x / 4);
+		startingY = position.y - (_size.y / 4);
+
 		
+		if (posOfSlash != std::string::npos) {
+			std::string newStr = _text.substr(0, posOfSlash);
+			glm::vec2 sizeOfLine = CalculateLineSize(newStr);
+			startingX = (position.x + (_size.x)) - sizeOfLine.x;
+		}
+		else {
+			glm::vec2 sizeOfLine = CalculateLineSize(_text);
+			startingX = (position.x + (_size.x)) - sizeOfLine.x;
+		}
 		break;
 	}
 
@@ -171,7 +182,7 @@ void Text::UpdateVBO()
 	
 	std::string::const_iterator c;
 	size_t pos = 0;
-	for (c = text.begin(); c != text.end(); c++) {
+	for (c = _text.begin(); c != _text.end(); c++) {
 		Character ch = _characters[*c];
 
 		if (*c == '\n') {
@@ -179,11 +190,24 @@ void Text::UpdateVBO()
 			x = startingX;
 
 			if (alignment == ALIGN_CENTER) {
-				size_t posOfSlash = text.find_first_of('\n', pos + 1);
+				size_t posOfSlash = _text.find_first_of('\n', pos + 1);
 
-				std::string newStr = text.substr(pos + 1);
+				std::string newStr = _text.substr(pos + 1);
 				glm::vec2 sizeOfLine = CalculateLineSize(newStr);
 				x = position.x - (sizeOfLine.x / 2);
+			}
+
+			if (alignment == ALIGN_RIGHT) {
+				size_t posOfSlash = _text.find_first_of('\n', pos + 1);
+				if (posOfSlash != std::string::npos) {
+					std::string newStr = _text.substr(0, posOfSlash - 1);
+					glm::vec2 sizeOfLine = CalculateLineSize(newStr);
+					startingX = (position.x + _size.x) - sizeOfLine.x;
+				}
+				else {
+					glm::vec2 sizeOfLine = CalculateLineSize(_text);
+					startingX = (position.x + _size.x) - sizeOfLine.x;
+				}
 			}
 
 			continue;
@@ -196,8 +220,8 @@ void Text::UpdateVBO()
 		float xpos = x + ch.bearing.x * scale;
 		float ypos = y + (_characters['H'].bearing.y - ch.bearing.y) * scale;
 
-		float w = ch.size.x * scale;
-		float h = ch.size.y * scale;
+		float w = ch._size.x * scale;
+		float h = ch._size.y * scale;
 
 		float vertices[6][4] = {
 			{ xpos,     ypos + h,   0.0f, 1.0f },

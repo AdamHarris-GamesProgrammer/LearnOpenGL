@@ -171,17 +171,21 @@ void Game::Init()
 	_pTextRenderer->Load("Res/Fonts/OCRAEXT.TTF", 24);
 
 	livesText = Text("Lives: 3", "generalFont");
+	livesText.Finalize();
+	
 	finishText = Text("You Win!", "generalFont");
-	menuText = Text("Press Enter to start\nPress W or S to select level", "generalFont");
-
 	finishText.SetPosition(glm::vec2((float)_width / 2, (float)_height / 2));
 	finishText.SetScale(2.0f);
-
-	menuText.SetPosition(glm::vec2((float)_width / 2, (_height / 2)));
-	menuText.SetAlignment(ALIGN_CENTER);
-	menuText.SetScale(2.0f);
-
 	finishText.SetAlignment(ALIGN_CENTER);
+	finishText.Finalize();
+
+	menuText = Text("Press Enter to start\nPress W or S to select level", "generalFont");
+	menuText.SetPosition(glm::vec2((float)_width / 2, (_height / 2)));
+	menuText.SetAlignment(ALIGN_RIGHT);
+	menuText.SetScale(2.0f);
+	menuText.Finalize();
+
+	
 
 	_state = GAME_MENU;
 }

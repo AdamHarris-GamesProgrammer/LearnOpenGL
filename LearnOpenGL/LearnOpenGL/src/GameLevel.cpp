@@ -63,12 +63,12 @@ void GameLevel::Init(std::vector<std::vector<unsigned int>> tileData, unsigned i
 	for (unsigned int y = 0; y < height; y++) {
 		for (unsigned int x = 0; x < width; x++) {
 			glm::vec2 pos(unit_width * x, unit_height * y);
-			glm::vec2 size(unit_width, unit_height);
+			glm::vec2 _size(unit_width, unit_height);
 
 			unsigned int tileValue = tileData[y][x];
 
 			if (tileValue == 1) {
-				GameObject obj(pos, size, ResourceManager::GetTexture("block_solid"), glm::vec3(0.8f, 0.8f, 0.7f));
+				GameObject obj(pos, _size, ResourceManager::GetTexture("block_solid"), glm::vec3(0.8f, 0.8f, 0.7f));
 				obj._isSolid = true;
 				_bricks.push_back(obj);
 			}
@@ -80,7 +80,7 @@ void GameLevel::Init(std::vector<std::vector<unsigned int>> tileData, unsigned i
 				else if (tileValue == 4) color = glm::vec3(0.8f, 0.8f, 0.4f);
 				else if (tileValue == 5) color = glm::vec3(1.0f, 0.5f, 0.0f);
 
-				_bricks.push_back(GameObject(pos, size, ResourceManager::GetTexture("block"), color));
+				_bricks.push_back(GameObject(pos, _size, ResourceManager::GetTexture("block"), color));
 
 				counter++;
 			}

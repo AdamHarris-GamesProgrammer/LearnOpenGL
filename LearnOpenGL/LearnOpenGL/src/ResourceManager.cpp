@@ -31,7 +31,7 @@ Texture2D& ResourceManager::GetTexture(std::string name)
 	return _textures[name];
 }
 
-std::map<char, Character>& ResourceManager::LoadFont(const char* font, int size, std::string name)
+std::map<char, Character>& ResourceManager::LoadFont(const char* font, int _size, std::string name)
 {
 	FT_Library ft;
 	if (FT_Init_FreeType(&ft)) {
@@ -45,7 +45,7 @@ std::map<char, Character>& ResourceManager::LoadFont(const char* font, int size,
 		__debugbreak();
 	}
 
-	FT_Set_Pixel_Sizes(face, 0, size);
+	FT_Set_Pixel_Sizes(face, 0, _size);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	for (unsigned char c = 0; c < 128; c++) {

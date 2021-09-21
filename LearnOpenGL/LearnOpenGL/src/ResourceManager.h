@@ -13,7 +13,7 @@
 
 struct Character {
 	unsigned int textureID;
-	glm::ivec2 size;
+	glm::ivec2 _size;
 	glm::ivec2 bearing;
 	unsigned int advance;
 };
@@ -32,7 +32,7 @@ public:
 	static Texture2D LoadTexture(const char* file, bool alpha, std::string name);
 	static Texture2D& GetTexture(std::string name);
 
-	static std::map<char, Character>& LoadFont(const char* font, int size, std::string name);
+	static std::map<char, Character>& LoadFont(const char* font, int _size, std::string name);
 	static std::map<char, Character>& GetFont(std::string name);
 
 	static void Clear();

@@ -19,15 +19,15 @@ void TextRenderer::Load(std::string font, unsigned int fontSize)
 	_characters = ResourceManager::GetFont("generalFont");
 }
 
-void TextRenderer::RenderText(Text text)
+void TextRenderer::RenderText(Text _text)
 {
 	glActiveTexture(GL_TEXTURE0);
-	_textShader.SetFloat3("textColor", text.color);
+	_textShader.SetFloat3("textColor", _text.color);
 
-	for (unsigned int i = 0; i < text.GetLength(); i++) {
-		glBindVertexArray(text._VAOs[i]);
-		GLCall(glBindBuffer(GL_ARRAY_BUFFER, text._VBOs[i]));
-		glBindTexture(GL_TEXTURE_2D, _characters[text.modifiedString[i]].textureID);
+	for (unsigned int i = 0; i < _text.GetLength(); i++) {
+		glBindVertexArray(_text._VAOs[i]);
+		GLCall(glBindBuffer(GL_ARRAY_BUFFER, _text._VBOs[i]));
+		glBindTexture(GL_TEXTURE_2D, _characters[_text.modifiedString[i]].textureID);
 		GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
 	}
 }

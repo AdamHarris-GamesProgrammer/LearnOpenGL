@@ -11,17 +11,17 @@ SpriteRenderer::~SpriteRenderer()
 
 }
 
-void SpriteRenderer::DrawSprite(Texture2D& _texture, glm::vec2 position, glm::vec2 size /*= glm::vec2(10.0f)*/, float rotate /*= 0.0f*/, glm::vec3 color /*= glm::vec3(1.0f)*/)
+void SpriteRenderer::DrawSprite(Texture2D& _texture, glm::vec2 position, glm::vec2 _size /*= glm::vec2(10.0f)*/, float rotate /*= 0.0f*/, glm::vec3 color /*= glm::vec3(1.0f)*/)
 {
 	glm::mat4 model = glm::mat4(1.0f);
 
 	model = glm::translate(model, glm::vec3(position, 0.0f));
 
-	model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.0f));
+	model = glm::translate(model, glm::vec3(0.5f * _size.x, 0.5f * _size.y, 0.0f));
 	model = glm::rotate(model, glm::radians(rotate), glm::vec3(0.0f, 0.0f, 1.0f));
-	model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f));
+	model = glm::translate(model, glm::vec3(-0.5f * _size.x, -0.5f * _size.y, 0.0f));
 
-	model = glm::scale(model, glm::vec3(size, 1.0f));
+	model = glm::scale(model, glm::vec3(_size, 1.0f));
 
 	_shader.SetMatrix4("model", model);
 	_shader.SetFloat3("spriteColor", color);

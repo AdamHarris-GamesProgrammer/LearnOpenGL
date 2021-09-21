@@ -23,7 +23,7 @@ public:
 
 	void Load(std::string font, unsigned int fontSize);
 
-	void RenderText(Text text);
+	void RenderText(Text _text);
 
 private:
 };
