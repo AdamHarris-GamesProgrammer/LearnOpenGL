@@ -174,7 +174,7 @@ void Game::Init()
 	finishText = Text("You Win!", "generalFont");
 	gameWinInstructionText = Text("Press Enter to return to menu or ESC to quit", "generalFont");
 	gameLoseInstructionText = Text("Press Enter to retry or ESC to quit", "generalFont");
-	startText = Text("Press Enter to start", "generalFont");
+	startText = Text("Press Enter\nto\t start", "generalFont");
 	selectText = Text("Press W or S to select level", "generalFont");
 
 	finishText.SetPosition(glm::vec2((float)_width / 2, (float)_height / 2));
@@ -186,11 +186,13 @@ void Game::Init()
 	gameLoseInstructionText.SetScale(1.5f);
 
 
-	startText.SetPosition(glm::vec2((float)_width / 2, _height + 10));
-	selectText.SetPosition(glm::vec2((float)_width / 2, _height + 35));
+	startText.SetPosition(glm::vec2((float)_width / 2, (_height / 2) + 10));
+	selectText.SetPosition(glm::vec2((float)_width / 2, (_height / 2) + 35));
 
 	startText.SetScale(2.0f);
 	selectText.SetScale(1.5f);
+
+	_state = GAME_MENU;
 }
 
 void Game::ProcessInput(float dt)
@@ -279,14 +281,12 @@ void Game::Render()
 
 		_pPostProcessor->Render(glfwGetTime());
 
-		
-
 		_pTextRenderer->RenderText(livesText);
 	}
 
 	if (_state == GAME_MENU) {
 		_pTextRenderer->RenderText(startText);
-		_pTextRenderer->RenderText(selectText);
+		//_pTextRenderer->RenderText(selectText);
 	}
 
 	if (_state == GAME_WIN) {

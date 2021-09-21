@@ -43,17 +43,39 @@ void Text::SetScale(float s)
 	UpdateVBO();
 }
 
-void Text::UpdateVBO()
+int Text::GetLength()
 {
-	//glBindVertexArray(VAO);
+	return calcedLength;
+}
 
+void Text::CalculateLength()
+{
+	int i = 0;
 
-	float x = position.x;
-	float y = position.y;
+	modifiedString = "";
 
 	std::string::const_iterator c;
+	for (c = text.begin(); c != text.end(); c++) {
+		if (*c == '\n') {
 
-	
+		}
+		else if (*c == '\t') {
+
+		}
+		else
+		{
+			i++;
+			modifiedString.push_back(*c);
+		}
+	}
+
+	calcedLength = i;
+}
+
+void Text::UpdateVBO()
+{
+	float x = position.x;
+	float y = position.y;
 
 	for (unsigned int vbo : _VBOs)
 		glDeleteBuffers(1, &vbo);
@@ -64,9 +86,19 @@ void Text::UpdateVBO()
 	_VBOs.clear();
 	_VAOs.clear();
 	
-
+	std::string::const_iterator c;
 	for (c = text.begin(); c != text.end(); c++) {
 		Character ch = _characters[*c];
+
+		if (*c == '\n') {
+			y += _characters['H'].bearing.y * scale;
+			x = position.x;
+			continue;
+		}
+		else if (*c == '\t') {
+			x += (_characters['H'].bearing.x * scale) * 4;
+			continue;
+		}
 
 		float xpos = x + ch.bearing.x * scale;
 		float ypos = y + (_characters['H'].bearing.y - ch.bearing.y) * scale;
@@ -107,5 +139,9 @@ void Text::UpdateVBO()
 		x += (ch.advance >> 6) * scale;
 	}
 
+	CalculateLength();
+
 	//glBindVertexArray(0);
 }
+
+

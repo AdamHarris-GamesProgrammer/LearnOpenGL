@@ -16,7 +16,12 @@ public:
 	void SetPosition(glm::vec2 pos);
 	void SetPosition(float x, float y);
 	void SetScale(float s);
+
+	int GetLength();
 	
+	
+	std::string modifiedString;
+
 	std::string text;
 	glm::vec3 color;
 
@@ -27,6 +32,9 @@ public:
 
 private:
 	void UpdateVBO();
+	void CalculateLength();
+
+	int calcedLength;
 
 	glm::vec2 position;
 	float scale;

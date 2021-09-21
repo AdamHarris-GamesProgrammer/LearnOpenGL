@@ -26,6 +26,5 @@ public:
 	void RenderText(Text text);
 
 private:
-	unsigned int VAO, VBO;
 };
 
