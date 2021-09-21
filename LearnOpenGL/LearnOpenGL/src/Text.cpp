@@ -6,7 +6,7 @@ Text::~Text()
 }
 
 Text::Text(std::string text, std::string fontName, glm::vec3 color /*= glm::vec3(1.0)*/)
-	: color(color), position(0.0f), scale(1.0f), lineSpacing(5)
+	: color(color), position(0.0f), scale(1.0f), lineSpacing(5), alignment(ALIGN_LEFT)
 {
 	_characters = ResourceManager::GetFont(fontName);
 	SetText(text);
@@ -49,6 +49,12 @@ void Text::SetLineSpacing(int s)
 	UpdateVBO();
 }
 
+void Text::SetAlignment(Alignment align)
+{
+	alignment = align;
+	UpdateVBO();
+}
+
 int Text::GetLength()
 {
 	return calcedLength;
@@ -78,10 +84,60 @@ void Text::CalculateLength()
 	calcedLength = i;
 }
 
+glm::vec2 Text::CalculateTextBlockSize()
+{
+	glm::vec2 size = glm::vec2(0.0f);
+
+	std::string::const_iterator c;
+	for (c = text.begin(); c != text.end(); c++) {
+		Character ch = _characters[*c];
+		if (*c == '\n') {
+			size.y += (_characters['H'].bearing.y * scale) + lineSpacing;
+			continue;
+		}
+		else if (*c == '\t') {
+			size.x += (_characters['H'].bearing.x * scale) * 4;
+			continue;
+		}
+
+		float xpos = size.x + ch.bearing.x * scale;
+		float ypos = size.y + (_characters['H'].bearing.y - ch.bearing.y) * scale;
+
+		float w = ch.size.x * scale;
+		float h = ch.size.y * scale;
+
+		size.x += (ch.advance >> 6) * scale;
+	}
+
+	return size;
+}
+
 void Text::UpdateVBO()
 {
-	float x = position.x;
-	float y = position.y;
+	float x;
+	float y;
+
+	float startingX;
+	float startingY;
+
+	switch (alignment) {
+	case ALIGN_LEFT:
+		startingX = position.x;
+		startingY = position.y;
+		break;
+	case ALIGN_CENTER:
+		glm::vec2 size = CalculateTextBlockSize();
+		startingX = position.x - (size.x / 4);
+		startingY = position.y - (size.y / 4);
+
+		break;
+	case ALIGN_RIGHT:
+
+		break;
+	}
+
+	x = startingX;
+	y = startingY;
 
 	for (unsigned int vbo : _VBOs)
 		glDeleteBuffers(1, &vbo);
@@ -98,7 +154,7 @@ void Text::UpdateVBO()
 
 		if (*c == '\n') {
 			y += (_characters['H'].bearing.y * scale) + lineSpacing; 
-			x = position.x;
+			x = startingX;
 			continue;
 		}
 		else if (*c == '\t') {

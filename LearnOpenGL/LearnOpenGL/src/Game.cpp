@@ -178,7 +178,7 @@ void Game::Init()
 	finishText.SetScale(2.0f);
 
 	menuText.SetPosition(glm::vec2((float)_width / 2, (_height / 2)));
-
+	menuText.SetAlignment(ALIGN_CENTER);
 	menuText.SetScale(2.0f);
 
 	_state = GAME_MENU;

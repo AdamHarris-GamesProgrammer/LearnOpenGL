@@ -5,6 +5,12 @@
 #include <vector>
 #include "ErrorHandling.h"
 
+enum Alignment {
+	ALIGN_LEFT,
+	ALIGN_CENTER,
+	ALIGN_RIGHT
+};
+
 class Text
 {
 public:
@@ -17,6 +23,7 @@ public:
 	void SetPosition(float x, float y);
 	void SetScale(float s);
 	void SetLineSpacing(int s);
+	void SetAlignment(Alignment align);
 
 	int GetLength();
 	
@@ -31,10 +38,14 @@ public:
 	std::vector<unsigned int> _VBOs;
 	std::vector<unsigned int> _VAOs;
 private:
+	Alignment alignment;
+
 	std::string text;
 
 	void UpdateVBO();
 	void CalculateLength();
+
+	glm::vec2 CalculateTextBlockSize();
 
 	int calcedLength;
 	int lineSpacing;
