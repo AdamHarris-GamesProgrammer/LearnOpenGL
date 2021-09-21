@@ -114,7 +114,7 @@ ISoundEngine* pSoundEngine = createIrrKlangDevice();
 
 void Game::Init()
 {
-	pSoundEngine->play2D("Res/Audio/breakout.mp3", true);
+	//pSoundEngine->play2D("Res/Audio/breakout.mp3", true);
 
 
 	Shader spriteShader = ResourceManager::LoadShader("Res/Shaders/Sprite.vert", "Res/Shaders/Sprite.frag", nullptr, "sprite");
@@ -180,6 +180,8 @@ void Game::Init()
 	menuText.SetPosition(glm::vec2((float)_width / 2, (_height / 2)));
 	menuText.SetAlignment(ALIGN_CENTER);
 	menuText.SetScale(2.0f);
+
+	finishText.SetAlignment(ALIGN_CENTER);
 
 	_state = GAME_MENU;
 }

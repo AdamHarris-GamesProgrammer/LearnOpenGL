@@ -46,9 +46,12 @@ private:
 	void CalculateLength();
 
 	glm::vec2 CalculateTextBlockSize();
+	glm::vec2 CalculateLineSize(std::string line);
 
 	int calcedLength;
 	int lineSpacing;
+
+	glm::vec2 size;
 
 	glm::vec2 position;
 	float scale;

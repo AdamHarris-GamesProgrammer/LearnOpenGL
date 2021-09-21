@@ -100,14 +100,26 @@ glm::vec2 Text::CalculateTextBlockSize()
 			continue;
 		}
 
-		float xpos = size.x + ch.bearing.x * scale;
-		float ypos = size.y + (_characters['H'].bearing.y - ch.bearing.y) * scale;
+		size.x += (ch.advance >> 6) * scale;
+	}
 
-		float w = ch.size.x * scale;
-		float h = ch.size.y * scale;
+	return size;
+}
+
+glm::vec2 Text::CalculateLineSize(std::string line)
+{
+	glm::vec2 size = glm::vec2(0.0f);
+
+	std::string::const_iterator c;
+	for (c = line.begin(); c != line.end(); c++) {
+		Character ch = _characters[*c];
+
+		if (*c == '\n') break;
 
 		size.x += (ch.advance >> 6) * scale;
 	}
+
+	size.y = _characters['H'].bearing.y;
 
 	return size;
 }
@@ -120,19 +132,28 @@ void Text::UpdateVBO()
 	float startingX;
 	float startingY;
 
+	size = CalculateTextBlockSize();
+
+	size_t posOfSlash = text.find_first_of('\n');
+
 	switch (alignment) {
 	case ALIGN_LEFT:
 		startingX = position.x;
 		startingY = position.y;
 		break;
 	case ALIGN_CENTER:
-		glm::vec2 size = CalculateTextBlockSize();
 		startingX = position.x - (size.x / 4);
 		startingY = position.y - (size.y / 4);
 
+		
+		if (posOfSlash != std::string::npos) {
+			std::string newStr = text.substr(0, posOfSlash - 1);
+			glm::vec2 sizeOfLine = CalculateLineSize(newStr);
+			startingX = position.x - (sizeOfLine.x / 2);
+		}
 		break;
 	case ALIGN_RIGHT:
-
+		
 		break;
 	}
 
@@ -149,12 +170,22 @@ void Text::UpdateVBO()
 	_VAOs.clear();
 	
 	std::string::const_iterator c;
+	size_t pos = 0;
 	for (c = text.begin(); c != text.end(); c++) {
 		Character ch = _characters[*c];
 
 		if (*c == '\n') {
 			y += (_characters['H'].bearing.y * scale) + lineSpacing; 
 			x = startingX;
+
+			if (alignment == ALIGN_CENTER) {
+				size_t posOfSlash = text.find_first_of('\n', pos + 1);
+
+				std::string newStr = text.substr(pos + 1);
+				glm::vec2 sizeOfLine = CalculateLineSize(newStr);
+				x = position.x - (sizeOfLine.x / 2);
+			}
+
 			continue;
 		}
 		else if (*c == '\t') {
@@ -199,6 +230,7 @@ void Text::UpdateVBO()
 		_VAOs.push_back(newVAO);
 
 		x += (ch.advance >> 6) * scale;
+		pos++;
 	}
 
 	CalculateLength();
