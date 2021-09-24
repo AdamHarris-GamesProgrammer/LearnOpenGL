@@ -45,7 +45,7 @@ public:
 	unsigned int _width, _height;
 
 	void ActivatePowerup(PowerUp& powerup);
-	Game(unsigned int width, unsigned int height);
+	Game(unsigned int width, unsigned int height, GLFWwindow* window);
 	~Game();
 
 	void Init();
@@ -97,5 +97,7 @@ private:
 	Text menuText;
 
 	Button* _pPlayButton;
+
+	GLFWwindow* _pWindow;
 };
 

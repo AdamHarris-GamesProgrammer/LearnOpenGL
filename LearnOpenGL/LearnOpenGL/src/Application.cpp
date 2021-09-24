@@ -26,7 +26,7 @@ bool firstMouse = true;
 float lastX = 640;
 float lastY = 360;
 
-Game* Breakout = new Game(width, height);
+Game* Breakout;
 
 void MouseCallback(GLFWwindow* window, double xpos, double ypos);
 void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
@@ -60,7 +60,7 @@ void Initialize()
 	//Syncs to monitor refresh rate
 	glfwSwapInterval(1);
 
-	glfwSetInputMode(_pWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	//glfwSetInputMode(_pWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPosCallback(_pWindow, MouseCallback);
 	glfwSetScrollCallback(_pWindow, ScrollCallback);
 	glfwSetKeyCallback(_pWindow, KeyCallback);
@@ -71,6 +71,7 @@ void Initialize()
 		std::cout << "[ERROR]: With setting up GLEW" << std::endl;
 	}
 
+	Breakout = new Game(width, height, _pWindow);
 	Breakout->Init();
 }
 

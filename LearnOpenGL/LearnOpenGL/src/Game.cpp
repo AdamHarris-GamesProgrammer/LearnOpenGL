@@ -93,12 +93,8 @@ Collision CheckCollision(BallObject& a, GameObject& b) {
 		return std::make_tuple(false, UP, glm::vec2(0.0f));
 }
 
-Game::Game(unsigned int width, unsigned int height)
-	: _width(width), _height(height), _state(GAME_ACTIVE)
-{
-	_width = width;
-	_height = height;
-}
+Game::Game(unsigned int width, unsigned int height, GLFWwindow* window)
+	: _width(width), _height(height), _state(GAME_ACTIVE), _pWindow(window) {}
 
 Game::~Game()
 {
@@ -141,7 +137,7 @@ void Game::Init()
 	ResourceManager::LoadTexture("Res/Textures/powerup_speed.png", true, "powerup_speed");
 	ResourceManager::LoadTexture("Res/Textures/powerup_sticky.png", true, "powerup_sticky");
 
-
+	glfwSetInputMode(_pWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
 
 	_pCurrentLevel = std::make_unique<GameLevel>();
@@ -249,6 +245,13 @@ void Game::Update(float dt)
 		if (_shakeTime > 0.0f) {
 			_shakeTime -= dt;
 			if (_shakeTime <= 0.0f) _pPostProcessor->_shake = false;
+		}
+	}
+	else if (_state == GAME_MENU) {
+		if (_mousePressed) {
+			if (_pPlayButton->IsPressed(_mousePos)) {
+				_state = GAME_ACTIVE;
+			}
 		}
 	}
 }
