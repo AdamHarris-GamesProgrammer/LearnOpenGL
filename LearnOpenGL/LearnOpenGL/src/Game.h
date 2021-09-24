@@ -2,10 +2,11 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-
 #include <glm.hpp>
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
+#include <irrKlang.h>
+
 #include <tuple>
 #include <memory>
 
@@ -36,6 +37,8 @@ enum Direction {
 };
 
 typedef std::tuple<bool, Direction, glm::vec2> Collision;
+
+using namespace irrklang;
 
 class Game
 {
@@ -105,6 +108,7 @@ private:
 	Button* _pPlayButton;
 	Button* _pExitButton;
 
+	ISoundEngine* pSoundEngine;
 	
 };
 

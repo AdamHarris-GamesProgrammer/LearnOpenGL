@@ -1,19 +1,20 @@
 #include "Game.h"
 
-#include <irrKlang.h>
+
 
 #include "Timer.h"
 
-using namespace irrklang;
+
 
 glm::vec2 initialBallVel(100.0f, -350.0f);
 
 /* TODO
 - Audio class system?
-- Make a input define system for GLFW_KEY_A etc so you can use KEY_A instead
 - Texture Atlas to make drawing maps more efficient
 - Image UI class
-- Full Input class
+- UI Object class
+- Parenting of object
+- Observer pattern for button presses
 */
 
 Direction VectorDirection(glm::vec2 target) {
@@ -99,14 +100,16 @@ Game::~Game()
 {
 }
 
-ISoundEngine* pSoundEngine = createIrrKlangDevice();
+
 
 void Game::Init()
 {
+	pSoundEngine = createIrrKlangDevice();
 	//pSoundEngine->play2D("Res/Audio/breakout.mp3", true);
 
+	ResourceManager::Init();
 
-	Shader spriteShader = ResourceManager::LoadShader("Res/Shaders/Sprite.vert", "Res/Shaders/Sprite.frag", nullptr, "sprite");
+	Shader spriteShader = ResourceManager::GetShader("sprite");
 
 	glm::mat4 projection = glm::ortho(0.0f, (float)_width, (float)_height, 0.0f, -1.0f, 1.0f);
 	spriteShader.SetInt("image", 0);
@@ -114,27 +117,27 @@ void Game::Init()
 
 	_pSpriteRenderer = std::make_unique<SpriteRenderer>(spriteShader);
 
-	Shader particleShader = ResourceManager::LoadShader("Res/Shaders/particle.vert", "Res/Shaders/particle.frag", nullptr, "particle");
-	ResourceManager::LoadTexture("Res/Textures/particle.png", true, "particle");
+	Shader particleShader = ResourceManager::LoadShader("Res/Shaders/particle.vert", "Res/Shaders/particle.frag", "particle");
+	ResourceManager::LoadTexture("Res/Textures/particle.png", "particle");
 	particleShader.SetInt("sprite", 0);
 	particleShader.SetMatrix4("projection", projection);
 
 	_pParticleGenerator = std::make_unique<ParticleGenerator>(particleShader, ResourceManager::GetTexture("particle"), 100);
 
-	ResourceManager::LoadShader("Res/Shaders/Breakout.vert", "Res/Shaders/Breakout.frag", nullptr, "breakout");
+	ResourceManager::LoadShader("Res/Shaders/Breakout.vert", "Res/Shaders/Breakout.frag", "breakout");
 
-	ResourceManager::LoadTexture("Res/Textures/background.jpg", false, "background");
-	ResourceManager::LoadTexture("Res/Textures/awesomeface.png", true, "face");
-	ResourceManager::LoadTexture("Res/Textures/block.png", false, "block");
-	ResourceManager::LoadTexture("Res/Textures/block_solid.png", false, "block_solid");
-	ResourceManager::LoadTexture("Res/Textures/paddle.png", true, "paddle");
+	ResourceManager::LoadTexture("Res/Textures/background.jpg", "background");
+	ResourceManager::LoadTexture("Res/Textures/awesomeface.png", "face");
+	ResourceManager::LoadTexture("Res/Textures/block.png", "block");
+	ResourceManager::LoadTexture("Res/Textures/block_solid.png", "block_solid");
+	ResourceManager::LoadTexture("Res/Textures/paddle.png", "paddle");
 
- 	ResourceManager::LoadTexture("Res/Textures/powerup_chaos.png", true, "powerup_chaos");
-	ResourceManager::LoadTexture("Res/Textures/powerup_confuse.png", true, "powerup_confuse");
-	ResourceManager::LoadTexture("Res/Textures/powerup_increase.png", true, "powerup_increase");
-	ResourceManager::LoadTexture("Res/Textures/powerup_passthrough.png", true, "powerup_passthrough");
-	ResourceManager::LoadTexture("Res/Textures/powerup_speed.png", true, "powerup_speed");
-	ResourceManager::LoadTexture("Res/Textures/powerup_sticky.png", true, "powerup_sticky");
+	ResourceManager::LoadTexture("Res/Textures/powerup_chaos.png", "powerup_chaos");
+	ResourceManager::LoadTexture("Res/Textures/powerup_confuse.png", "powerup_confuse");
+	ResourceManager::LoadTexture("Res/Textures/powerup_increase.png", "powerup_increase");
+	ResourceManager::LoadTexture("Res/Textures/powerup_passthrough.png", "powerup_passthrough");
+	ResourceManager::LoadTexture("Res/Textures/powerup_speed.png", "powerup_speed");
+	ResourceManager::LoadTexture("Res/Textures/powerup_sticky.png", "powerup_sticky");
 
 	Input::SetCursorVisibility(CursorState::CURSOR_NORMAL);
 
@@ -159,7 +162,7 @@ void Game::Init()
 	_pPostProcessor = std::make_unique<PostProcessor>(ResourceManager::GetShader("breakout"), _width, _height);
 
 	_pTextRenderer = std::make_unique<TextRenderer>(_width, _height);
-	_pTextRenderer->Load("Res/Fonts/OCRAEXT.TTF", 24);
+	_pTextRenderer->SetFont("generalFont");
 
 	livesText = Text("Lives: 3", "generalFont");
 	livesText.Finalize();
@@ -231,8 +234,6 @@ void Game::ProcessInput(float dt)
 			}
 			else if (Input::IsKeyDown(KEY_S)) {
 				_currentLevelIndex = (_currentLevelIndex - 1) % _amountOfLevels;
-				//_currentLevelIndex = std::abs(_currentLevelIndex);
-				std::cout << _currentLevelIndex << std::endl;
 				_pCurrentLevel->Load(("Res/Levels/level" + std::to_string(_currentLevelIndex) + ".txt").c_str(), _width, _height / 2);
 				_switchTimer = 0.0f;
 			}

@@ -21,7 +21,7 @@ public:
 
 	TextRenderer(unsigned int width, unsigned int height);
 
-	void Load(std::string font, unsigned int fontSize);
+	void SetFont(std::string font);
 
 	void RenderText(Text _text);
 

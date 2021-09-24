@@ -13,9 +13,8 @@ TextRenderer::TextRenderer(unsigned int width, unsigned int height)
 	_textShader.SetInt("text", 0);
 }
 
-void TextRenderer::Load(std::string font, unsigned int fontSize)
+void TextRenderer::SetFont(std::string fontName)
 {
-	ResourceManager::LoadFont(font.c_str(), fontSize, "generalFont");
 	_characters = ResourceManager::GetFont("generalFont");
 }
 

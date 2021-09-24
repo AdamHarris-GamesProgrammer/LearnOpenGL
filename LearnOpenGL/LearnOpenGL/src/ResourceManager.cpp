@@ -9,9 +9,21 @@ std::map<std::string, Texture2D> ResourceManager::_textures;
 
 std::map<std::string, std::map<char, Character>> ResourceManager::_fonts;
 
+void ResourceManager::Init()
+{
+	ResourceManager::LoadShader("Res/Shaders/Sprite.vert", "Res/Shaders/Sprite.frag", "sprite");
+	ResourceManager::LoadFont("Res/Fonts/OCRAEXT.TTF", 24, "generalFont");
+}
+
 Shader ResourceManager::LoadShader(const char* vs, const char* fs, const char* gs, std::string name)
 {
 	_shaders[name] = LoadShaderFromFile(vs, fs, gs);
+	return _shaders[name];
+}
+
+Shader ResourceManager::LoadShader(const char* vs, const char* fs, std::string name)
+{
+	_shaders[name] = LoadShaderFromFile(vs, fs);
 	return _shaders[name];
 }
 
@@ -20,9 +32,9 @@ Shader& ResourceManager::GetShader(std::string name)
 	return _shaders[name];
 }
 
-Texture2D ResourceManager::LoadTexture(const char* file, bool alpha, std::string name)
+Texture2D ResourceManager::LoadTexture(const char* file, std::string name)
 {
-	_textures[name] = LoadTextureFromFile(file, alpha);
+	_textures[name] = LoadTextureFromFile(file);
 	return _textures[name];
 }
 
@@ -106,17 +118,17 @@ Shader ResourceManager::LoadShaderFromFile(const char* vs, const char* fs, const
 	return _shader;
 }
 
-Texture2D ResourceManager::LoadTextureFromFile(const char* file, bool alpha)
+Texture2D ResourceManager::LoadTextureFromFile(const char* file)
 {
 	Texture2D _texture;
 
-	if (alpha) {
+	int width, height, nrChannels;
+	unsigned char* data = stbi_load(file, &width, &height, &nrChannels, 0);
+
+	if (nrChannels == 4) {
 		_texture._imageFormat = GL_RGBA;
 		_texture._internalFormat = GL_RGBA;
 	}
-
-	int width, height, nrChannels;
-	unsigned char* data = stbi_load(file, &width, &height, &nrChannels, 0);
 
 	_texture.Generate(width, height, data);
 
