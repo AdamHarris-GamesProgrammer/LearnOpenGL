@@ -29,6 +29,7 @@ float lastY = 360;
 Game* Breakout = new Game(width, height);
 
 void MouseCallback(GLFWwindow* window, double xpos, double ypos);
+void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
@@ -63,6 +64,7 @@ void Initialize()
 	glfwSetCursorPosCallback(_pWindow, MouseCallback);
 	glfwSetScrollCallback(_pWindow, ScrollCallback);
 	glfwSetKeyCallback(_pWindow, KeyCallback);
+	glfwSetMouseButtonCallback(_pWindow, MouseButtonCallback);
 
 	GLenum err = glewInit();
 	if (err != GLEW_OK) {
@@ -74,7 +76,7 @@ void Initialize()
 
 
 
-int main(void)
+int main()
 {
 	Initialize();
 
@@ -117,12 +119,26 @@ int main(void)
 
 void MouseCallback(GLFWwindow* window, double xpos, double ypos)
 {
-
+	Breakout->SetMousePos(glm::vec2(xpos, ypos));
+	
 }
 
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	
+}
+
+void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
+	//TODO: Allow for all mouse buttons to be set
+
+	if (button == GLFW_MOUSE_BUTTON_LEFT) {
+		if (action == GLFW_PRESS) {
+			Breakout->SetMousePressed(true);
+		}
+		else if (action == GLFW_RELEASE) {
+			Breakout->SetMousePressed(false);
+		}
+	}
 }
 
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode) {

@@ -10,7 +10,6 @@ Text::Text(std::string _text, std::string fontName, glm::vec3 color /*= glm::vec
 {
 	_characters = ResourceManager::GetFont(fontName);
 	SetText(_text);
-	
 }
 
 Text::Text()
@@ -88,10 +87,14 @@ glm::vec2 Text::CalculateTextBlockSize()
 	glm::vec2 size = glm::vec2(0.0f);
 
 	std::string::const_iterator c;
+
+	float currentLongest = 0;
+
 	for (c = _text.begin(); c != _text.end(); c++) {
 		Character ch = _characters[*c];
 		if (*c == '\n') {
 			size.y += (_characters['H'].bearing.y * scale) + lineSpacing;
+			size.x = 0.0f;
 			continue;
 		}
 		else if (*c == '\t') {
@@ -100,8 +103,11 @@ glm::vec2 Text::CalculateTextBlockSize()
 		}
 
 		size.x += (ch.advance >> 6) * scale;
+
+		if (size.x > currentLongest) currentLongest = size.x;
 	}
 
+	size.x = currentLongest;
 	return size;
 }
 
@@ -159,11 +165,11 @@ void Text::UpdateVBO()
 		if (posOfSlash != std::string::npos) {
 			std::string newStr = _text.substr(0, posOfSlash);
 			glm::vec2 sizeOfLine = CalculateLineSize(newStr);
-			startingX = (position.x + (_size.x)) - sizeOfLine.x;
+			startingX = (position.x + (_size.x - sizeOfLine.x));
 		}
 		else {
 			glm::vec2 sizeOfLine = CalculateLineSize(_text);
-			startingX = (position.x + (_size.x)) - sizeOfLine.x;
+			startingX = (position.x + (_size.x - sizeOfLine.x));
 		}
 		break;
 	}
@@ -202,11 +208,11 @@ void Text::UpdateVBO()
 				if (posOfSlash != std::string::npos) {
 					std::string newStr = _text.substr(0, posOfSlash - 1);
 					glm::vec2 sizeOfLine = CalculateLineSize(newStr);
-					startingX = (position.x + _size.x) - sizeOfLine.x;
+					startingX = (position.x + _size.x - sizeOfLine.x);
 				}
 				else {
 					glm::vec2 sizeOfLine = CalculateLineSize(_text);
-					startingX = (position.x + _size.x) - sizeOfLine.x;
+					startingX = (position.x + _size.x - sizeOfLine.x);
 				}
 			}
 

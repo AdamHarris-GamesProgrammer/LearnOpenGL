@@ -9,18 +9,12 @@ using namespace irrklang;
 glm::vec2 initialBallVel(100.0f, -350.0f);
 
 /* TODO
-- Create a Text Class
-	- Holds the text to display
-	- VAO and VBO
-	- Only recreates the VBO when it is needed 
-	- Handles color, font, size, transform, and anchor
-	- Create an anchoring system where text position is calculated based on where the text origin is
-- Make text renderer take in a text object that draws the object 
 - Create a button class
 - Audio class system?
 - Make a input define system for GLFW_KEY_A etc so you can use KEY_A instead
 - Texture Atlas to make drawing maps more efficient
 - Image UI class
+- Full Input class
 */
 
 Direction VectorDirection(glm::vec2 target) {
@@ -148,6 +142,8 @@ void Game::Init()
 	ResourceManager::LoadTexture("Res/Textures/powerup_sticky.png", true, "powerup_sticky");
 
 
+
+
 	_pCurrentLevel = std::make_unique<GameLevel>();
 	_pCurrentLevel->Load("Res/Levels/level1.txt", _width, _height / 2);
 
@@ -181,11 +177,16 @@ void Game::Init()
 
 	menuText = Text("Press Enter to start\nPress W or S to select level", "generalFont");
 	menuText.SetPosition(glm::vec2((float)_width / 2, (_height / 2)));
-	menuText.SetAlignment(ALIGN_RIGHT);
+	menuText.SetAlignment(ALIGN_CENTER);
 	menuText.SetScale(2.0f);
 	menuText.Finalize();
 
-	
+	_pPlayButton = new Button(glm::vec2((float)_width / 2, (_height / 2)));
+	_pPlayButton->text.SetText("Play");
+	_pPlayButton->text.SetScale(2.0f);
+	_pPlayButton->text.SetAlignment(ALIGN_CENTER);
+	_pPlayButton->text.SetPosition(glm::vec2((float)_width / 2, (_height / 2)));
+	_pPlayButton->text.Finalize();
 
 	_state = GAME_MENU;
 }
@@ -281,6 +282,8 @@ void Game::Render()
 
 	if (_state == GAME_MENU) {
 		_pTextRenderer->RenderText(menuText);
+
+		_pPlayButton->Draw(_pSpriteRenderer.get(), _pTextRenderer.get());
 	}
 
 	if (_state == GAME_WIN) {
@@ -485,4 +488,14 @@ void Game::UpdatePowerUps(float dt)
 	}
 
 	_powerUps.erase(std::remove_if(_powerUps.begin(), _powerUps.end(), [](const PowerUp& p) {return p._destroyed && !p._activated; }), _powerUps.end());
+}
+
+void Game::SetMousePos(glm::vec2 pos)
+{
+	_mousePos = pos;
+}
+
+void Game::SetMousePressed(bool pressed)
+{
+	_mousePressed = pressed;
 }

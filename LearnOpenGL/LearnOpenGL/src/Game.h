@@ -7,22 +7,18 @@
 #include <gtc/matrix_transform.hpp>
 #include <gtc/type_ptr.hpp>
 #include <tuple>
+#include <memory>
 
 #include "ResourceManager.h"
 #include "SpriteRenderer.h"
 #include "GameLevel.h"
-
 #include "BallObject.h"
-
 #include "ParticleGenerator.h"
 #include "PostProcessor.h"
-
 #include "PowerUp.h"
-
 #include "TextRenderer.h"
-#include <memory>
-
 #include "Text.h"
+#include "Button.h"
 
 
 enum GameState {
@@ -66,6 +62,9 @@ public:
 
 	void SpawnPowerUps(GameObject& block);
 	void UpdatePowerUps(float dt);
+
+	void SetMousePos(glm::vec2 pos);
+	void SetMousePressed(bool pressed);
 private:
 	std::unique_ptr<SpriteRenderer> _pSpriteRenderer = nullptr;
 	std::unique_ptr<GameLevel> _pCurrentLevel = nullptr;
@@ -90,8 +89,13 @@ private:
 
 	float _shakeTime;
 
+	glm::vec2 _mousePos;
+	bool _mousePressed;
+
 	Text livesText;
 	Text finishText;
 	Text menuText;
+
+	Button* _pPlayButton;
 };
 

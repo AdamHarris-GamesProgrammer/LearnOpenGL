@@ -28,12 +28,9 @@ public:
 
 	int GetLength();
 	
-	
 	std::string modifiedString;
 
-	
 	glm::vec3 color;
-
 
 	std::map<char, Character> _characters;
 	std::vector<unsigned int> _VBOs;
@@ -56,6 +53,5 @@ private:
 
 	glm::vec2 position;
 	float scale;
-
 };
 
