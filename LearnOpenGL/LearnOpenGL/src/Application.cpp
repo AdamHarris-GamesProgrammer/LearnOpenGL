@@ -13,6 +13,7 @@
 #include "Game.h"
 
 #include "ResourceManager.h"
+#include "Input.h"
 
 GLFWwindow* _pWindow = nullptr;
 
@@ -54,13 +55,14 @@ void Initialize()
 		return;
 	}
 
+	Input::_pWindow = _pWindow;
+
 	/* Make the window's context current */
 	glfwMakeContextCurrent(_pWindow);
 
 	//Syncs to monitor refresh rate
 	glfwSwapInterval(1);
 
-	//glfwSetInputMode(_pWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSetCursorPosCallback(_pWindow, MouseCallback);
 	glfwSetScrollCallback(_pWindow, ScrollCallback);
 	glfwSetKeyCallback(_pWindow, KeyCallback);
@@ -120,8 +122,7 @@ int main()
 
 void MouseCallback(GLFWwindow* window, double xpos, double ypos)
 {
-	Breakout->SetMousePos(glm::vec2(xpos, ypos));
-	
+	Input::SetMousePosition(glm::vec2(xpos, ypos));
 }
 
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
@@ -130,16 +131,7 @@ void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
 }
 
 void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
-	//TODO: Allow for all mouse buttons to be set
-
-	if (button == GLFW_MOUSE_BUTTON_LEFT) {
-		if (action == GLFW_PRESS) {
-			Breakout->SetMousePressed(true);
-		}
-		else if (action == GLFW_RELEASE) {
-			Breakout->SetMousePressed(false);
-		}
-	}
+	Input::SetMouseButton((MouseButton)button, (InputState)action);
 }
 
 void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode) {
@@ -149,10 +141,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 
 	if (key >= 0 && key < 1024)
 	{
-		if (action == GLFW_PRESS)
-			Breakout->_keys[key] = true;
-		else if (action == GLFW_RELEASE)
-			Breakout->_keys[key] = false;
+		Input::SetKey((KeyCode)key, (InputState)action);
 	}
 
 }

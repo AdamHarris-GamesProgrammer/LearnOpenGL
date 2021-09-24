@@ -146,6 +146,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Input.cpp" />
     <ClCompile Include="src\Button.cpp" />
     <ClCompile Include="src\PostProcessor.cpp" />
     <ClCompile Include="src\ParticleGenerator.cpp" />
@@ -167,6 +168,7 @@
     <ClCompile Include="src\Text.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Input.h" />
     <ClInclude Include="src\Button.h" />
     <ClInclude Include="src\PowerUp.h" />
     <ClInclude Include="src\PostProcessor.h" />

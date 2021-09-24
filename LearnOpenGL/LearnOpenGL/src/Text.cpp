@@ -90,6 +90,8 @@ glm::vec2 Text::CalculateTextBlockSize()
 
 	float currentLongest = 0;
 
+	size.y = _characters['H'].bearing.y;
+
 	for (c = _text.begin(); c != _text.end(); c++) {
 		Character ch = _characters[*c];
 		if (*c == '\n') {
@@ -147,8 +149,8 @@ void Text::UpdateVBO()
 		startingY = position.y;
 		break;
 	case ALIGN_CENTER:
-		startingX = position.x - (_size.x / 4);
-		startingY = position.y - (_size.y / 4);
+		startingX = position.x - (_size.x / 2);
+		startingY = position.y - (_size.y / 2);
 
 		
 		if (posOfSlash != std::string::npos) {

@@ -11,6 +11,7 @@
 #include "Text.h"
 #include "SpriteRenderer.h"
 #include "TextRenderer.h"
+#include "Input.h"
 
 class Button
 {
@@ -20,7 +21,7 @@ public:
 	Button(glm::vec2 pos, glm::vec2 size = glm::vec2(160.0f, 80.0f));
 
 	Text text;
-	bool IsPressed(glm::vec2 cursorPosition);
+	bool IsPressed();
 
 	void Draw(SpriteRenderer* spriteRend, TextRenderer* textRend);
 

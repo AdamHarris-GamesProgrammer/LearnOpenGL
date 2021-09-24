@@ -19,7 +19,7 @@
 #include "TextRenderer.h"
 #include "Text.h"
 #include "Button.h"
-
+#include "Input.h"
 
 enum GameState {
 	GAME_ACTIVE,
@@ -29,10 +29,10 @@ enum GameState {
 };
 
 enum Direction {
-	UP,
-	RIGHT,
-	DOWN,
-	LEFT
+	DIR_UP,
+	DIR_RIGHT,
+	DIR_DOWN,
+	DIR_LEFT
 };
 
 typedef std::tuple<bool, Direction, glm::vec2> Collision;
@@ -40,6 +40,8 @@ typedef std::tuple<bool, Direction, glm::vec2> Collision;
 class Game
 {
 public:
+	GLFWwindow* _pWindow;
+
 	GameState _state;
 	bool _keys[1024];
 	unsigned int _width, _height;
@@ -86,6 +88,10 @@ private:
 	glm::vec2 _originalBallPos;
 
 	unsigned int _lives = 3;
+	unsigned int _currentLevelIndex;
+	int _amountOfLevels = 4;
+	float _durationBetweenSwitchingLevels = 0.1f;
+	float _switchTimer = 0.0f;
 
 	float _shakeTime;
 
@@ -97,7 +103,8 @@ private:
 	Text menuText;
 
 	Button* _pPlayButton;
+	Button* _pExitButton;
 
-	GLFWwindow* _pWindow;
+	
 };
 
