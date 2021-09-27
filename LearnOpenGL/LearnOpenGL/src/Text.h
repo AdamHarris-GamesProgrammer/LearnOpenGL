@@ -16,7 +16,7 @@ class Text
 public:
 	Text();
 	~Text();
-	Text(std::string _text, std::string fontName, glm::vec3 color = glm::vec3(1.0));
+	Text(std::string _text, std::string fontName = "generalFont", glm::vec3 color = glm::vec3(1.0));
 
 	void SetText(std::string _text);
 	void SetPosition(glm::vec2 pos);

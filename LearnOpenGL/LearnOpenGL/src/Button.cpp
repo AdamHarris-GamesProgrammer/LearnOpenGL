@@ -4,7 +4,7 @@ Button::Button()
 {
 	_position = glm::vec2(0.0f);
 	_size = glm::vec2(160.0f, 80.0f);
-	text = Text("Button", "generalFont");
+	text = Text("Button");
 	_texture = ResourceManager::GetTexture("block");
 	text.Finalize();
 }
@@ -13,7 +13,7 @@ Button::Button(glm::vec2 pos, glm::vec2 size /*= glm::vec2(160.0f, 80.0f)*/)
 {
 	_position = pos;
 	_size = size;
-	text = Text("Button", "generalFont");
+	text = Text("Button");
 	_texture = ResourceManager::GetTexture("block");
 }
 

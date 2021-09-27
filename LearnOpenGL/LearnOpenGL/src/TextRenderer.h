@@ -15,16 +15,10 @@
 class TextRenderer
 {
 public:
-	std::map<char, Character> _characters;
-
 	Shader _textShader;
 
-	TextRenderer(unsigned int width, unsigned int height);
-
-	void SetFont(std::string font);
+	TextRenderer();
 
 	void RenderText(Text _text);
-
-private:
 };
 

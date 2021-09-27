@@ -4,15 +4,31 @@
 #include FT_FREETYPE_H
 
 std::map<std::string, Shader> ResourceManager::_shaders;
-
 std::map<std::string, Texture2D> ResourceManager::_textures;
-
 std::map<std::string, std::map<char, Character>> ResourceManager::_fonts;
 
-void ResourceManager::Init()
+unsigned int ResourceManager::_width;
+unsigned int ResourceManager::_height;
+
+void ResourceManager::Init(unsigned int width, unsigned int height)
 {
-	ResourceManager::LoadShader("Res/Shaders/Sprite.vert", "Res/Shaders/Sprite.frag", "sprite");
+	_width = width;
+	_height = height;
+
+	Shader spriteShader = ResourceManager::LoadShader("Res/Shaders/Sprite.vert", "Res/Shaders/Sprite.frag", "sprite");
 	ResourceManager::LoadFont("Res/Fonts/OCRAEXT.TTF", 24, "generalFont");
+
+	glm::mat4 projection = glm::ortho(0.0f, (float)_width, (float)_height, 0.0f, -1.0f, 1.0f);
+	spriteShader.SetInt("image", 0);
+	spriteShader.SetMatrix4("projection", projection);
+
+	Shader particleShader = ResourceManager::LoadShader("Res/Shaders/particle.vert", "Res/Shaders/particle.frag", "particle");
+	particleShader.SetInt("sprite", 0);
+	particleShader.SetMatrix4("projection", projection);
+
+	Shader textShader = ResourceManager::LoadShader("Res/Shaders/Text.vert", "Res/Shaders/Text.frag", nullptr, "text");
+	textShader.SetMatrix4("projection", glm::ortho(0.0f, (float)_width, (float)_height, 0.0f));
+	textShader.SetInt("text", 0);
 }
 
 Shader ResourceManager::LoadShader(const char* vs, const char* fs, const char* gs, std::string name)

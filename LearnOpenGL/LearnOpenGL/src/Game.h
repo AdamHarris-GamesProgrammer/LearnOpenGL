@@ -54,7 +54,7 @@ public:
 	~Game();
 
 	void Init();
-
+	
 	void ProcessInput(float dt);
 	void Update(float dt);
 	void Render();
@@ -67,10 +67,9 @@ public:
 
 	void SpawnPowerUps(GameObject& block);
 	void UpdatePowerUps(float dt);
-
-	void SetMousePos(glm::vec2 pos);
-	void SetMousePressed(bool pressed);
 private:
+	void LoadGameContent();
+
 	std::unique_ptr<SpriteRenderer> _pSpriteRenderer = nullptr;
 	std::unique_ptr<GameLevel> _pCurrentLevel = nullptr;
 
@@ -97,10 +96,7 @@ private:
 	float _switchTimer = 0.0f;
 
 	float _shakeTime;
-
-	glm::vec2 _mousePos;
-	bool _mousePressed;
-
+	
 	Text livesText;
 	Text finishText;
 	Text menuText;

@@ -88,6 +88,9 @@ int main()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	float halfWidth = width * 0.5f;
+	float halfHeight = height * 0.5f;
+
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(_pWindow))
 	{
@@ -100,11 +103,24 @@ int main()
 
 		Breakout->Update(deltaTime);
 
-
 		GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
 		GLCall(glClear(GL_COLOR_BUFFER_BIT));
+
+		//Left bottom
+		glViewport(0, 0, halfWidth, halfHeight);
 		Breakout->Render();
 
+		//Right Bottom
+		glViewport(halfWidth, 0, halfWidth, halfHeight);
+		Breakout->Render();
+
+		//Left Top
+		glViewport(0, halfHeight, halfWidth, halfHeight);
+		Breakout->Render();
+
+		//Right Top
+		glViewport(halfWidth, halfHeight, halfWidth, halfHeight);
+		Breakout->Render();
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(_pWindow);

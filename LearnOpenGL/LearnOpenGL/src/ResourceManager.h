@@ -25,8 +25,10 @@ public:
 	static std::map<std::string, Shader> _shaders;
 	static std::map<std::string, Texture2D> _textures;
 	static std::map<std::string, std::map<char, Character>> _fonts;
+	static unsigned int _width;
+	static unsigned int _height;
 
-	static void Init();
+	static void Init(unsigned int width, unsigned int height);
 	static Shader LoadShader(const char* vs, const char* fs, const char* gs, std::string name);
 	static Shader LoadShader(const char* vs, const char* fs, std::string name);
 	static Shader& GetShader(std::string name);

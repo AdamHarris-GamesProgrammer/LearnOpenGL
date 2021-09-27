@@ -1,10 +1,5 @@
 #include "Game.h"
-
-
-
 #include "Timer.h"
-
-
 
 glm::vec2 initialBallVel(100.0f, -350.0f);
 
@@ -14,7 +9,16 @@ glm::vec2 initialBallVel(100.0f, -350.0f);
 - Image UI class
 - UI Object class
 - Parenting of object
+- Buttons need things like on hover and on click tints and textures
 - Observer pattern for button presses
+- Entity component system
+- Level saving loader system
+	- UUID system
+	- Objects need a UUID
+- IMGUI implementation
+- Divide the screen into 3 sections; UI, scene and game views
+- Make Game class a base class
+- Expand level loading system to take in a structure that contains the path to the id value, texture, and color
 */
 
 Direction VectorDirection(glm::vec2 target) {
@@ -94,53 +98,26 @@ Collision CheckCollision(BallObject& a, GameObject& b) {
 }
 
 Game::Game(unsigned int width, unsigned int height, GLFWwindow* window)
-	: _width(width), _height(height), _state(GAME_ACTIVE), _pWindow(window) {}
+	: _width(width), _height(height), _state(GAME_ACTIVE), _pWindow(window) 
+{
+	ResourceManager::Init(_width, _height);
+	LoadGameContent();
+}
 
 Game::~Game()
 {
 }
-
-
 
 void Game::Init()
 {
 	pSoundEngine = createIrrKlangDevice();
 	//pSoundEngine->play2D("Res/Audio/breakout.mp3", true);
 
-	ResourceManager::Init();
-
-	Shader spriteShader = ResourceManager::GetShader("sprite");
-
-	glm::mat4 projection = glm::ortho(0.0f, (float)_width, (float)_height, 0.0f, -1.0f, 1.0f);
-	spriteShader.SetInt("image", 0);
-	spriteShader.SetMatrix4("projection", projection);
-
-	_pSpriteRenderer = std::make_unique<SpriteRenderer>(spriteShader);
-
-	Shader particleShader = ResourceManager::LoadShader("Res/Shaders/particle.vert", "Res/Shaders/particle.frag", "particle");
-	ResourceManager::LoadTexture("Res/Textures/particle.png", "particle");
-	particleShader.SetInt("sprite", 0);
-	particleShader.SetMatrix4("projection", projection);
-
-	_pParticleGenerator = std::make_unique<ParticleGenerator>(particleShader, ResourceManager::GetTexture("particle"), 100);
-
-	ResourceManager::LoadShader("Res/Shaders/Breakout.vert", "Res/Shaders/Breakout.frag", "breakout");
-
-	ResourceManager::LoadTexture("Res/Textures/background.jpg", "background");
-	ResourceManager::LoadTexture("Res/Textures/awesomeface.png", "face");
-	ResourceManager::LoadTexture("Res/Textures/block.png", "block");
-	ResourceManager::LoadTexture("Res/Textures/block_solid.png", "block_solid");
-	ResourceManager::LoadTexture("Res/Textures/paddle.png", "paddle");
-
-	ResourceManager::LoadTexture("Res/Textures/powerup_chaos.png", "powerup_chaos");
-	ResourceManager::LoadTexture("Res/Textures/powerup_confuse.png", "powerup_confuse");
-	ResourceManager::LoadTexture("Res/Textures/powerup_increase.png", "powerup_increase");
-	ResourceManager::LoadTexture("Res/Textures/powerup_passthrough.png", "powerup_passthrough");
-	ResourceManager::LoadTexture("Res/Textures/powerup_speed.png", "powerup_speed");
-	ResourceManager::LoadTexture("Res/Textures/powerup_sticky.png", "powerup_sticky");
-
 	Input::SetCursorVisibility(CursorState::CURSOR_NORMAL);
 
+	_pSpriteRenderer = std::make_unique<SpriteRenderer>(ResourceManager::GetShader("sprite"));
+
+	_pParticleGenerator = std::make_unique<ParticleGenerator>(ResourceManager::GetShader("particle"), ResourceManager::GetTexture("particle"), 100);
 
 	_pCurrentLevel = std::make_unique<GameLevel>();
 	_pCurrentLevel->Load("Res/Levels/level0.txt", _width, _height / 2);
@@ -161,19 +138,18 @@ void Game::Init()
 
 	_pPostProcessor = std::make_unique<PostProcessor>(ResourceManager::GetShader("breakout"), _width, _height);
 
-	_pTextRenderer = std::make_unique<TextRenderer>(_width, _height);
-	_pTextRenderer->SetFont("generalFont");
+	_pTextRenderer = std::make_unique<TextRenderer>();
 
-	livesText = Text("Lives: 3", "generalFont");
+	livesText = Text("Lives: 3");
 	livesText.Finalize();
 
-	menuText = Text("Press W or S to select level", "generalFont");
+	menuText = Text("Press W or S to select level");
 	menuText.SetPosition(glm::vec2((float)_width / 2, (_height / 2) + 80));
 	menuText.SetAlignment(ALIGN_CENTER);
 	menuText.SetScale(2.0f);
 	menuText.Finalize();
 
-	finishText = Text("You Win!", "generalFont");
+	finishText = Text("You Win!");
 	finishText.SetPosition(glm::vec2((float)_width / 2, (float)_height / 2));
 	finishText.SetScale(2.0f);
 	finishText.SetAlignment(ALIGN_CENTER);
@@ -508,12 +484,20 @@ void Game::UpdatePowerUps(float dt)
 	_powerUps.erase(std::remove_if(_powerUps.begin(), _powerUps.end(), [](const PowerUp& p) {return p._destroyed && !p._activated; }), _powerUps.end());
 }
 
-void Game::SetMousePos(glm::vec2 pos)
+void Game::LoadGameContent()
 {
-	_mousePos = pos;
-}
+	ResourceManager::LoadShader("Res/Shaders/Breakout.vert", "Res/Shaders/Breakout.frag", "breakout");
 
-void Game::SetMousePressed(bool pressed)
-{
-	_mousePressed = pressed;
+	ResourceManager::LoadTexture("Res/Textures/particle.png", "particle");
+	ResourceManager::LoadTexture("Res/Textures/background.jpg", "background");
+	ResourceManager::LoadTexture("Res/Textures/awesomeface.png", "face");
+	ResourceManager::LoadTexture("Res/Textures/block.png", "block");
+	ResourceManager::LoadTexture("Res/Textures/block_solid.png", "block_solid");
+	ResourceManager::LoadTexture("Res/Textures/paddle.png", "paddle");
+	ResourceManager::LoadTexture("Res/Textures/powerup_chaos.png", "powerup_chaos");
+	ResourceManager::LoadTexture("Res/Textures/powerup_confuse.png", "powerup_confuse");
+	ResourceManager::LoadTexture("Res/Textures/powerup_increase.png", "powerup_increase");
+	ResourceManager::LoadTexture("Res/Textures/powerup_passthrough.png", "powerup_passthrough");
+	ResourceManager::LoadTexture("Res/Textures/powerup_speed.png", "powerup_speed");
+	ResourceManager::LoadTexture("Res/Textures/powerup_sticky.png", "powerup_sticky");
 }
