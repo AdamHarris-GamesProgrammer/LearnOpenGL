@@ -1,9 +1,11 @@
 #include "Game.h"
 #include "Timer.h"
+#include "Time.h"
 
 glm::vec2 initialBallVel(100.0f, -350.0f);
 
 /* TODO
+- Time class
 - Audio class system?
 - Texture Atlas to make drawing maps more efficient
 - Image UI class
@@ -165,10 +167,10 @@ void Game::Init()
 	_state = GAME_MENU;
 }
 
-void Game::ProcessInput(float dt)
+void Game::ProcessInput()
 {
 	if (_state == GAME_ACTIVE) {
-		float velocity = _playerVeloicty * dt;
+		float velocity = _playerVeloicty * Time::deltaTime;
 
 		if (Input::IsKeyDown(KEY_A)) {
 			if (_pPaddle->_postion.x >= 0.0f) {
@@ -217,24 +219,24 @@ void Game::ProcessInput(float dt)
 	}
 }
 
-void Game::Update(float dt)
+void Game::Update()
 {
 	if (_state == GAME_ACTIVE) {
-		_pBall->Move(dt, _width);
+		_pBall->Move(Time::deltaTime, _width);
 
-		_pParticleGenerator->Update(dt, *_pBall, 2, glm::vec2(_pBall->_radius / 2.0f));
+		_pParticleGenerator->Update(Time::deltaTime, *_pBall, 2, glm::vec2(_pBall->_radius / 2.0f));
 
-		UpdatePowerUps(dt);
+		UpdatePowerUps(Time::deltaTime);
 
 		CollisionChecks();
 
 		if (_shakeTime > 0.0f) {
-			_shakeTime -= dt;
+			_shakeTime -= Time::deltaTime;
 			if (_shakeTime <= 0.0f) _pPostProcessor->_shake = false;
 		}
 	}
 	else if (_state == GAME_MENU) {
-		_switchTimer += dt;
+		_switchTimer += Time::deltaTime;
 
 		if (Input::IsMouseButtonDown(MouseButton::MOUSE_BUTTON_LEFT)) {
 			if (_pPlayButton->IsPressed()) {
@@ -246,7 +248,7 @@ void Game::Update(float dt)
 	}
 }
 
-void Game::Render()
+void Game::RenderGame()
 {
 	if (_state == GAME_ACTIVE || _state == GAME_MENU || _state == GAME_WIN || _state == GAME_LOSS) {
 		_pPostProcessor->BeginRender();
@@ -290,6 +292,14 @@ void Game::Render()
 		finishText.Finalize();
 		_pTextRenderer->RenderText(finishText);
 	}
+}
+
+void Game::RenderScene() {
+
+}
+
+void Game::RenderSceneUI() {
+
 }
 
 void Game::Reset()

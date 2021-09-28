@@ -55,9 +55,11 @@ public:
 
 	void Init();
 	
-	void ProcessInput(float dt);
-	void Update(float dt);
-	void Render();
+	void ProcessInput();
+	void Update();
+	void RenderGame();
+	void RenderScene();
+	void RenderSceneUI();
 
 	void Reset();
 	void CollisionChecks();
@@ -71,13 +73,13 @@ private:
 	void LoadGameContent();
 
 	std::unique_ptr<SpriteRenderer> _pSpriteRenderer = nullptr;
+	std::unique_ptr<TextRenderer> _pTextRenderer = nullptr;
+
 	std::unique_ptr<GameLevel> _pCurrentLevel = nullptr;
 
 	std::unique_ptr<GameObject> _pPaddle = nullptr;
 
 	std::unique_ptr<BallObject> _pBall = nullptr;
-
-	std::unique_ptr<TextRenderer> _pTextRenderer = nullptr;
 
 	std::unique_ptr<ParticleGenerator> _pParticleGenerator = nullptr;
 

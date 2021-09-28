@@ -14,6 +14,7 @@
 
 #include "ResourceManager.h"
 #include "Input.h"
+#include "Time.h"
 
 GLFWwindow* _pWindow = nullptr;
 
@@ -94,33 +95,26 @@ int main()
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(_pWindow))
 	{
+		Time::Tick();
 		//Calculate Delta Time
-		float currentFrame = glfwGetTime();
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
+		Breakout->ProcessInput();
 
-		Breakout->ProcessInput(deltaTime);
-
-		Breakout->Update(deltaTime);
+		Breakout->Update();
 
 		GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
 		GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
-		//Left bottom
-		glViewport(0, 0, halfWidth, halfHeight);
-		Breakout->Render();
-
-		//Right Bottom
-		glViewport(halfWidth, 0, halfWidth, halfHeight);
-		Breakout->Render();
+		//Left Bottom
+		//glViewport(0, 0, halfWidth, halfHeight);
+		//Breakout->RenderScene();
 
 		//Left Top
-		glViewport(0, halfHeight, halfWidth, halfHeight);
-		Breakout->Render();
+		//glViewport(0, halfHeight, halfWidth, halfHeight);
+		Breakout->RenderGame();
 
-		//Right Top
-		glViewport(halfWidth, halfHeight, halfWidth, halfHeight);
-		Breakout->Render();
+		//Right
+		//glViewport(halfWidth, 0, halfWidth, height);
+		//Breakout->RenderSceneUI();
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(_pWindow);
@@ -159,5 +153,4 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mode
 	{
 		Input::SetKey((KeyCode)key, (InputState)action);
 	}
-
 }

@@ -10,8 +10,6 @@
 #include "Text.h"
 
 
-
-
 class TextRenderer
 {
 public:
