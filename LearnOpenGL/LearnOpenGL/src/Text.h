@@ -4,14 +4,9 @@
 #include "Texture2D.h"
 #include <vector>
 #include "ErrorHandling.h"
+#include "UIObject.h"
 
-enum Alignment {
-	ALIGN_LEFT,
-	ALIGN_CENTER,
-	ALIGN_RIGHT
-};
-
-class Text
+class Text : public UIObject
 {
 public:
 	Text();
@@ -19,11 +14,7 @@ public:
 	Text(std::string _text, std::string fontName = "generalFont", glm::vec3 color = glm::vec3(1.0));
 
 	void SetText(std::string _text);
-	void SetPosition(glm::vec2 pos);
-	void SetPosition(float x, float y);
-	void SetScale(float s);
 	void SetLineSpacing(int s);
-	void SetAlignment(Alignment align);
 	void Finalize();
 
 	int GetLength();
@@ -36,8 +27,6 @@ public:
 	std::vector<unsigned int> _VBOs;
 	std::vector<unsigned int> _VAOs;
 private:
-	Alignment alignment;
-
 	std::string _text;
 
 	void UpdateVBO();
@@ -48,10 +37,5 @@ private:
 
 	int calcedLength;
 	int lineSpacing;
-
-	glm::vec2 _size;
-
-	glm::vec2 position;
-	float scale;
 };
 

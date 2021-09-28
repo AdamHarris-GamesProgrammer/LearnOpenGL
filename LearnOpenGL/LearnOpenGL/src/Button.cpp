@@ -7,6 +7,8 @@ Button::Button()
 	text = Text("Button");
 	_texture = ResourceManager::GetTexture("block");
 	text.Finalize();
+	text._pParent = this;
+	UIObject(_position);
 }
 
 Button::Button(glm::vec2 pos, glm::vec2 size /*= glm::vec2(160.0f, 80.0f)*/)
@@ -15,6 +17,13 @@ Button::Button(glm::vec2 pos, glm::vec2 size /*= glm::vec2(160.0f, 80.0f)*/)
 	_size = size;
 	text = Text("Button");
 	_texture = ResourceManager::GetTexture("block");
+	text._pParent = this;
+	UIObject(_position);
+}
+
+Button::Button(glm::vec2 pos, glm::vec2 size /*= glm::vec2(160.0f, 80.0f)*/)
+{
+
 }
 
 bool Button::IsPressed()
@@ -33,9 +42,19 @@ bool Button::IsPressed()
 	return false;
 }
 
+void Button::Update()
+{
+	if (Input::IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+		if (IsPressed()) {
+			//TODO: Loop through listeners
+		}
+	}
+}
+
 void Button::Draw(SpriteRenderer* spriteRend, TextRenderer* textRend)
 {
-	spriteRend->DrawSprite(_texture, _position, _size);
+	PropagatePosition();
+	spriteRend->DrawSprite(_texture, _screenPosition, _size);
 	textRend->RenderText(text);
 }
 

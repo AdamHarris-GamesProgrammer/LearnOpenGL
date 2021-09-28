@@ -5,14 +5,12 @@
 glm::vec2 initialBallVel(100.0f, -350.0f);
 
 /* TODO
-- Time class
 - Audio class system?
 - Texture Atlas to make drawing maps more efficient
 - Image UI class
-- UI Object class
 - Parenting of object
-- Buttons need things like on hover and on click tints and textures
 - Observer pattern for button presses
+- Buttons need things like on hover and on click tints and textures
 - Entity component system
 - Level saving loader system
 	- UUID system
@@ -21,6 +19,15 @@ glm::vec2 initialBallVel(100.0f, -350.0f);
 - Divide the screen into 3 sections; UI, scene and game views
 - Make Game class a base class
 - Expand level loading system to take in a structure that contains the path to the id value, texture, and color
+- Implement features for align in top and bottom
+*/
+
+/* UI Object
+ - Position
+ - Size
+ - Alignment (Left,Center,Right)
+ - Parent Object
+ - A way to propagate positions
 */
 
 Direction VectorDirection(glm::vec2 target) {
@@ -100,7 +107,7 @@ Collision CheckCollision(BallObject& a, GameObject& b) {
 }
 
 Game::Game(unsigned int width, unsigned int height, GLFWwindow* window)
-	: _width(width), _height(height), _state(GAME_ACTIVE), _pWindow(window) 
+	: _width(width), _height(height), _state(GAME_ACTIVE), _pWindow(window)
 {
 	ResourceManager::Init(_width, _height);
 	LoadGameContent();
@@ -143,6 +150,7 @@ void Game::Init()
 	_pTextRenderer = std::make_unique<TextRenderer>();
 
 	livesText = Text("Lives: 3");
+	livesText.SetAlignment(ALIGN_LEFT);
 	livesText.Finalize();
 
 	menuText = Text("Press W or S to select level");
@@ -160,8 +168,7 @@ void Game::Init()
 	_pPlayButton = new Button(glm::vec2((float)_width / 2 - 80, (_height / 2) - 20));
 	_pPlayButton->text.SetText("Play");
 	_pPlayButton->text.SetScale(2.0f);
-	_pPlayButton->text.SetAlignment(ALIGN_CENTER);
-	_pPlayButton->text.SetPosition(glm::vec2((float)_width / 2, (_height / 2)));
+	//_pPlayButton->text.SetPosition(glm::vec2((float)_width / 2, (_height / 2)));
 	_pPlayButton->text.Finalize();
 
 	_state = GAME_MENU;
@@ -238,13 +245,8 @@ void Game::Update()
 	else if (_state == GAME_MENU) {
 		_switchTimer += Time::deltaTime;
 
-		if (Input::IsMouseButtonDown(MouseButton::MOUSE_BUTTON_LEFT)) {
-			if (_pPlayButton->IsPressed()) {
-				_state = GAME_ACTIVE;
-				Input::SetCursorVisibility(CursorState::CURSOR_HIDDEN);
-				Reset();
-			}
-		}
+		_pPlayButton->Update();
+
 	}
 }
 
@@ -510,4 +512,12 @@ void Game::LoadGameContent()
 	ResourceManager::LoadTexture("Res/Textures/powerup_passthrough.png", "powerup_passthrough");
 	ResourceManager::LoadTexture("Res/Textures/powerup_speed.png", "powerup_speed");
 	ResourceManager::LoadTexture("Res/Textures/powerup_sticky.png", "powerup_sticky");
+}
+
+void Game::Play()
+{
+	_state = GAME_ACTIVE;
+	Input::SetCursorVisibility(CursorState::CURSOR_HIDDEN);
+	Reset();
+
 }

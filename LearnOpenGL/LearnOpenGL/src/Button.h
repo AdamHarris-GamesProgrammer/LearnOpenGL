@@ -12,8 +12,9 @@
 #include "SpriteRenderer.h"
 #include "TextRenderer.h"
 #include "Input.h"
+#include "UIObject.h"
 
-class Button
+class Button : public UIObject
 {
 public:
 	Button();
@@ -21,13 +22,13 @@ public:
 	Button(glm::vec2 pos, glm::vec2 size = glm::vec2(160.0f, 80.0f));
 
 	Text text;
-	bool IsPressed();
 
+
+	void Update();
 	void Draw(SpriteRenderer* spriteRend, TextRenderer* textRend);
 
 private:
-	glm::vec2 _position;
-	glm::vec2 _size;
 	Texture2D _texture;
+	bool IsPressed();
 };
 

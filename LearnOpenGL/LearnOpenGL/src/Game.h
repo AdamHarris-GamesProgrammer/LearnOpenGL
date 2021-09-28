@@ -71,6 +71,7 @@ public:
 	void UpdatePowerUps(float dt);
 private:
 	void LoadGameContent();
+	void Play();
 
 	std::unique_ptr<SpriteRenderer> _pSpriteRenderer = nullptr;
 	std::unique_ptr<TextRenderer> _pTextRenderer = nullptr;

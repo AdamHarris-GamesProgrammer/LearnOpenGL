@@ -167,6 +167,7 @@
     <ClCompile Include="src\TextRenderer.cpp" />
     <ClCompile Include="src\Text.cpp" />
     <ClCompile Include="src\Time.cpp" />
+    <ClCompile Include="src\UIObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Input.h" />
@@ -196,6 +197,7 @@
     <ClInclude Include="src\Text.h" />
     <ClInclude Include="src\Timer.h" />
     <ClInclude Include="src\Time.h" />
+    <ClInclude Include="src\UIObject.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Res\Shaders\AdvancedLighting.frag" />
