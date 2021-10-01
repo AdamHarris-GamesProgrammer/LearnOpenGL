@@ -13,8 +13,11 @@
 #include "TextRenderer.h"
 #include "Input.h"
 #include "UIObject.h"
+#include "Subject.h"
+#include "Entity.h"
+#include "Event.h"
 
-class Button : public UIObject
+class Button : public UIObject, public Subject, public Entity
 {
 public:
 	Button();

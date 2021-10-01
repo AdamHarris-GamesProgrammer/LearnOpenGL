@@ -21,6 +21,8 @@
 #include "Text.h"
 #include "Button.h"
 #include "Input.h"
+#include "Observer.h"
+#include "UUID.h"
 
 enum GameState {
 	GAME_ACTIVE,
@@ -40,7 +42,7 @@ typedef std::tuple<bool, Direction, glm::vec2> Collision;
 
 using namespace irrklang;
 
-class Game
+class Game : public Observer
 {
 public:
 	GLFWwindow* _pWindow;
@@ -69,6 +71,13 @@ public:
 
 	void SpawnPowerUps(GameObject& block);
 	void UpdatePowerUps(float dt);
+
+	void OnNotify(const Entity& entity, ObserverEvent event) override;
+	void OnNotify(ObserverEvent event) override;
+
+
+	void OnNotify(const Entity* entity, ObserverEvent event) override;
+
 private:
 	void LoadGameContent();
 	void Play();

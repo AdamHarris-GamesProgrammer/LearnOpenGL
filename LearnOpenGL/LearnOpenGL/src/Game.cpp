@@ -1,6 +1,8 @@
 #include "Game.h"
 #include "Timer.h"
 #include "Time.h"
+#include <thread>
+
 
 glm::vec2 initialBallVel(100.0f, -350.0f);
 
@@ -22,13 +24,6 @@ glm::vec2 initialBallVel(100.0f, -350.0f);
 - Implement features for align in top and bottom
 */
 
-/* UI Object
- - Position
- - Size
- - Alignment (Left,Center,Right)
- - Parent Object
- - A way to propagate positions
-*/
 
 Direction VectorDirection(glm::vec2 target) {
 	glm::vec2 compass[] = {
@@ -119,6 +114,7 @@ Game::~Game()
 
 void Game::Init()
 {
+	UUID::Init();
 	pSoundEngine = createIrrKlangDevice();
 	//pSoundEngine->play2D("Res/Audio/breakout.mp3", true);
 
@@ -170,6 +166,7 @@ void Game::Init()
 	_pPlayButton->text.SetScale(2.0f);
 	//_pPlayButton->text.SetPosition(glm::vec2((float)_width / 2, (_height / 2)));
 	_pPlayButton->text.Finalize();
+	_pPlayButton->AddObserver(this);
 
 	_state = GAME_MENU;
 }
@@ -494,6 +491,24 @@ void Game::UpdatePowerUps(float dt)
 	}
 
 	_powerUps.erase(std::remove_if(_powerUps.begin(), _powerUps.end(), [](const PowerUp& p) {return p._destroyed && !p._activated; }), _powerUps.end());
+}
+
+void Game::OnNotify(const Entity& entity, ObserverEvent event)
+{
+
+}
+
+void Game::OnNotify(ObserverEvent event)
+{
+
+}
+
+void Game::OnNotify(const Entity* entity, ObserverEvent event)
+{
+	if (entity == (Entity*)_pPlayButton && event == EVENT_BUTTON_PRESSED) {
+		std::cout << "Button Pressed" << std::endl;
+		Play();
+	}
 }
 
 void Game::LoadGameContent()

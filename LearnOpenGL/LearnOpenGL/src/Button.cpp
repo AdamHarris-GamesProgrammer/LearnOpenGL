@@ -21,11 +21,6 @@ Button::Button(glm::vec2 pos, glm::vec2 size /*= glm::vec2(160.0f, 80.0f)*/)
 	UIObject(_position);
 }
 
-Button::Button(glm::vec2 pos, glm::vec2 size /*= glm::vec2(160.0f, 80.0f)*/)
-{
-
-}
-
 bool Button::IsPressed()
 {
 	float left = _position.x;
@@ -46,7 +41,7 @@ void Button::Update()
 {
 	if (Input::IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
 		if (IsPressed()) {
-			//TODO: Loop through listeners
+			Notify((Entity*)this, EVENT_BUTTON_PRESSED);
 		}
 	}
 }

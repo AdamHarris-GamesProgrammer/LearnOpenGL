@@ -168,10 +168,14 @@
     <ClCompile Include="src\Text.cpp" />
     <ClCompile Include="src\Time.cpp" />
     <ClCompile Include="src\UIObject.cpp" />
+    <ClCompile Include="src\UUID.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Entity.h" />
+    <ClInclude Include="src\Event.h" />
     <ClInclude Include="src\Input.h" />
     <ClInclude Include="src\Button.h" />
+    <ClInclude Include="src\Observer.h" />
     <ClInclude Include="src\PowerUp.h" />
     <ClInclude Include="src\PostProcessor.h" />
     <ClInclude Include="src\ParticleGenerator.h" />
@@ -183,6 +187,7 @@
     <ClInclude Include="src\ResourceManager.h" />
     <ClInclude Include="Res\Shaders\EdgeDetectionKernal.frag" />
     <ClInclude Include="Res\Shaders\ShadowMapping.vert" />
+    <ClInclude Include="src\Subject.h" />
     <ClInclude Include="src\Vertices.h" />
     <ClInclude Include="src\Model.h" />
     <ClInclude Include="src\Mesh.h" />
@@ -198,6 +203,7 @@
     <ClInclude Include="src\Timer.h" />
     <ClInclude Include="src\Time.h" />
     <ClInclude Include="src\UIObject.h" />
+    <ClInclude Include="src\UUID.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Res\Shaders\AdvancedLighting.frag" />
