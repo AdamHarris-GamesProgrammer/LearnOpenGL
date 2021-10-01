@@ -10,7 +10,7 @@
 #include <gtc/type_ptr.hpp>
 #include <map>
 
-#include "Game.h"
+#include "Breakout.h"
 
 #include "ResourceManager.h"
 #include "Input.h"
@@ -28,7 +28,7 @@ bool firstMouse = true;
 float lastX = 640;
 float lastY = 360;
 
-Game* Breakout;
+Breakout* breakout;
 
 void MouseCallback(GLFWwindow* window, double xpos, double ypos);
 void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
@@ -74,8 +74,7 @@ void Initialize()
 		std::cout << "[ERROR]: With setting up GLEW" << std::endl;
 	}
 
-	Breakout = new Game(width, height, _pWindow);
-	Breakout->Init();
+	breakout = new Breakout(width, height, _pWindow);
 }
 
 
@@ -97,9 +96,9 @@ int main()
 	{
 		Time::Tick();
 		//Calculate Delta Time
-		Breakout->ProcessInput();
+		breakout->ProcessInput();
 
-		Breakout->Update();
+		breakout->Update();
 
 		GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
 		GLCall(glClear(GL_COLOR_BUFFER_BIT));
@@ -110,7 +109,7 @@ int main()
 
 		//Left Top
 		//glViewport(0, halfHeight, halfWidth, halfHeight);
-		Breakout->RenderGame();
+		breakout->RenderGame();
 
 		//Right
 		//glViewport(halfWidth, 0, halfWidth, height);
