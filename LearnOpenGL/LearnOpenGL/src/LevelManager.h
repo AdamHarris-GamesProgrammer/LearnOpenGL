@@ -26,9 +26,9 @@ struct Tilemap {
 struct GameObjectData {
 	std::string _uuid;
 	std::string _name;
-	glm::vec3 _position;
-	glm::vec3 _rotation;
-	glm::vec3 _scale;
+	glm::vec2 _position;
+	glm::vec2 _rotation;
+	glm::vec2 _scale;
 	TextureData _texture;
 };
 

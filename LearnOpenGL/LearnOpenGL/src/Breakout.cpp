@@ -65,15 +65,9 @@ bool IsOtherPowerupActive(std::vector<PowerUp>& powerups, PickupType type) {
 }
 
 Breakout::Breakout(unsigned int width, unsigned int height, GLFWwindow* window)
-	: Game(width,height, window) 
+	: Game(width, height, window)
 {
 	LoadGameContent();
-
-	
-	SceneData data = LevelManager::LoadSceneData("Res/Levels/test2.json");
-
-	
-
 }
 
 void Breakout::ProcessInput()
@@ -114,7 +108,8 @@ void Breakout::ProcessInput()
 
 	if (_state == GAME_MENU) {
 		if (_switchTimer >= _durationBetweenSwitchingLevels) {
-			if (Input::IsKeyDown(KEY_W)) {
+			//TODO Redo this with new level system
+			/*if (Input::IsKeyDown(KEY_W)) {
 				_currentLevelIndex = (_currentLevelIndex + 1) % _amountOfLevels;
 				_pCurrentLevel->Load(("Res/Levels/level" + std::to_string(_currentLevelIndex) + ".txt").c_str(), _width, _height / 2);
 				_switchTimer = 0.0f;
@@ -123,7 +118,7 @@ void Breakout::ProcessInput()
 				_currentLevelIndex = (_currentLevelIndex - 1) % _amountOfLevels;
 				_pCurrentLevel->Load(("Res/Levels/level" + std::to_string(_currentLevelIndex) + ".txt").c_str(), _width, _height / 2);
 				_switchTimer = 0.0f;
-			}
+			}*/
 		}
 	}
 }
@@ -438,8 +433,12 @@ void Breakout::LoadGameContent()
 
 	_pParticleGenerator = std::make_unique<ParticleGenerator>(ResourceManager::GetShader("particle"), ResourceManager::GetTexture("particle"), 100);
 
+
+	SceneData data = LevelManager::LoadSceneData("Res/Levels/test2.json");
+
 	_pCurrentLevel = std::make_unique<GameLevel>();
-	_pCurrentLevel->Load("Res/Levels/level0.txt", _width, _height / 2);
+	//_pCurrentLevel->Load(data, _width, _height / 2);
+	_pCurrentLevel->LoadTilemap(data);
 
 	glm::vec2 playerPos = glm::vec2(_width / 2.0f - _playerSize.x / 2.0f, (_height - _playerSize.y) - 20.0f);
 
@@ -456,7 +455,6 @@ void Breakout::LoadGameContent()
 	_pBall = std::make_unique<BallObject>(ballPos, ballRadius, initialBallVel, ResourceManager::GetTexture("face"));
 
 	_pPostProcessor = std::make_unique<PostProcessor>(ResourceManager::GetShader("breakout"), _width, _height);
-
 
 
 	livesText = Text("Lives: 3");

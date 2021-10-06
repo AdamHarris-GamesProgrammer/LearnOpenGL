@@ -3,7 +3,7 @@
 #include <fstream>
 #include <string>
 
-void GameLevel::Load(const char* file, unsigned int levelWidth, unsigned int levelHeight)
+void GameLevel::Load(SceneData& data, unsigned int levelWidth, unsigned int levelHeight)
 {
 	_bricks.clear();
 
@@ -12,7 +12,7 @@ void GameLevel::Load(const char* file, unsigned int levelWidth, unsigned int lev
 	GameLevel level;
 
 	std::string line;
-	std::ifstream fstream(file);
+	std::ifstream fstream(data._tilemap._filepath);
 	std::vector<std::vector<unsigned int>> tileData;
 
 	if (fstream) {
@@ -27,6 +27,56 @@ void GameLevel::Load(const char* file, unsigned int levelWidth, unsigned int lev
 	}
 	if (tileData.size() > 0) Init(tileData, levelWidth, levelHeight);
 
+}
+
+void GameLevel::LoadTilemap(SceneData data, unsigned int tileSize)
+{
+	_bricks.clear();
+
+	unsigned int tileCode;
+
+	GameLevel level;
+
+	std::string line;
+	std::ifstream fstream(data._tilemap._filepath);
+	std::vector<std::vector<unsigned int>> tileData;
+
+	if (fstream) {
+		while (std::getline(fstream, line)) {
+			std::istringstream sstream(line);
+			std::vector<unsigned int> row;
+			while (sstream >> tileCode) {
+				row.push_back(tileCode);
+			}
+			tileData.push_back(row);
+		}
+	}
+	if (tileData.size() > 0) Init(tileData, tileSize);
+}
+
+void GameLevel::LoadTilemap(SceneData data, unsigned int levelWidth, unsigned int levelHeight)
+{
+	_bricks.clear();
+
+	unsigned int tileCode;
+
+	GameLevel level;
+
+	std::string line;
+	std::ifstream fstream(data._tilemap._filepath);
+	std::vector<std::vector<unsigned int>> tileData;
+
+	if (fstream) {
+		while (std::getline(fstream, line)) {
+			std::istringstream sstream(line);
+			std::vector<unsigned int> row;
+			while (sstream >> tileCode) {
+				row.push_back(tileCode);
+			}
+			tileData.push_back(row);
+		}
+	}
+	if (tileData.size() > 0) Init(tileData, levelWidth, levelHeight);
 }
 
 void GameLevel::Draw(SpriteRenderer& renderer)
@@ -88,5 +138,40 @@ void GameLevel::Init(std::vector<std::vector<unsigned int>> tileData, unsigned i
 	}
 	_amountOfActiveBricks = counter;
 	//_amountOfActiveBricks = 1;
+	_currentActiveBricks = _amountOfActiveBricks;
+}
+
+void GameLevel::Init(std::vector<std::vector<unsigned int>> tileData, unsigned int tileSize)
+{
+	glm::vec2 _size = glm::vec2(tileSize);
+
+	int counter = 0;
+	for (unsigned int y = 0; y < tileData.size(); y++) {
+		for (unsigned int x = 0; x < tileData[0].size(); x++) {
+			glm::vec2 pos(tileSize * x, tileSize * y);
+			
+
+			unsigned int tileValue = tileData[y][x];
+
+			if (tileValue == 1) {
+				GameObject obj(pos, _size, ResourceManager::GetTexture("block_solid"), glm::vec3(0.8f, 0.8f, 0.7f));
+				obj.SetSolid(true);
+				_bricks.push_back(obj);
+			}
+			else if (tileValue > 1) {
+				glm::vec3 color = glm::vec3(1.0f);
+
+				if (tileValue == 2) color = glm::vec3(0.2f, 0.6f, 1.0f);
+				else if (tileValue == 3) color = glm::vec3(0.0f, 0.7f, 0.0f);
+				else if (tileValue == 4) color = glm::vec3(0.8f, 0.8f, 0.4f);
+				else if (tileValue == 5) color = glm::vec3(1.0f, 0.5f, 0.0f);
+
+				_bricks.push_back(GameObject(pos, _size, ResourceManager::GetTexture("block"), color));
+
+				counter++;
+			}
+		}
+	}
+	_amountOfActiveBricks = counter;
 	_currentActiveBricks = _amountOfActiveBricks;
 }

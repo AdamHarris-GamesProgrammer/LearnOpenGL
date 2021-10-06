@@ -64,6 +64,10 @@ glm::vec3 LoadVec3(const std::vector<float>& vec) {
 	return glm::vec3(vec[0], vec[1], vec[2]);
 }
 
+glm::vec2 LoadVec2(const std::vector<float>& vec) {
+	return glm::vec2(vec[0], vec[1]);
+}
+
 TextureData LevelManager::LoadTextureData(const json& file)
 {
 	TextureData texture;
@@ -99,15 +103,15 @@ GameObjectData LevelManager::LoadObjectData(const json& file)
 	}
 
 	if (HasKey(file, "position")) {
-		object._position = LoadVec3(file["position"]);
+		object._position = LoadVec2(file["position"]);
 	}
 
 	if (HasKey(file, "rotation")) {
-		object._rotation = LoadVec3(file["rotation"]);
+		object._rotation = LoadVec2(file["rotation"]);
 	}
 
 	if (HasKey(file, "scale")) {
-		object._scale = LoadVec3(file["scale"]);
+		object._scale = LoadVec2(file["scale"]);
 	}
 
 	if (HasKey(file, "texture")) {
