@@ -65,6 +65,8 @@ Tilemap LevelManager::LoadTilemapData(const json& file)
 				json currentTextures = textures.at(i);
 				map._textures.at(i)._data = LoadTextureData(currentTextures);
 				map._textures.at(i)._tilemapValue = currentTextures["tilemapValue"];
+
+				ResourceManager::LoadTexture(map._textures.at(i)._data._filepath.c_str(), map._textures.at(i)._data._name);
 			}
 		}
 	}

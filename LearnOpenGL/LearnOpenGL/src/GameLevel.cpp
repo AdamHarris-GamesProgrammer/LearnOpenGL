@@ -5,16 +5,28 @@
 
 void GameLevel::LoadTilemap(SceneData data, unsigned int tileSize)
 {
+	_tilemapCounter = 0;
+
 	_bricks.clear();
 	_data = data;
 	if (data._tilemap._tileValues.size() > 0) Init(tileSize);
+
+	_amountOfActiveBricks = _tilemapCounter;
+	//_amountOfActiveBricks = 1;
+	_currentActiveBricks = _amountOfActiveBricks;
 }
 
 void GameLevel::LoadTilemap(SceneData data, unsigned int levelWidth, unsigned int levelHeight)
 {
+	_tilemapCounter = 0;
+
 	_bricks.clear();
 	_data = data;
 	if (data._tilemap._tileValues.size() > 0) Init(levelWidth, levelHeight);
+
+	_amountOfActiveBricks = _tilemapCounter;
+	//_amountOfActiveBricks = 1;
+	_currentActiveBricks = _amountOfActiveBricks;
 }
 
 void GameLevel::Draw(SpriteRenderer& renderer)
@@ -46,70 +58,49 @@ void GameLevel::Init(unsigned int levelWidth, unsigned int levelHeight)
 
 	float unit_width = levelWidth / (float)width;
 	float unit_height = levelHeight / (float)height;
+	glm::vec2 _size(unit_width, unit_height);
 
-	int counter = 0;
+
 	for (unsigned int y = 0; y < height; y++) {
 		for (unsigned int x = 0; x < width; x++) {
-			glm::vec2 pos(unit_width * x, unit_height * y);
-			glm::vec2 _size(unit_width, unit_height);
-
 			unsigned int tileValue = _data._tilemap._tileValues[y][x];
+			if (tileValue == 0) continue;
+
+			glm::vec2 pos(unit_width * x, unit_height * y);
+			GameObject obj(pos, _size, ResourceManager::GetTexture(_data._tilemap._textures[tileValue]._data._name),
+				_data._tilemap._textures[tileValue]._data._tint);
 
 			if (tileValue == 1) {
-				GameObject obj(pos, _size, ResourceManager::GetTexture("block_solid"), glm::vec3(0.8f, 0.8f, 0.7f));
 				obj.SetSolid(true);
-				_bricks.push_back(obj);
 			}
-			else if (tileValue > 1) {
-				glm::vec3 color = glm::vec3(1.0f);
 
-				if (tileValue == 2) color = glm::vec3(0.2f, 0.6f, 1.0f);
-				else if (tileValue == 3) color = glm::vec3(0.0f, 0.7f, 0.0f);
-				else if (tileValue == 4) color = glm::vec3(0.8f, 0.8f, 0.4f);
-				else if (tileValue == 5) color = glm::vec3(1.0f, 0.5f, 0.0f);
-
-				_bricks.push_back(GameObject(pos, _size, ResourceManager::GetTexture("block"), color));
-
-				counter++;
-			}
+			_tilemapCounter++;
+			_bricks.push_back(obj);
 		}
 	}
-	_amountOfActiveBricks = counter;
-	//_amountOfActiveBricks = 1;
-	_currentActiveBricks = _amountOfActiveBricks;
+
 }
 
 void GameLevel::Init(unsigned int tileSize)
 {
 	glm::vec2 _size = glm::vec2(tileSize);
 
-	int counter = 0;
 	for (unsigned int y = 0; y < _data._tilemap._tileValues.size(); y++) {
 		for (unsigned int x = 0; x < _data._tilemap._tileValues[0].size(); x++) {
-			glm::vec2 pos(tileSize * x, tileSize * y);
-			
-
 			unsigned int tileValue = _data._tilemap._tileValues[y][x];
+			if(tileValue == 0) continue;
+
+
+			glm::vec2 pos(tileSize * x, tileSize * y);
+			GameObject obj(pos, _size, ResourceManager::GetTexture(_data._tilemap._textures[tileValue]._data._name),
+				_data._tilemap._textures[tileValue]._data._tint);
 
 			if (tileValue == 1) {
-				GameObject obj(pos, _size, ResourceManager::GetTexture("block_solid"), glm::vec3(0.8f, 0.8f, 0.7f));
 				obj.SetSolid(true);
-				_bricks.push_back(obj);
 			}
-			else if (tileValue > 1) {
-				glm::vec3 color = glm::vec3(1.0f);
 
-				if (tileValue == 2) color = glm::vec3(0.2f, 0.6f, 1.0f);
-				else if (tileValue == 3) color = glm::vec3(0.0f, 0.7f, 0.0f);
-				else if (tileValue == 4) color = glm::vec3(0.8f, 0.8f, 0.4f);
-				else if (tileValue == 5) color = glm::vec3(1.0f, 0.5f, 0.0f);
-
-				_bricks.push_back(GameObject(pos, _size, ResourceManager::GetTexture("block"), color));
-
-				counter++;
-			}
+			_tilemapCounter++;
+			_bricks.push_back(obj);
 		}
 	}
-	_amountOfActiveBricks = counter;
-	_currentActiveBricks = _amountOfActiveBricks;
 }

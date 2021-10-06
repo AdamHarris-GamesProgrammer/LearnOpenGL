@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "GameObject.h"
+#include "ResourceManager.h"
 
 using json = nlohmann::json;
 

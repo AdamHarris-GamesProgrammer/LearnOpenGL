@@ -50,6 +50,8 @@ Shader& ResourceManager::GetShader(std::string name)
 
 Texture2D ResourceManager::LoadTexture(const char* file, std::string name)
 {
+	if (_textures.find(name) != _textures.end()) return _textures[name];
+
 	_textures[name] = LoadTextureFromFile(file);
 	return _textures[name];
 }

@@ -421,7 +421,7 @@ void Breakout::LoadGameContent()
 	ResourceManager::LoadTexture("Res/Textures/particle.png", "particle");
 	ResourceManager::LoadTexture("Res/Textures/background.jpg", "background");
 	ResourceManager::LoadTexture("Res/Textures/awesomeface.png", "face");
-	ResourceManager::LoadTexture("Res/Textures/block.png", "block");
+	//ResourceManager::LoadTexture("Res/Textures/block.png", "block");
 	ResourceManager::LoadTexture("Res/Textures/block_solid.png", "block_solid");
 	ResourceManager::LoadTexture("Res/Textures/paddle.png", "paddle");
 	ResourceManager::LoadTexture("Res/Textures/powerup_chaos.png", "powerup_chaos");
@@ -438,7 +438,7 @@ void Breakout::LoadGameContent()
 
 	_pCurrentLevel = std::make_unique<GameLevel>();
 	//_pCurrentLevel->LoadTilemap(data);
-	_pCurrentLevel->LoadTilemap(data, _width, _height / 2);
+	_pCurrentLevel->LoadTilemap(data);
 
 	glm::vec2 playerPos = glm::vec2(_width / 2.0f - _playerSize.x / 2.0f, (_height - _playerSize.y) - 20.0f);
 

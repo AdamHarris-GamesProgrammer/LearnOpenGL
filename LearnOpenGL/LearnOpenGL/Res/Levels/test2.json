@@ -4,34 +4,40 @@
 		"filepath": "Res/Levels/level0.txt",
 		"textures": [
 			{
-				"name": "testTexture",
+				"name": "block",
 				"filepath": "Res/Textures/block.png",
 				"tint": [1.0,0.0,0.0],
 				"tilemapValue": 0
 			},
 			{
-				"name": "testTexture2",
-				"filepath": "Res/Textures/block.png",
-				"tint": [0.0,1.0,0.0],
+				"name": "block_solid",
+				"filepath": "Res/Textures/block_solid.png",
+				"tint": [1.0,1.0,1.0],
 				"tilemapValue": 1
 			},
 			{
-				"name": "testTexture3",
+				"name": "block",
 				"filepath": "Res/Textures/block.png",
-				"tint": [0.0,0.0,1.0],
+				"tint": [0.2, 0.6, 1.0],
 				"tilemapValue": 2
 			},
 			{
-				"name": "testTexture4",
+				"name": "block",
 				"filepath": "Res/Textures/block.png",
-				"tint": [1.0,1.0,1.0],
+				"tint": [0.0,0.7,0.0],
 				"tilemapValue": 3
 			},
 			{
-				"name": "testTexture5",
+				"name": "block",
 				"filepath": "Res/Textures/block.png",
-				"tint": [1.0,0.0,1.0],
+				"tint": [0.8,0.8,0.4],
 				"tilemapValue": 4
+			},
+						{
+				"name": "block",
+				"filepath": "Res/Textures/block.png",
+				"tint": [1.0,0.5,0.0],
+				"tilemapValue": 5
 			}
 		]
 	},

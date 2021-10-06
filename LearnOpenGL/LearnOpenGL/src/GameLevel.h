@@ -32,6 +32,7 @@ private:
 	void Init(unsigned int levelWidth, unsigned int levelHeight);
 	void Init(unsigned int tileSize);
 	int _amountOfActiveBricks;
+	int _tilemapCounter = 0;
 
 	SceneData _data;
 	
