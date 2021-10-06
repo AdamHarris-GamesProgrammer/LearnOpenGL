@@ -32,7 +32,7 @@ void GameLevel::Load(const char* file, unsigned int levelWidth, unsigned int lev
 void GameLevel::Draw(SpriteRenderer& renderer)
 {
 	for (auto& go : _bricks) {
-		if (go._destroyed) continue;
+		if (go.IsDestroyed()) continue;
 
 		go.Draw(renderer);
 	}
@@ -46,7 +46,7 @@ bool GameLevel::IsCompleted()
 void GameLevel::Reset()
 {
 	for (auto& go : _bricks) {
-		go._destroyed = false;
+		go.SetDestroyed(false);
 	}
 	_currentActiveBricks = _amountOfActiveBricks;
 }
@@ -69,7 +69,7 @@ void GameLevel::Init(std::vector<std::vector<unsigned int>> tileData, unsigned i
 
 			if (tileValue == 1) {
 				GameObject obj(pos, _size, ResourceManager::GetTexture("block_solid"), glm::vec3(0.8f, 0.8f, 0.7f));
-				obj._isSolid = true;
+				obj.SetSolid(true);
 				_bricks.push_back(obj);
 			}
 			else if (tileValue > 1) {

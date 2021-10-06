@@ -95,13 +95,14 @@ int main()
 	while (!glfwWindowShouldClose(_pWindow))
 	{
 		Time::Tick();
+
+		GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
+		GLCall(glClear(GL_COLOR_BUFFER_BIT));
+
 		//Calculate Delta Time
 		breakout->ProcessInput();
 
 		breakout->Update();
-
-		GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
-		GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
 		//Left Bottom
 		//glViewport(0, 0, halfWidth, halfHeight);

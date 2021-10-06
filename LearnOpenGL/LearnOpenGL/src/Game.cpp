@@ -12,7 +12,6 @@
 	- Objects need a UUID
 - IMGUI implementation
 - Divide the screen into 3 sections; UI, scene and game views
-- Make Game class a base class
 - Expand texture loading system to take in a structure that contains the path to the id value, texture, and color
 - Implement features for align in top and bottom
 */

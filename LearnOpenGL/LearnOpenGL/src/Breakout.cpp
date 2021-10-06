@@ -1,4 +1,8 @@
 #include "Breakout.h"
+#include "nlohmann/json.hpp"
+#include <fstream>
+
+using json = nlohmann::json;
 
 Direction VectorDirection(glm::vec2 target) {
 	glm::vec2 compass[] = {
@@ -67,6 +71,31 @@ Breakout::Breakout(unsigned int width, unsigned int height, GLFWwindow* window)
 	: Game(width,height, window) 
 {
 	LoadGameContent();
+
+	//Opens the file
+	std::ifstream inFile("Res/Levels/test1.json");
+
+	//Creates the json reader
+	json jsonFile;
+
+	//Reads the data from the file into the json object
+	inFile >> jsonFile;
+
+	
+
+	json gameobjects = jsonFile["meshedObjects"];
+	int size = gameobjects.size();
+
+	for (int i = 0; i < size; i++) {
+		//Gets the current game object data
+		json jsonGo = gameobjects.at(i);
+
+		if (jsonGo.contains("name")) {
+			std::cout << "Name: " << jsonGo["name"] << std::endl;
+		}
+	}
+
+
 }
 
 void Breakout::ProcessInput()
@@ -159,7 +188,7 @@ void Breakout::RenderGame()
 		_pParticleGenerator->Draw();
 
 		for (PowerUp& p : _powerUps) {
-			if (!p._destroyed)
+			if (!p.IsDestroyed())
 				p.Draw(*_pSpriteRenderer);
 		}
 
@@ -194,15 +223,15 @@ void Breakout::RenderGame()
 void Breakout::CollisionChecks()
 {
 	for (GameObject& box : _pCurrentLevel->_bricks) {
-		if (!box._destroyed) {
+		if (!box.IsDestroyed()) {
 			Collision collision = CheckCollision(*_pBall, box);
 
 			if (std::get<0>(collision)) {
 				Direction dir = std::get<1>(collision);
 				glm::vec2 diff_vec = std::get<2>(collision);
 
-				if (!box._isSolid) {
-					box._destroyed = true;
+				if (!box.IsSolid()) {
+					box.SetDestroyed(true);
 					pSoundEngine->play2D("Res/Audio/bleep.mp3", false);
 					SpawnPowerUps(box);
 
@@ -217,7 +246,7 @@ void Breakout::CollisionChecks()
 				}
 
 
-				if (!(_pBall->_passthrough && !box._isSolid)) {
+				if (!(_pBall->_passthrough && !box.IsSolid())) {
 					if (dir == DIR_LEFT || dir == DIR_RIGHT) {
 						_pBall->_velocity.x = -_pBall->_velocity.x;
 
@@ -258,14 +287,14 @@ void Breakout::CollisionChecks()
 	}
 
 	for (PowerUp& p : _powerUps) {
-		if (!p._destroyed) {
+		if (!p.IsDestroyed()) {
 			if (p._postion.y >= _height) {
-				p._destroyed = true;
+				p.SetDestroyed(true);
 			}
 			if (CheckCollision(*_pPaddle, p)) {
 				ActivatePowerup(p);
 				pSoundEngine->play2D("Res/Audio/powerup.wav", false);
-				p._destroyed = true;
+				p.SetDestroyed(true);
 				p._activated = true;
 			}
 		}
@@ -362,7 +391,7 @@ void Breakout::UpdatePowerUps(float dt)
 		}
 	}
 
-	_powerUps.erase(std::remove_if(_powerUps.begin(), _powerUps.end(), [](const PowerUp& p) {return p._destroyed && !p._activated; }), _powerUps.end());
+	_powerUps.erase(std::remove_if(_powerUps.begin(), _powerUps.end(), [](const PowerUp& p) {return p.IsDestroyed() && !p._activated; }), _powerUps.end());
 }
 
 void Breakout::ActivatePowerup(PowerUp& powerup)

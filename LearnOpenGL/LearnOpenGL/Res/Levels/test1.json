@@ -1,0 +1,25 @@
+{
+  "meshedObjects": [
+    {
+      "name": "FallingCube",
+      "position": [ -6.0, 1, 1 ],
+      "scale":  [1.0,1.0,1.0],
+      "meshPath": "cube.obj",
+      "diffuseTexture": "Crate_COLOR.dds",
+      "specularTexture": "Crate_SPEC.dds",
+      "normalTexture": "Crate_NRM.dds",
+      "ambient": [ 0.2, 0.2, 0.2, 1.0 ]
+    }
+  ],
+  "gameObjects": [
+    {
+
+    }
+  ],
+  "cameras": [
+    {
+      "lookat": [0.0, 8.0, -15.0, 0.0, 3.0, 0.0]
+    }
+  ],
+  "version": "1.0"
+}
