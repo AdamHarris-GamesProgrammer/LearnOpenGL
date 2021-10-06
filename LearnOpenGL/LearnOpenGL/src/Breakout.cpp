@@ -1,8 +1,5 @@
 #include "Breakout.h"
-#include "nlohmann/json.hpp"
-#include <fstream>
-
-using json = nlohmann::json;
+#include "LevelManager.h"
 
 Direction VectorDirection(glm::vec2 target) {
 	glm::vec2 compass[] = {
@@ -72,29 +69,10 @@ Breakout::Breakout(unsigned int width, unsigned int height, GLFWwindow* window)
 {
 	LoadGameContent();
 
-	//Opens the file
-	std::ifstream inFile("Res/Levels/test1.json");
-
-	//Creates the json reader
-	json jsonFile;
-
-	//Reads the data from the file into the json object
-	inFile >> jsonFile;
+	
+	SceneData data = LevelManager::LoadSceneData("Res/Levels/test2.json");
 
 	
-
-	json gameobjects = jsonFile["meshedObjects"];
-	int size = gameobjects.size();
-
-	for (int i = 0; i < size; i++) {
-		//Gets the current game object data
-		json jsonGo = gameobjects.at(i);
-
-		if (jsonGo.contains("name")) {
-			std::cout << "Name: " << jsonGo["name"] << std::endl;
-		}
-	}
-
 
 }
 

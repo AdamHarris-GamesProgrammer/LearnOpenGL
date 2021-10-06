@@ -1,0 +1,52 @@
+{
+	"scenename": "Level 1",
+	"tilemap": {
+		"filepath": "Res/Levels/level0.txt",
+		"textures": [
+			{
+				"name": "testTexture",
+				"filepath": "Res/Textures/block.png",
+				"tint": [1.0,0.0,0.0],
+				"tilemapValue": 0
+			},
+			{
+				"name": "testTexture2",
+				"filepath": "Res/Textures/block.png",
+				"tint": [0.0,1.0,0.0],
+				"tilemapValue": 1
+			},
+			{
+				"name": "testTexture3",
+				"filepath": "Res/Textures/block.png",
+				"tint": [0.0,0.0,1.0],
+				"tilemapValue": 2
+			},
+			{
+				"name": "testTexture4",
+				"filepath": "Res/Textures/block.png",
+				"tint": [1.0,1.0,1.0],
+				"tilemapValue": 3
+			},
+			{
+				"name": "testTexture5",
+				"filepath": "Res/Textures/block.png",
+				"tint": [1.0,0.0,1.0],
+				"tilemapValue": 4
+			}
+		]
+	},
+	"gameobjects": [
+		{
+			"name": "Paddle",
+			"position": [1.0,0.0,0.0],
+			"rotation": [0.0, 90.0, 0.0],
+			"scale": [1.0,0.0,1.0],
+			"texture": {
+				"name": "testTexture2",
+				"filepath": "Res/Textures/block.png",
+				"tint": [0.0,1.0,0.0]
+			}
+		}
+	],
+	"version": "1.0"
+}

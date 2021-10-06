@@ -146,6 +146,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\LevelManager.cpp" />
     <ClCompile Include="src\Breakout.cpp" />
     <ClCompile Include="src\Input.cpp" />
     <ClCompile Include="src\Button.cpp" />
@@ -172,6 +173,7 @@
     <ClCompile Include="src\UUID.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\LevelManager.h" />
     <ClInclude Include="src\Breakout.h" />
     <ClInclude Include="src\Entity.h" />
     <ClInclude Include="src\Event.h" />
