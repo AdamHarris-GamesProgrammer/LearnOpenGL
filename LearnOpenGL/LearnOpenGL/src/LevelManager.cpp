@@ -41,6 +41,21 @@ Tilemap LevelManager::LoadTilemapData(const json& file)
 	if (HasKey(file, "filepath")) {
 		map._filepath = file["filepath"];
 
+		unsigned int tileCode;
+		std::string line;
+		std::ifstream fstream(map._filepath);
+
+		if (fstream) {
+			while (std::getline(fstream, line)) {
+				std::istringstream sstream(line);
+				std::vector<unsigned int> row;
+				while (sstream >> tileCode) {
+					row.push_back(tileCode);
+				}
+				map._tileValues.push_back(row);
+			}
+		}
+
 		if (HasKey(file, "textures")) {
 			json textures = file["textures"];
 

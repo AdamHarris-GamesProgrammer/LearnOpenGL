@@ -17,7 +17,6 @@ public:
 
 	GameLevel() {}
 
-	void Load(SceneData& data, unsigned int levelWidth, unsigned int levelHeight);
 	void LoadTilemap(SceneData data, unsigned int tileSize = 64);
 	void LoadTilemap(SceneData data, unsigned int levelWidth, unsigned int levelHeight);
 
@@ -30,9 +29,11 @@ public:
 	int _currentActiveBricks;
 
 private:
-	void Init(std::vector<std::vector<unsigned int>> tileData, unsigned int levelWidth, unsigned int levelHeight);
-	void Init(std::vector<std::vector<unsigned int>> tileData, unsigned int tileSize);
+	void Init(unsigned int levelWidth, unsigned int levelHeight);
+	void Init(unsigned int tileSize);
 	int _amountOfActiveBricks;
+
+	SceneData _data;
 	
 };
 

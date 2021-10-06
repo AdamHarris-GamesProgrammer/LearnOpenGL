@@ -21,6 +21,7 @@ struct TilemapTexture {
 struct Tilemap {
 	std::string _filepath;
 	std::vector<TilemapTexture> _textures;
+	std::vector<std::vector<unsigned int>> _tileValues;
 };
 
 struct GameObjectData {

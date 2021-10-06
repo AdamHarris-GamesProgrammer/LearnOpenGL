@@ -437,8 +437,8 @@ void Breakout::LoadGameContent()
 	SceneData data = LevelManager::LoadSceneData("Res/Levels/test2.json");
 
 	_pCurrentLevel = std::make_unique<GameLevel>();
-	//_pCurrentLevel->Load(data, _width, _height / 2);
-	_pCurrentLevel->LoadTilemap(data);
+	//_pCurrentLevel->LoadTilemap(data);
+	_pCurrentLevel->LoadTilemap(data, _width, _height / 2);
 
 	glm::vec2 playerPos = glm::vec2(_width / 2.0f - _playerSize.x / 2.0f, (_height - _playerSize.y) - 20.0f);
 
